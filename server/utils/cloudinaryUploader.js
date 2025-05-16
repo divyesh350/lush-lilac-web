@@ -34,8 +34,8 @@ const compressImage = async (inputPath, outputPath) => {
     
     return outputPath;
   } catch (error) {
-    console.error(`Error compressing image: ${error.message}`);
-    return inputPath; // Return original path if compression fails
+    // Return original path if compression fails
+    return inputPath;
   }
 };
 
@@ -89,8 +89,6 @@ const uploadToCloudinary = async (filePath, folder = 'products') => {
     // If we get here, all retries failed
     throw lastError || new Error('All upload attempts failed');
   } catch (error) {
-    console.error(`Error uploading file to Cloudinary: ${error.message || 'Unknown error'}`);
-    console.error('Full error:', error);
     throw error;
   }
 };
@@ -104,7 +102,6 @@ const uploadProductMediaToCloudinary = async (productId) => {
     // Get the product
     const product = await Product.findById(productId);
     if (!product) {
-      console.error(`Product not found: ${productId}`);
       return;
     }
 
@@ -120,7 +117,6 @@ const uploadProductMediaToCloudinary = async (productId) => {
         
         // Check if file exists
         if (!fs.existsSync(filePath)) {
-          console.error(`File not found: ${filePath}`);
           updatedMedia.push(media); // Keep the original media
           continue;
         }
@@ -143,10 +139,9 @@ const uploadProductMediaToCloudinary = async (productId) => {
         try {
           fs.unlinkSync(filePath);
         } catch (deleteError) {
-          console.error(`Error deleting local file: ${deleteError.message}`);
+          // Silently continue if file deletion fails
         }
       } catch (error) {
-        console.error(`Error uploading media: ${error.message || 'Unknown error'}`);
         updatedMedia.push(media); // Keep the original media if upload fails
       }
     }
@@ -156,8 +151,6 @@ const uploadProductMediaToCloudinary = async (productId) => {
     
     return updatedProduct;
   } catch (error) {
-    console.error(`Error uploading product media: ${error.message || 'Unknown error'}`);
-    console.error('Full error:', error);
     throw error;
   }
 };

@@ -3,8 +3,6 @@ const { uploadProductMediaToCloudinary } = require('../utils/cloudinaryUploader'
 
 exports.createProduct = async (req, res) => {
   try {
-    console.log('BODY:', JSON.stringify(req.body, null, 2));
-    console.log('FILES:', req.files ? JSON.stringify(req.files.map(f => ({ name: f.originalname, path: f.path, mimetype: f.mimetype })), null, 2) : 'No files');
     
     if (!req.body.title || !req.body.description || !req.body.price || !req.body.variants) {
       return res.status(400).json({ 
@@ -22,23 +20,17 @@ exports.createProduct = async (req, res) => {
       });
     }
 
-    // Safely handle file information for local uploads
+    // Prepare minimal media information for Cloudinary upload
     let media = [];
     if (req.files && Array.isArray(req.files)) {
-      media = req.files.map((file) => {
-        // Create a URL that can be accessed from the client
-        const fileUrl = `/uploads/${file.filename}`;
-        return {
-          url: fileUrl,
-          type: file.mimetype ? (file.mimetype.startsWith('video') ? 'video' : 'image') : 'image',
-          public_id: file.filename || 'unknown',
-          originalname: file.originalname,
-          size: file.size,
-          mimetype: file.mimetype
-        };
-      });
-    } else {
-      console.warn('No files or invalid files format in request');
+      media = req.files.map((file) => ({
+        url: `/uploads/${file.filename}`,
+        type: file.mimetype ? (file.mimetype.startsWith('video') ? 'video' : 'image') : 'image',
+        public_id: file.filename || 'unknown',
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
+      }));
     }
 
     let parsedVariants;
@@ -81,13 +73,9 @@ exports.createProduct = async (req, res) => {
     res.status(201).json(product);
     
     // Upload media to Cloudinary in the background
-    console.log('Starting background upload to Cloudinary...');
     uploadProductMediaToCloudinary(product._id)
-      .then(() => console.log(`Background upload completed for product ${product._id}`))
       .catch(error => console.error('Background upload error:', error));
   } catch (err) {
-    console.error('Create Product Error:', err);
-    console.error('Error Stack:', err.stack);
     res.status(500).json({ 
       message: 'Product creation failed',
       error: err.message || 'An unexpected error occurred'
