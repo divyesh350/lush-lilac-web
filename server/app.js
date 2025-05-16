@@ -14,16 +14,28 @@ app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(morgan('dev'));
 
-// TODO: Import routes here
+// Serve static files from the uploads directory
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Import routes here
 const authRoutes = require('./routes/auth.routes');
+const productRoutes = require('./routes/product.routes');
+
+// Import error middleware
+const errorHandler = require('./middlewares/error.middleware');
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
 
 
 // Health check route
 app.get('/', (req, res) => {
   res.send('✅ API is running...');
 });
+
+// Apply global error handling middleware
+app.use(errorHandler);
 
 module.exports = app;
 

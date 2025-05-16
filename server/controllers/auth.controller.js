@@ -8,14 +8,14 @@ const {
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
+    const role = req.body.role || 'customer';
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password , role});
     const refreshToken = generateRefreshToken(user);
     user.refreshToken = refreshToken;
-
+  
     await user.save();
 
     const accessToken = generateAccessToken(user);
