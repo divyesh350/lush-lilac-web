@@ -96,16 +96,41 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
+    // First, get the existing product to preserve existing data
+    const existingProduct = await Product.findById(req.params.id);
+    if (!existingProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    
     const { title, description, price, variants } = req.body;
 
-    const media = req.files?.map((file) => ({
-      url: file.path,
-      type: file.mimetype.startsWith('video') ? 'video' : 'image',
-      public_id: file.filename,
-    }));
+    // Prepare media information for new uploads
+    let newMedia = [];
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      newMedia = req.files.map((file) => ({
+        url: `/uploads/${file.filename}`,
+        type: file.mimetype ? (file.mimetype.startsWith('video') ? 'video' : 'image') : 'image',
+        public_id: file.filename || 'unknown',
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
+      }));
+    }
 
-    const parsedVariants = variants ? JSON.parse(variants) : undefined;
+    // Parse variants if provided
+    let parsedVariants;
+    if (variants) {
+      try {
+        parsedVariants = typeof variants === 'object' ? variants : JSON.parse(variants);
+      } catch (error) {
+        return res.status(400).json({
+          message: 'Invalid variants format',
+          error: 'Variants must be a valid JSON array or object'
+        });
+      }
+    }
 
+    // Update the product with new information
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
@@ -113,28 +138,48 @@ exports.updateProduct = async (req, res) => {
         ...(description && { description }),
         ...(price && { price }),
         ...(parsedVariants && { variants: parsedVariants }),
-        ...(media && { $push: { media: { $each: media } } }),
+        ...(newMedia.length > 0 && { $push: { media: { $each: newMedia } } }),
       },
       { new: true }
     );
 
+    // Respond to the client immediately
     res.json(updated);
+    
+    // Upload new media to Cloudinary in the background if there are new files
+    if (newMedia.length > 0) {
+      uploadProductMediaToCloudinary(updated._id)
+        .catch(error => console.error('Background upload error:', error));
+    }
   } catch (err) {
     res.status(500).json({ message: 'Failed to update product', error: err.message });
   }
 };
 
 exports.deleteProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: 'Not found' });
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Not found' });
 
-  const cloudinary = require('../utils/cloudinary');
-  for (let media of product.media) {
-    await cloudinary.uploader.destroy(media.public_id, {
-      resource_type: media.type === 'video' ? 'video' : 'image',
-    });
+    const cloudinary = require('../config/cloudinary');
+    
+    // Delete media from Cloudinary if cloudinary flag is true
+    for (let media of product.media) {
+      if (media.cloudinary && media.public_id) {
+        try {
+          await cloudinary.uploader.destroy(media.public_id, {
+            resource_type: media.type === 'video' ? 'video' : 'image',
+          });
+        } catch (cloudinaryError) {
+          // Continue even if Cloudinary deletion fails
+          console.error('Error deleting from Cloudinary:', cloudinaryError.message);
+        }
+      }
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete product', error: err.message });
   }
-
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted successfully' });
 };
