@@ -147,6 +147,208 @@ Response (200):
 
 ## 📚 API Documentation
 
+### Product Routes
+
+#### Create Product
+- **Endpoint**: POST `/api/v1/products`
+- **Purpose**: Create a new product with media files
+- **Authentication**: Required (Admin only)
+- **Request**: Multipart Form Data
+  ```
+  title: "Product Title" (required)
+  description: "Product Description" (required)
+  price: 29.99 (required)
+  variants: JSON string of variants array (required)
+  media: Files (images/videos) (required, at least one)
+  ```
+- **Success Response**: 201 Created
+  ```json
+  {
+    "_id": "product123",
+    "title": "Product Title",
+    "description": "Product Description",
+    "price": 29.99,
+    "variants": [
+      {
+        "size": "Medium",
+        "color": "Blue",
+        "material": "Cotton",
+        "stock": 10
+      }
+    ],
+    "media": [
+      {
+        "url": "/uploads/media-1234567890.jpg",
+        "type": "image",
+        "public_id": "media-1234567890",
+        "originalname": "product-image.jpg",
+        "size": 102400,
+        "mimetype": "image/jpeg"
+      }
+    ],
+    "createdAt": "2025-05-16T14:00:00.000Z",
+    "updatedAt": "2025-05-16T14:00:00.000Z"
+  }
+  ```
+- **Error Responses**:
+  - 400 Bad Request: Missing required fields or invalid data
+  - 401 Unauthorized: Authentication required
+  - 403 Forbidden: Not an admin user
+  - 500 Internal Server Error: Product creation failed
+
+#### Get All Products
+- **Endpoint**: GET `/api/v1/products`
+- **Purpose**: Retrieve all products
+- **Authentication**: Not required
+- **Success Response**: 200 OK
+  ```json
+  [
+    {
+      "_id": "product123",
+      "title": "Product Title",
+      "description": "Product Description",
+      "price": 29.99,
+      "variants": [...],
+      "media": [...],
+      "createdAt": "2025-05-16T14:00:00.000Z",
+      "updatedAt": "2025-05-16T14:00:00.000Z"
+    },
+    {...}
+  ]
+  ```
+
+#### Get Product by ID
+- **Endpoint**: GET `/api/v1/products/:id`
+- **Purpose**: Retrieve a specific product by ID
+- **Authentication**: Not required
+- **Success Response**: 200 OK
+  ```json
+  {
+    "_id": "product123",
+    "title": "Product Title",
+    "description": "Product Description",
+    "price": 29.99,
+    "variants": [...],
+    "media": [...],
+    "createdAt": "2025-05-16T14:00:00.000Z",
+    "updatedAt": "2025-05-16T14:00:00.000Z"
+  }
+  ```
+- **Error Responses**:
+  - 404 Not Found: Product not found
+
+#### Update Product
+- **Endpoint**: PUT `/api/v1/products/:id`
+- **Purpose**: Update an existing product
+- **Authentication**: Required (Admin only)
+- **Request**: Multipart Form Data
+  ```
+  title: "Updated Title" (optional)
+  description: "Updated Description" (optional)
+  price: 39.99 (optional)
+  variants: JSON string of variants array (optional)
+  media: Files (images/videos) (optional)
+  ```
+- **Success Response**: 200 OK
+  ```json
+  {
+    "_id": "product123",
+    "title": "Updated Title",
+    "description": "Updated Description",
+    "price": 39.99,
+    "variants": [...],
+    "media": [...],
+    "createdAt": "2025-05-16T14:00:00.000Z",
+    "updatedAt": "2025-05-16T14:30:00.000Z"
+  }
+  ```
+- **Error Responses**:
+  - 400 Bad Request: Invalid data
+  - 401 Unauthorized: Authentication required
+  - 403 Forbidden: Not an admin user
+  - 404 Not Found: Product not found
+  - 500 Internal Server Error: Update failed
+
+#### Delete Product
+- **Endpoint**: DELETE `/api/v1/products/:id`
+- **Purpose**: Delete a product and its associated media
+- **Authentication**: Required (Admin only)
+- **Success Response**: 200 OK
+  ```json
+  {
+    "message": "Deleted successfully"
+  }
+  ```
+- **Error Responses**:
+  - 401 Unauthorized: Authentication required
+  - 403 Forbidden: Not an admin user
+  - 404 Not Found: Product not found
+  - 500 Internal Server Error: Deletion failed
+
+## 📤 Media Upload Workflow
+
+### Overview
+Lush Lilac implements a two-stage media upload process for product images and videos:
+1. **Local Storage**: Files are first uploaded to the server's local storage
+2. **Cloudinary**: Files are then uploaded to Cloudinary in the background
+
+This approach provides several benefits:
+- Immediate response to the client without waiting for Cloudinary upload
+- Resilience against Cloudinary service disruptions
+- Reduced client-side waiting time
+
+### Detailed Workflow
+
+#### 1. Client Uploads Media
+- Client sends a multipart form request with product data and media files
+- Request goes through authentication and role verification middleware
+- Upload middleware processes the files:
+  - Creates unique filenames
+  - Validates file types (images: jpeg, png, gif, svg; videos: mp4, webm)
+  - Enforces file size limits (10MB per file)
+  - Stores files in the server's `/uploads` directory
+
+#### 2. Initial Product Creation/Update
+- Product controller receives the request with processed files
+- Controller creates media objects with local file paths
+- Product is saved to MongoDB with local media URLs
+- Response is immediately sent back to the client
+
+#### 3. Background Cloudinary Upload
+- After responding to the client, a background process starts
+- For each media file:
+  - The file is compressed if it's an image (using Sharp)
+  - The compressed file is uploaded to Cloudinary with retry logic
+  - The local file is deleted after successful upload
+
+#### 4. Product Update with Cloudinary URLs
+- Once all files are uploaded to Cloudinary, the product is updated
+- Local file URLs are replaced with Cloudinary URLs
+- The `cloudinary` flag is set to true for each media item
+
+#### 5. Media Deletion
+- When a product is deleted, all associated media is also deleted from Cloudinary
+- The product controller uses the stored `public_id` to identify and delete media
+
+### Code Flow Diagram
+```
+Client Request → Auth Middleware → Role Middleware → Upload Middleware
+    ↓
+Product Controller → Save to MongoDB with local URLs → Respond to Client
+    ↓
+Background Process → Compress Images → Upload to Cloudinary → Delete Local Files
+    ↓
+Update Product in MongoDB with Cloudinary URLs
+```
+
+### Configuration
+To enable Cloudinary uploads, set the following environment variables:
+```env
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
 ### User Routes
 
 #### Register User
