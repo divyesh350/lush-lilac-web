@@ -4,7 +4,7 @@ const upload = require('../middlewares/upload.middleware');
 const { verifyToken, requireRole } = require('../middlewares/auth.middleware');
 const productController = require('../controllers/product.controller');
 
-router.get('/', productController.getAllProducts);
+router.get('/', productController.getProducts);
 router.get('/:id', productController.getProductById);
 
 // Admin only

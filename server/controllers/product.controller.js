@@ -83,9 +83,70 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-exports.getAllProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+exports.getProducts = async (req, res) => {
+  try {
+    const {
+      search,           // string to search in product name
+      size,             // variant size filter
+      color,            // variant color filter
+      material,         // variant material filter
+      minPrice,         // minimum price filter
+      maxPrice,         // maximum price filter
+      page = 1,         // page number for pagination (default 1)
+      limit = 10,       // items per page (default 10)
+    } = req.query;
+
+    const query = {};
+
+    // Search by product name (case-insensitive partial match)
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    // Variant filters - we'll check if any variant matches these filters
+    if (size || color || material) {
+      query.variants = {
+        $elemMatch: {},
+      };
+
+      if (size) query.variants.$elemMatch.size = size;
+      if (color) query.variants.$elemMatch.color = color;
+      if (material) query.variants.$elemMatch.material = material;
+    }
+
+    // Price filter (price is stored per variant, so filter variants price)
+    if (minPrice || maxPrice) {
+      if (!query.variants) query.variants = { $elemMatch: {} };
+
+      if (minPrice) query.variants.$elemMatch.price = { $gte: Number(minPrice) };
+      if (maxPrice) {
+        query.variants.$elemMatch.price = {
+          ...query.variants.$elemMatch.price,
+          $lte: Number(maxPrice),
+        };
+      }
+    }
+
+    // Pagination calculations
+    const skip = (page - 1) * limit;
+
+    // Query products from DB
+    const products = await Product.find(query)
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Total count for pagination
+    const total = await Product.countDocuments(query);
+
+    res.json({
+      products,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch products", error: error.message });
+  }
 };
 
 exports.getProductById = async (req, res) => {

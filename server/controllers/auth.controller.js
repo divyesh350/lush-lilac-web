@@ -7,10 +7,11 @@ const {
 
 exports.register = async (req, res) => {
   try {
+    console.log("Incoming registration data:", req.body);
     const { name, email, password } = req.body;
     const role = req.body.role || 'customer';
     const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: 'User already exists' });
+    if (userExists) return res.status(409).json({ message: 'Email already in use' });
 
     const user = new User({ name, email, password , role});
     const refreshToken = generateRefreshToken(user);
@@ -30,8 +31,11 @@ exports.register = async (req, res) => {
     res.status(201).json({
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
       accessToken,
+      refreshToken,
+      message: 'User registered successfully',
     });
   } catch (err) {
+    console.error("Registration error:", err); // <-- ADD THIS
     res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 };
@@ -60,6 +64,8 @@ exports.login = async (req, res) => {
     res.status(200).json({
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
       accessToken,
+      refreshToken,
+      message: 'User logged in successfully',
     });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err.message });
