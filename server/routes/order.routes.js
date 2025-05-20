@@ -6,7 +6,7 @@ const {requireRole, verifyToken} = require("../middlewares/auth.middleware");
 
 // Customer: create order
 router.post("/", verifyToken, orderController.createOrder);
-
+router.post("/create-cod", verifyToken, orderController.createCodOrder);
 // Customer: get own orders
 router.get("/my", verifyToken, orderController.getMyOrders);
 

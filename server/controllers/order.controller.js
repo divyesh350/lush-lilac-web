@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 const razorpay = require("../config/razorpay");
 const sendEmail = require("../utils/email.util");
 const generateReceiptPDF = require("../utils/pdfReceipt.util");
@@ -25,7 +26,68 @@ exports.createRazorpayOrder = async (req, res) => {
   }
 };
 
+exports.createCodOrder = async (req, res) => {
+  try {
+    const { items, totalAmount, shippingAddress } = req.body;
 
+    if (!items || !totalAmount || !shippingAddress) {
+      return res.status(400).json({ message: "Missing required order fields" });
+    }
+
+    // Check if all products support COD
+    for (let item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product || !product.codAvailable) {
+        return res.status(400).json({
+          message: `COD is not available for product: ${product?.title || "unknown"}`,
+        });
+      }
+    }
+
+    const newOrder = new Order({
+      user: req.user._id,
+      items,
+      totalAmount,
+      shippingAddress,
+      status: "pending",
+      paymentMethod: "cod",
+      paymentInfo: {
+        paid: false,
+        method: "cod",
+        amount: totalAmount,
+        currency: "INR"
+      }
+    });
+
+    const savedOrder = await newOrder.save();
+    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email");
+
+    // 📄 Generate PDF
+    const pdfBuffer = await generateReceiptPDF(populatedOrder);
+
+    // 📧 Send Email with PDF attached
+    await sendEmail(
+      populatedOrder.user.email,
+      "Your Lush Lilac Order Receipt (Cash on Delivery)",
+      "Thank you for your order! Please find attached your order receipt. Payment will be collected upon delivery.",
+      [
+        {
+          filename: `receipt_${populatedOrder._id}.pdf`,
+          content: pdfBuffer,
+        },
+      ]
+    );
+
+    // 📦 Send PDF buffer to frontend as base64 (or you can save & send a URL)
+    res.status(201).json({
+      message: "Order placed successfully with Cash on Delivery",
+      order: savedOrder,
+      receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "COD order creation failed", error: error.message });
+  }
+};
 // Create a new order (after successful payment)
 
 exports.createOrder = async (req, res) => {

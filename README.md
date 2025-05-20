@@ -10,6 +10,7 @@ Lush Lilac is a modern e-commerce platform built with the MERN (MongoDB, Express
 - **File Storage**: Cloudinary
 - **Email Service**: Nodemailer
 - **Payment Gateway**: Razorpay
+- **Payment Methods**: Online Payment (Razorpay), Cash on Delivery (COD)
 
 ## 📦 Dependencies
 ```json
@@ -463,10 +464,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### Overview
 Lush Lilac implements a comprehensive order processing system with the following key features:
-1. **Razorpay Integration**: Secure payment processing
+1. **Multiple Payment Options**: Razorpay (online) and Cash on Delivery (COD)
 2. **PDF Receipt Generation**: Automatic creation of order receipts
 3. **Email Notifications**: Order confirmation emails with receipt attachments
 4. **Order Status Management**: Admin controls for order fulfillment
+5. **Product-level COD Availability**: Control which products can be purchased using COD
 
 ### Order Data Model
 
@@ -480,16 +482,28 @@ The Order model consists of:
 
 ### Detailed Workflow
 
-#### 1. Payment Initiation
+#### 1. Payment Method Selection
+- Customer selects either online payment (Razorpay) or Cash on Delivery (COD)
+- System checks if all products in cart support the selected payment method
+
+#### 2A. Online Payment Flow
 - Client requests a Razorpay order creation
 - Server creates a Razorpay order with unique ID
 - Client receives order details for payment processing
-
-#### 2. Order Creation
 - After successful payment, client sends order details to server
-- Server validates the order data and payment information
+- Server validates the payment information
 - New order is created in the database with 'pending' status
+
+#### 2B. Cash on Delivery (COD) Flow
+- System verifies all products in cart support COD
+- Client submits order with COD payment method
+- Server creates order with 'pending' status
+- No payment verification needed at this stage
+- Payment will be collected upon delivery
+
+#### 3. Order Processing
 - Order is linked to the user account
+- Inventory is updated accordingly
 
 #### 3. Receipt Generation
 - System automatically generates a PDF receipt using PDFKit
@@ -573,6 +587,50 @@ await sendEmail(
 - **Error Responses**:
   - 400 Bad Request: Missing amount
   - 500 Internal Server Error: Razorpay order creation failed
+
+#### Create COD Order
+- **Endpoint**: POST `/api/v1/orders/create-cod`
+- **Purpose**: Create a new order with Cash on Delivery payment method
+- **Authentication**: Required (Customer only)
+- **Request Body**:
+  ```json
+  {
+    "items": [
+      {
+        "productId": "product123",
+        "variant": {
+          "size": "Medium",
+          "color": "Blue",
+          "material": "Cotton"
+        },
+        "quantity": 2,
+        "price": 1499
+      }
+    ],
+    "totalAmount": 2998,
+    "shippingAddress": "123 Main St, City, Country"
+  }
+  ```
+- **Success Response**: 201 Created
+  ```json
+  {
+    "message": "Order placed successfully with Cash on Delivery",
+    "order": {
+      "_id": "order123",
+      "user": "user123",
+      "items": [...],
+      "totalAmount": 2998,
+      "shippingAddress": "123 Main St, City, Country",
+      "status": "pending",
+      "paymentMethod": "cod",
+      "createdAt": "2025-05-19T12:30:00.000Z",
+      "updatedAt": "2025-05-19T12:30:00.000Z"
+    }
+  }
+  ```
+- **Error Responses**:
+  - 400 Bad Request: One or more products don't support COD
+  - 500 Internal Server Error: Order creation failed
 
 #### Create Order
 - **Endpoint**: POST `/api/v1/orders`

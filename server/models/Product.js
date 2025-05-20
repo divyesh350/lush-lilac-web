@@ -20,6 +20,10 @@ const productSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     variants: [variantSchema],
     media: [mediaSchema],
+    codAvailable: {
+      type: Boolean,
+      default: true, // or false if Razorpay-only by default
+    },
   },
   { timestamps: true }
 );
