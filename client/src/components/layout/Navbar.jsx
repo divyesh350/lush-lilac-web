@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RiSearchLine, RiFlowerLine, RiShoppingBagLine, RiUserLine, RiMenuLine, RiCloseLine } from '@remixicon/react';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Framer motion animation variants
   const navVariants = {
@@ -30,6 +31,12 @@ const Navbar = () => {
         ease: "easeOut"
       }
     })
+  };
+
+  // Dropdown animation
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: -10, pointerEvents: 'none' },
+    visible: { opacity: 1, y: 0, pointerEvents: 'auto', transition: { duration: 0.2 } }
   };
 
   return (
@@ -69,7 +76,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop search and icons */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-6 relative">
             {/* Search */}
             <div className="relative">
               <input type="text" placeholder="Search..." className="cute-input py-2 pl-10 pr-4 rounded-full text-sm w-40 md:w-64" />
@@ -97,14 +104,46 @@ const Navbar = () => {
               </motion.div>
             </Link>
             
-            <motion.div 
-              className="w-8 h-8 flex items-center justify-center text-primary"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <RiUserLine className="w-6 h-6" />
-            </motion.div>
-            
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <motion.button
+                className="w-8 h-8 flex items-center justify-center text-primary focus:outline-none"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setProfileOpen((open) => !open)}
+                aria-label="Profile menu"
+                tabIndex={0}
+              >
+                <RiUserLine className="w-6 h-6" />
+              </motion.button>
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-3 z-50 border border-[#F9F0F7]"
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={dropdownVariants}
+                  >
+                    <Link
+                      to="/login"
+                      className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-t-lg text-center font-medium"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-b-lg text-center font-medium"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Mobile menu button */}
             <div className="md:hidden">
               <button 

@@ -13,6 +13,8 @@ const Cart = lazy(() => import('./pages/Cart'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
 
 // Loading Spinner
 import Spinner from './components/ui/Spinner';
@@ -30,6 +32,8 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
