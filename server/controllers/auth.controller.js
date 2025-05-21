@@ -102,3 +102,43 @@ exports.refreshToken = async (req, res) => {
     res.status(403).json({ message: 'Invalid or expired refresh token' });
   }
 };
+
+exports.checkAuth = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    
+    // If no refresh token, user is not authenticated
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'No refresh token' });
+    }
+
+    // Verify the refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+
+    // Find user and verify refresh token matches
+    const user = await User.findById(decoded.id);
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(401).json({ message: 'Invalid user or token mismatch' });
+    }
+
+    // Generate new access token
+    const accessToken = generateAccessToken(user);
+
+    // Return user data and new access token
+    res.status(200).json({ 
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      },
+      accessToken 
+    });
+  } catch (err) {
+    console.error('Auth check error:', err);
+    res.status(401).json({ message: 'Authentication check failed' });
+  }
+};

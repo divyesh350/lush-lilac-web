@@ -1,18 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Form from '../components/ui/Form';
+import useAuthStore from '../store/authStore';
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { register, isAuthenticated, error: authError, clearError } = useAuthStore();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    // Clear any previous errors
+    clearError();
+    // If user is already authenticated, redirect to home
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate, clearError]);
+
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = e => {
+  
+  const handleSubmit = async e => {
     e.preventDefault();
+    setError('');
+
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    // Handle register logic here
+
+    const result = await register(form.name, form.email, form.password);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -28,7 +50,7 @@ const Register = () => {
           ]}
           buttonText="Register"
           onSubmit={handleSubmit}
-          error={error}
+          error={error || authError}
         >
           <div className="text-center mt-4">
             <a href="/login" className="text-primary hover:underline">Already have an account? Login</a>

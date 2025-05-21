@@ -1,11 +1,22 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RiSearchLine, RiFlowerLine, RiShoppingBagLine, RiUserLine, RiMenuLine, RiCloseLine } from '@remixicon/react';
+import { RiSearchLine, RiFlowerLine, RiShoppingBagLine, RiUserLine, RiMenuLine, RiCloseLine, RiLogoutBoxLine } from '@remixicon/react';
+import useAuthStore from '../../store/authStore';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      setProfileOpen(false);
+      navigate('/');
+    }
+  };
 
   // Framer motion animation variants
   const navVariants = {
@@ -125,20 +136,44 @@ const Navbar = () => {
                     exit="hidden"
                     variants={dropdownVariants}
                   >
-                    <Link
-                      to="/login"
-                      className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-t-lg text-center font-medium"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-b-lg text-center font-medium"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Register
-                    </Link>
+                    {isAuthenticated ? (
+                      <>
+                        <div className="px-6 py-2 text-primary text-center font-medium border-b border-[#F9F0F7]">
+                          {user?.name || 'User'}
+                        </div>
+                        <Link
+                          to="/profile"
+                          className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition text-center font-medium"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          Profile
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition text-center font-medium flex items-center justify-center gap-2"
+                        >
+                          <RiLogoutBoxLine className="w-5 h-5" />
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/login"
+                          className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-t-lg text-center font-medium"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          to="/register"
+                          className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition rounded-b-lg text-center font-medium"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          Register
+                        </Link>
+                      </>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

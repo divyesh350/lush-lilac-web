@@ -1,14 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Form from '../components/ui/Form';
+import useAuthStore from '../store/authStore';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login, isAuthenticated, error: authError, clearError } = useAuthStore();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Clear any previous errors
+    clearError();
+    // If user is already authenticated, redirect to home
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate, clearError]);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = e => {
+  
+  const handleSubmit = async e => {
     e.preventDefault();
-    // Handle login logic here
+    if (isSubmitting) return;
+    
+    setError('');
+    setIsSubmitting(true);
+    
+    try {
+      const result = await login(form.email, form.password);
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -20,9 +49,9 @@ const Login = () => {
             { label: 'Email', type: 'email', name: 'email', value: form.email, onChange: handleChange, placeholder: 'Enter your email' },
             { label: 'Password', type: 'password', name: 'password', value: form.password, onChange: handleChange, placeholder: 'Enter your password' }
           ]}
-          buttonText="Login"
+          buttonText={isSubmitting ? "Logging in..." : "Login"}
           onSubmit={handleSubmit}
-          error={error}
+          error={error || authError}
         >
           <div className="text-center mt-4">
             <a href="/register" className="text-primary hover:underline">Don't have an account? Register</a>
