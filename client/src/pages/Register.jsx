@@ -38,8 +38,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-featured-pattern bg-cover">
-      <div className="w-full max-w-3xl px-4">
+    <div className="min-h-screen flex items-center justify-center bg-featured-pattern dark:bg-gray-900 bg-cover bg-center relative">
+      <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/90"></div>
+      <div className="w-full max-w-3xl px-4 relative z-10">
         <Form
           title="Create Your Account"
           fields={[
@@ -53,7 +54,7 @@ const Register = () => {
           error={error || authError}
         >
           <div className="text-center mt-4">
-            <a href="/login" className="text-primary hover:underline">Already have an account? Login</a>
+            <a href="/login" className="text-primary dark:text-primary hover:underline">Already have an account? Login</a>
           </div>
         </Form>
       </div>
