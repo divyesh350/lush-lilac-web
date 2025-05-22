@@ -6,6 +6,26 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-main: #FFF9FD;
+    --bg-secondary: #F9F0F7;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --dark-purple: #7D5E7A;
+    --medium-purple: #9A7B97;
+    --primary: #9B6B9E;
+  }
+
+  .dark {
+    --bg-main: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --dark-purple: #B48BB1;
+    --medium-purple: #C49BC1;
+    --primary: #D4AAD1;
+  }
+
   body {
     font-family: 'Quicksand', sans-serif;
     background-color: #FFF9FD;
@@ -71,19 +91,15 @@
   }
 
   .cute-input {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 2px solid #FFE4E1;
-    transition: all 0.3s ease;
-  }
-
-  .cute-input:focus {
-    border-color: #E8D5E4;
-    box-shadow: 0 0 10px rgba(232, 213, 228, 0.5);
-    outline: none;
+    @apply border border-gray-200 dark:border-gray-700 focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 dark:focus:ring-primary dark:focus:ring-opacity-20 outline-none transition-all duration-200;
   }
 
   .flower-cursor {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23E8D5E4' d='M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M12,20c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8S16.4,20,12,20z'/%3E%3Cpath fill='%23FFE4E1' d='M12,6c-3.3,0-6,2.7-6,6s2.7,6,6,6s6-2.7,6-6S15.3,6,12,6z M12,16c-2.2,0-4-1.8-4-4s1.8-4,4-4s4,1.8,4,4S14.2,16,12,16z'/%3E%3Cpath fill='%23FFF4D2' d='M12,8c-2.2,0-4,1.8-4,4s1.8,4,4,4s4-1.8,4-4S14.2,8,12,8z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z'/%3E%3C/svg%3E"), auto;
+  }
+
+  .rounded-button {
+    @apply rounded-lg;
   }
 }
 

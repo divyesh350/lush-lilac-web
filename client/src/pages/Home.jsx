@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
+import { Link } from 'react-router-dom';
 
 // Mock data for products
 const mockBestsellers = [
@@ -48,7 +49,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="bg-bg-main dark:bg-bg-main">
       {/* Hero Section */}
       <div className="hero-bg w-full relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
@@ -58,13 +59,13 @@ const Home = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <h1 className="text-4xl md:text-5xl font-semibold text-dark-purple mb-4">
+            <h1 className="text-4xl md:text-5xl font-semibold text-dark-purple dark:text-primary mb-4">
               Welcome to Lush Lilac 🌸
             </h1>
-            <p className="text-xl md:text-2xl text-medium-purple mb-8">
+            <p className="text-xl md:text-2xl text-medium-purple dark:text-text-secondary mb-8">
               Where Everything is Pretty & Precious 🌷
             </p>
-            <p className="text-medium-purple mb-8 max-w-md">
+            <p className="text-medium-purple dark:text-text-secondary mb-8 max-w-md">
               Discover our adorable collection of phone cases, mouse pads, mirrors, tumblers, and candles - all designed to bring a touch of cuteness to your everyday life! 🌼
             </p>
             <Button 
@@ -80,7 +81,7 @@ const Home = () => {
       </div>
 
       {/* Featured Products */}
-      <div className="py-16 bg-featured-pattern bg-cover bg-center">
+      <div className="py-16 bg-featured-pattern dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -89,8 +90,8 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-semibold text-dark-purple mb-4">Our Bestsellers 🌟</h2>
-            <p className="text-medium-purple max-w-2xl mx-auto">
+            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">Our Bestsellers 🌟</h2>
+            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
               Discover our most loved items that are making everyone's day a little brighter and cuter!
             </p>
           </motion.div>
@@ -110,7 +111,7 @@ const Home = () => {
       </div>
 
       {/* Shop by Category */}
-      <div className="floating-flower-bg py-16">
+      <div className="floating-flower-bg dark:bg-gray-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -119,8 +120,8 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-semibold text-dark-purple mb-4">Shop by Category 🌷</h2>
-            <p className="text-medium-purple max-w-2xl mx-auto">
+            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">Shop by Category 🌷</h2>
+            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
               Find your perfect cute accessory by browsing our adorable categories!
             </p>
           </motion.div>
@@ -134,10 +135,10 @@ const Home = () => {
           >
             {categories.map((category, index) => (
               <CategoryCard 
-                key={index} 
-                category={category.name} 
-                icon={category.icon} 
-                bgColor={category.bgColor} 
+                key={index}
+                category={category.name}
+                icon={category.icon}
+                bgColor={category.bgColor}
               />
             ))}
           </motion.div>
@@ -145,7 +146,7 @@ const Home = () => {
       </div>
 
       {/* New Arrivals */}
-      <div className="py-16 bg-arrivals-pattern bg-cover bg-center">
+      <div className="py-16 bg-arrivals-pattern dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -154,8 +155,8 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-semibold text-dark-purple mb-4">New Arrivals 🌺</h2>
-            <p className="text-medium-purple max-w-2xl mx-auto">
+            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">New Arrivals 🌺</h2>
+            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
               Check out our latest cute additions to the Lush Lilac family!
             </p>
           </motion.div>

@@ -92,19 +92,19 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-white pt-16 pb-8">
+    <footer className="bg-white dark:bg-bg-secondary pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Section */}
         <motion.div 
-          className="bg-[#F9F0F7] rounded-lg p-8 md:p-12 shadow-sm mb-16"
+          className="bg-[#F9F0F7] dark:bg-gray-800 rounded-lg p-8 md:p-12 shadow-sm mb-16"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-semibold text-dark-purple mb-4">Join Our Cute Community 🌸</h2>
-            <p className="text-medium-purple max-w-2xl mx-auto">
+            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">Join Our Cute Community 🌸</h2>
+            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
               Subscribe to our newsletter for exclusive offers, cute updates, and first access to new releases!
             </p>
           </div>
@@ -115,7 +115,7 @@ const Footer = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address" 
-                className="cute-input flex-1 py-3 px-4 rounded-l-button text-dark-purple" 
+                className="cute-input flex-1 py-3 px-4 rounded-l-button text-dark-purple dark:text-text-primary" 
                 required
               />
               <button 
@@ -157,7 +157,7 @@ const Footer = () => {
           {/* Brand Column */}
           <motion.div variants={itemVariants}>
             <Link to="/" className="font-pacifico text-2xl text-primary">Lush Lilac</Link>
-            <p className="mt-4 text-sky-blue">Making your everyday life cuter, one accessory at a time! 🌸</p>
+            <p className="mt-4 text-sky-blue dark:text-text-secondary">Making your everyday life cuter, one accessory at a time! 🌸</p>
             <div className="flex space-x-4 mt-6">
               {socialLinks.map((social, index) => {
                 const Icon = socialIconMap[social.icon];
@@ -165,7 +165,7 @@ const Footer = () => {
                   <motion.a 
                     key={index}
                     href={social.url} 
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F9F0F7] text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F9F0F7] dark:bg-gray-800 text-primary hover:bg-primary hover:text-white transition-all duration-300"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -178,8 +178,8 @@ const Footer = () => {
 
           {/* Shop Links */}
           <motion.div variants={itemVariants}>
-            <h3 className="text-dark-purple font-medium mb-4">Shop</h3>
-            <ul className="space-y-2 text-sky-blue">
+            <h3 className="text-dark-purple dark:text-primary font-medium mb-4">Shop</h3>
+            <ul className="space-y-2 text-sky-blue dark:text-text-secondary">
               {shopLinks.map((link, index) => (
                 <li key={index}>
                   <Link to={link.url} className="hover:text-primary">
@@ -192,8 +192,8 @@ const Footer = () => {
 
           {/* Help Links */}
           <motion.div variants={itemVariants}>
-            <h3 className="text-dark-purple font-medium mb-4">Help</h3>
-            <ul className="space-y-2 text-sky-blue">
+            <h3 className="text-dark-purple dark:text-primary font-medium mb-4">Help</h3>
+            <ul className="space-y-2 text-sky-blue dark:text-text-secondary">
               {helpLinks.map((link, index) => (
                 <li key={index}>
                   <Link to={link.url} className="hover:text-primary">
@@ -206,8 +206,8 @@ const Footer = () => {
 
           {/* About Links */}
           <motion.div variants={itemVariants}>
-            <h3 className="text-dark-purple font-medium mb-4">About</h3>
-            <ul className="space-y-2 text-sky-blue">
+            <h3 className="text-dark-purple dark:text-primary font-medium mb-4">About</h3>
+            <ul className="space-y-2 text-sky-blue dark:text-text-secondary">
               {aboutLinks.map((link, index) => (
                 <li key={index}>
                   <Link to={link.url} className="hover:text-primary">
@@ -219,24 +219,28 @@ const Footer = () => {
           </motion.div>
         </motion.div>
 
-        {/* Footer Bottom */}
+        {/* Bottom Section */}
         <motion.div 
-          className="border-t border-[#F9F0F7] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700"
+          variants={itemVariants}
         >
-          <p className="text-medium-purple text-sm">© {new Date().getFullYear()} Lush Lilac. All rights reserved 🌸</p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            {paymentIcons.map((icon, index) => {
-              const Icon = paymentIconMap[icon];
-              return (
-                <div key={index} className="w-8 h-8 flex items-center justify-center text-medium-purple">
-                  {Icon && <Icon className="w-6 h-6" />}
-                </div>
-              );
-            })}
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sky-blue dark:text-text-secondary text-sm mb-4 md:mb-0">
+              © {new Date().getFullYear()} Lush Lilac. All rights reserved.
+            </p>
+            <div className="flex space-x-4">
+              {paymentIcons.map((icon, index) => {
+                const Icon = paymentIconMap[icon];
+                return (
+                  <div 
+                    key={index}
+                    className="w-8 h-8 flex items-center justify-center text-gray-400 dark:text-gray-500"
+                  >
+                    {Icon && <Icon className="w-6 h-6" />}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
       </div>
