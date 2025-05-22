@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
+import { RiMailLine, RiCustomerService2Line, RiMapPinLine, RiInstagramLine, RiFacebookLine, RiPinterestLine, RiTiktokLine } from '@remixicon/react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -151,7 +152,7 @@ const Contact = () => {
               <div className="space-y-4">
                 <div className="flex items-start">
                   <div className="w-10 h-10 bg-[#F9F0F7] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
-                    <i className="ri-mail-line text-primary"></i>
+                    <RiMailLine className="text-primary" />
                   </div>
                   <div>
                     <h3 className="text-dark-purple font-medium">Email</h3>
@@ -161,7 +162,7 @@ const Contact = () => {
                 
                 <div className="flex items-start">
                   <div className="w-10 h-10 bg-[#F9F0F7] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
-                    <i className="ri-customer-service-2-line text-primary"></i>
+                    <RiCustomerService2Line className="text-primary" />
                   </div>
                   <div>
                     <h3 className="text-dark-purple font-medium">Customer Service</h3>
@@ -171,7 +172,7 @@ const Contact = () => {
                 
                 <div className="flex items-start">
                   <div className="w-10 h-10 bg-[#F9F0F7] rounded-full flex items-center justify-center flex-shrink-0 mr-4">
-                    <i className="ri-map-pin-line text-primary"></i>
+                    <RiMapPinLine className="text-primary" />
                   </div>
                   <div>
                     <h3 className="text-dark-purple font-medium">Location</h3>
@@ -188,7 +189,12 @@ const Contact = () => {
               </p>
               
               <div className="flex space-x-4">
-                {['ri-instagram-line', 'ri-facebook-line', 'ri-pinterest-line', 'ri-tiktok-line'].map((icon, index) => (
+                {[
+                  { Icon: RiInstagramLine },
+                  { Icon: RiFacebookLine },
+                  { Icon: RiPinterestLine },
+                  { Icon: RiTiktokLine }
+                ].map(({ Icon }, index) => (
                   <motion.a 
                     key={index}
                     href="#" 
@@ -196,7 +202,7 @@ const Contact = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <i className={icon}></i>
+                    <Icon />
                   </motion.a>
                 ))}
               </div>

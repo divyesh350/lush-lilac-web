@@ -29,7 +29,7 @@ const About = () => {
                 Lush Lilac was founded in 2022 with a simple goal - to create adorable accessories that bring a touch of cuteness to everyday items. What started as a small Etsy shop has grown into a beloved brand that ships products worldwide.
               </p>
               <p className="text-medium-purple mb-4">
-                Our founder, Maya, has always been passionate about creating cute and aesthetic designs. After struggling to find phone cases and accessories that matched her aesthetic, she decided to create her own - and Lush Lilac was born!
+                Our founder, Klira, has always been passionate about creating cute and aesthetic designs. After struggling to find phone cases and accessories that matched her aesthetic, she decided to create her own - and Lush Lilac was born!
               </p>
               <p className="text-medium-purple">
                 Today, our team of designers work together to create unique, high-quality products that help you express your style and personality through the items you use every day.
@@ -106,42 +106,6 @@ const About = () => {
               We value our customers and community, incorporating your feedback into our designs and products.
             </p>
           </motion.div>
-        </motion.div>
-
-        <motion.div 
-          className="bg-white rounded-lg shadow-sm p-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-2xl font-semibold text-dark-purple mb-6 text-center">Meet Our Team</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { name: 'Maya Lin', role: 'Founder & Designer', bg: '#FFE4E1' },
-              { name: 'Alex Johnson', role: 'Creative Director', bg: '#FFF4D2' },
-              { name: 'Sophia Chen', role: 'Product Manager', bg: '#D4F1F4' },
-              { name: 'Jake Murphy', role: 'Customer Experience', bg: '#E8D5E4' }
-            ].map((member, index) => (
-              <motion.div 
-                key={index}
-                className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-              >
-                <div 
-                  className="w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center"
-                  style={{ backgroundColor: member.bg }}
-                >
-                  <span className="text-4xl">👤</span>
-                </div>
-                <h3 className="text-lg font-medium text-dark-purple">{member.name}</h3>
-                <p className="text-medium-purple">{member.role}</p>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
       </div>
     </div>
