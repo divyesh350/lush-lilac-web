@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
-
+import { RiArrowLeftSFill, RiArrowRightSFill } from '@remixicon/react';
 // Mock products for demonstration
 const mockProducts = [
   { id: 1, title: 'Floral Phone Case', price: 19.99, media: [] },
@@ -57,7 +57,7 @@ const Shop = () => {
   };
 
   return (
-    <div className="bg-bg-main min-h-screen py-12">
+    <div className="bg-bg-main dark:bg-gray-900 min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           className="text-center mb-10"
@@ -65,10 +65,10 @@ const Shop = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-4xl font-semibold text-dark-purple mb-3">
+          <h1 className="text-3xl md:text-4xl font-semibold text-dark-purple dark:text-primary mb-3">
             {category ? `${category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` : 'All Products'} 🌸
           </h1>
-          <p className="text-medium-purple max-w-xl mx-auto">
+          <p className="text-medium-purple dark:text-text-secondary max-w-xl mx-auto">
             Browse our collection of adorable accessories designed to bring joy to your everyday life.
           </p>
         </motion.div>
@@ -77,16 +77,16 @@ const Shop = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
           <motion.div 
-            className="lg:w-1/4 bg-white p-6 rounded-lg shadow-sm h-fit"
+            className="lg:w-1/4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm h-fit"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h2 className="text-xl font-medium text-dark-purple mb-4">Filters</h2>
+            <h2 className="text-xl font-medium text-dark-purple dark:text-primary mb-4">Filters</h2>
             
             {/* Category Filter */}
             <div className="mb-6">
-              <h3 className="text-medium-purple font-medium mb-2">Category</h3>
+              <h3 className="text-medium-purple dark:text-text-secondary font-medium mb-2">Category</h3>
               <div className="space-y-2">
                 {['all', 'phone-cases', 'mouse-pads', 'mirrors', 'tumblers', 'candles'].map((cat) => (
                   <div key={cat} className="flex items-center">
@@ -96,9 +96,9 @@ const Shop = () => {
                       name="category" 
                       checked={selectedFilters.category === cat}
                       onChange={() => handleFilterChange('category', cat)}
-                      className="mr-2 accent-primary"
+                      className="w-5 h-5 mr-3 accent-primary cursor-pointer"
                     />
-                    <label htmlFor={`cat-${cat}`} className="text-medium-purple cursor-pointer">
+                    <label htmlFor={`cat-${cat}`} className="text-medium-purple dark:text-text-secondary cursor-pointer text-base">
                       {cat === 'all' ? 'All Categories' : cat.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                     </label>
                   </div>
@@ -108,7 +108,7 @@ const Shop = () => {
             
             {/* Price Filter */}
             <div className="mb-6">
-              <h3 className="text-medium-purple font-medium mb-2">Price</h3>
+              <h3 className="text-medium-purple dark:text-text-secondary font-medium mb-2">Price</h3>
               <div className="space-y-2">
                 {[
                   { id: 'all', label: 'All Prices' },
@@ -123,9 +123,9 @@ const Shop = () => {
                       name="price" 
                       checked={selectedFilters.price === price.id}
                       onChange={() => handleFilterChange('price', price.id)}
-                      className="mr-2 accent-primary"
+                      className="w-5 h-5 mr-3 accent-primary cursor-pointer"
                     />
-                    <label htmlFor={`price-${price.id}`} className="text-medium-purple cursor-pointer">
+                    <label htmlFor={`price-${price.id}`} className="text-medium-purple dark:text-text-secondary cursor-pointer text-base">
                       {price.label}
                     </label>
                   </div>
@@ -135,11 +135,11 @@ const Shop = () => {
             
             {/* Sort By */}
             <div>
-              <h3 className="text-medium-purple font-medium mb-2">Sort By</h3>
+              <h3 className="text-medium-purple dark:text-text-secondary font-medium mb-2">Sort By</h3>
               <select 
                 value={selectedFilters.sort}
                 onChange={(e) => handleFilterChange('sort', e.target.value)}
-                className="cute-input w-full py-2 px-3 rounded text-dark-purple"
+                className="cute-input w-full py-2 px-3 rounded text-dark-purple dark:text-text-primary dark:bg-gray-700 dark:border-gray-600"
               >
                 <option value="newest">Newest</option>
                 <option value="price-low">Price: Low to High</option>
@@ -158,9 +158,9 @@ const Shop = () => {
             ) : (
               <>
                 {products.length === 0 ? (
-                  <div className="bg-white rounded-lg p-8 text-center">
-                    <h3 className="text-xl text-dark-purple mb-4">No products found</h3>
-                    <p className="text-medium-purple mb-6">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center">
+                    <h3 className="text-xl text-dark-purple dark:text-primary mb-4">No products found</h3>
+                    <p className="text-medium-purple dark:text-text-secondary mb-6">
                       We couldn't find any products matching your criteria. Try changing your filters.
                     </p>
                     <Button 
@@ -186,14 +186,14 @@ const Shop = () => {
                 {products.length > 0 && (
                   <div className="mt-10 flex justify-center">
                     <div className="flex space-x-2">
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary border border-[#F9F0F7]">
-                        <i className="ri-arrow-left-s-line"></i>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-primary dark:text-text-primary border border-[#F9F0F7] dark:border-gray-700">
+                        <RiArrowLeftSFill className="text-xl" />
                       </button>
                       <button className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white">1</button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary border border-[#F9F0F7]">2</button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary border border-[#F9F0F7]">3</button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary border border-[#F9F0F7]">
-                        <i className="ri-arrow-right-s-line"></i>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-primary dark:text-text-primary border border-[#F9F0F7] dark:border-gray-700">2</button>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-primary dark:text-text-primary border border-[#F9F0F7] dark:border-gray-700">3</button>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-primary dark:text-text-primary border border-[#F9F0F7] dark:border-gray-700">
+                        <RiArrowRightSFill className="text-xl" />
                       </button>
                     </div>
                   </div>
