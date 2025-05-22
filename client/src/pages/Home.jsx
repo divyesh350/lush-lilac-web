@@ -81,7 +81,7 @@ const Home = () => {
       </div>
 
       {/* Featured Products */}
-      <div className="py-16 bg-featured-pattern dark:bg-gray-900 bg-cover bg-center">
+      <div className="py-16  dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -111,7 +111,7 @@ const Home = () => {
       </div>
 
       {/* Shop by Category */}
-      <div className="floating-flower-bg dark:bg-gray-800 py-16">
+      <div className="floating-flower-bg dark:bg-gray-800 py-16 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -146,7 +146,7 @@ const Home = () => {
       </div>
 
       {/* New Arrivals */}
-      <div className="py-16 bg-arrivals-pattern dark:bg-gray-900 bg-cover bg-center">
+      <div className="py-16  dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
