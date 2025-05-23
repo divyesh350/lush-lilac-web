@@ -3,24 +3,39 @@ const { uploadProductMediaToCloudinary } = require('../utils/cloudinaryUploader'
 
 exports.createProduct = async (req, res) => {
   try {
-    
-    if (!req.body.title || !req.body.description || !req.body.price || !req.body.variants) {
-      return res.status(400).json({ 
+    const {
+      title,
+      description,
+      basePrice,
+      variants,
+      codAvailable,
+      customizable,
+      personalizationInstructions,
+      category,
+      slug,
+    } = req.body;
+
+    // Validate required fields
+    if (
+      !title ||
+      !description ||
+      basePrice === undefined ||
+      !variants
+    ) {
+      return res.status(400).json({
         message: 'Missing required fields',
-        error: 'Please provide title, description, price, and variants'
+        error: 'Please provide title, description, basePrice, and variants',
       });
     }
 
-    const { title, description, price, variants , codAvailable } = req.body;
-    
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         message: 'No media files uploaded',
-        error: 'Please upload at least one media file'
+        error: 'Please upload at least one media file',
       });
     }
 
-    // Prepare minimal media information for Cloudinary upload
+    // Prepare media info as before
     let media = [];
     if (req.files && Array.isArray(req.files)) {
       media = req.files.map((file) => ({
@@ -29,13 +44,13 @@ exports.createProduct = async (req, res) => {
         public_id: file.filename || 'unknown',
         originalname: file.originalname,
         size: file.size,
-        mimetype: file.mimetype
+        mimetype: file.mimetype,
       }));
     }
 
+    // Parse variants from string if needed
     let parsedVariants;
     try {
-      // Check if variants is already an object (might be auto-parsed by Express)
       if (typeof variants === 'object' && variants !== null) {
         parsedVariants = variants;
       } else if (typeof variants === 'string') {
@@ -43,10 +58,7 @@ exports.createProduct = async (req, res) => {
       } else {
         throw new Error('Variants must be provided as a string or object');
       }
-      
-      // Ensure it's an array
       if (!Array.isArray(parsedVariants)) {
-        // If it's not an array but an object, try to convert it to an array
         if (typeof parsedVariants === 'object') {
           parsedVariants = [parsedVariants];
         } else {
@@ -57,29 +69,33 @@ exports.createProduct = async (req, res) => {
       console.error('Variants parsing error:', parseErr, 'Variants value:', variants);
       return res.status(400).json({
         message: 'Invalid variants format',
-        error: 'Variants must be a valid JSON array or object'
+        error: 'Variants must be a valid JSON array or object',
       });
     }
 
     const product = await Product.create({
       title,
       description,
-      price,
+      basePrice,
       variants: parsedVariants,
       media,
-      codAvailable: codAvailable ? true : false,
+      codAvailable,
+      customizable,
+      personalizationInstructions: personalizationInstructions || '',
+      category: category || '',
+      slug: slug || '',
     });
 
-    // Respond to the client immediately
     res.status(201).json(product);
-    
-    // Upload media to Cloudinary in the background
-    uploadProductMediaToCloudinary(product._id)
-      .catch(error => console.error('Background upload error:', error));
+
+    // Upload media to Cloudinary async (unchanged)
+    uploadProductMediaToCloudinary(product._id).catch((error) =>
+      console.error('Background upload error:', error)
+    );
   } catch (err) {
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Product creation failed',
-      error: err.message || 'An unexpected error occurred'
+      error: err.message || 'An unexpected error occurred',
     });
   }
 };
@@ -87,35 +103,40 @@ exports.createProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
   try {
     const {
-      search,           // string to search in product name
-      size,             // variant size filter
-      color,            // variant color filter
-      material,         // variant material filter
-      minPrice,         // minimum price filter
-      maxPrice,         // maximum price filter
-      page = 1,         // page number for pagination (default 1)
-      limit = 10,       // items per page (default 10)
+      search,
+      size,
+      color,
+      material,
+      minPrice,
+      maxPrice,
+      category,
+      page = 1,
+      limit = 10,
     } = req.query;
 
     const query = {};
 
-    // Search by product name (case-insensitive partial match)
+    // Search by product title (corrected from 'name')
     if (search) {
-      query.name = { $regex: search, $options: "i" };
+      query.title = { $regex: search, $options: 'i' };
     }
 
-    // Variant filters - we'll check if any variant matches these filters
+    // Filter by category if provided
+    if (category) {
+      query.category = category;
+    }
+
+    // Variant filters
     if (size || color || material) {
       query.variants = {
         $elemMatch: {},
       };
-
       if (size) query.variants.$elemMatch.size = size;
       if (color) query.variants.$elemMatch.color = color;
       if (material) query.variants.$elemMatch.material = material;
     }
 
-    // Price filter (price is stored per variant, so filter variants price)
+    // Price filtering — variants have their own price property now
     if (minPrice || maxPrice) {
       if (!query.variants) query.variants = { $elemMatch: {} };
 
@@ -128,10 +149,10 @@ exports.getProducts = async (req, res) => {
       }
     }
 
-    // Pagination calculations
+    // Pagination
     const skip = (page - 1) * limit;
 
-    // Query products from DB
+    // Find products
     const products = await Product.find(query)
       .skip(skip)
       .limit(Number(limit));
@@ -146,7 +167,7 @@ exports.getProducts = async (req, res) => {
       pages: Math.ceil(total / limit),
     });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch products", error: error.message });
+    res.status(500).json({ message: 'Failed to fetch products', error: error.message });
   }
 };
 
@@ -158,15 +179,24 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    // First, get the existing product to preserve existing data
     const existingProduct = await Product.findById(req.params.id);
     if (!existingProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    
-    const { title, description, price, variants } = req.body;
 
-    // Prepare media information for new uploads
+    const {
+      title,
+      description,
+      basePrice,
+      variants,
+      customizable,
+      personalizationInstructions,
+      category,
+      slug,
+      codAvailable,
+    } = req.body;
+
+    // Prepare new media info (unchanged)
     let newMedia = [];
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       newMedia = req.files.map((file) => ({
@@ -175,7 +205,7 @@ exports.updateProduct = async (req, res) => {
         public_id: file.filename || 'unknown',
         originalname: file.originalname,
         size: file.size,
-        mimetype: file.mimetype
+        mimetype: file.mimetype,
       }));
     }
 
@@ -187,31 +217,34 @@ exports.updateProduct = async (req, res) => {
       } catch (error) {
         return res.status(400).json({
           message: 'Invalid variants format',
-          error: 'Variants must be a valid JSON array or object'
+          error: 'Variants must be a valid JSON array or object',
         });
       }
     }
 
-    // Update the product with new information
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
       {
         ...(title && { title }),
         ...(description && { description }),
-        ...(price && { price }),
+        ...(basePrice !== undefined && { basePrice }),
         ...(parsedVariants && { variants: parsedVariants }),
+        ...(typeof customizable !== 'undefined' && { customizable }),
+        ...(personalizationInstructions !== undefined && { personalizationInstructions }),
+        ...(category !== undefined && { category }),
+        ...(slug !== undefined && { slug }),
+        ...(codAvailable !== undefined && { codAvailable }),
         ...(newMedia.length > 0 && { $push: { media: { $each: newMedia } } }),
       },
       { new: true }
     );
 
-    // Respond to the client immediately
     res.json(updated);
-    
-    // Upload new media to Cloudinary in the background if there are new files
+
     if (newMedia.length > 0) {
-      uploadProductMediaToCloudinary(updated._id)
-        .catch(error => console.error('Background upload error:', error));
+      uploadProductMediaToCloudinary(updated._id).catch((error) =>
+        console.error('Background upload error:', error)
+      );
     }
   } catch (err) {
     res.status(500).json({ message: 'Failed to update product', error: err.message });
@@ -224,8 +257,8 @@ exports.deleteProduct = async (req, res) => {
     if (!product) return res.status(404).json({ message: 'Not found' });
 
     const cloudinary = require('../config/cloudinary');
-    
-    // Delete media from Cloudinary if cloudinary flag is true
+
+    // Delete media from Cloudinary if flagged (unchanged)
     for (let media of product.media) {
       if (media.cloudinary && media.public_id) {
         try {
@@ -233,7 +266,6 @@ exports.deleteProduct = async (req, res) => {
             resource_type: media.type === 'video' ? 'video' : 'image',
           });
         } catch (cloudinaryError) {
-          // Continue even if Cloudinary deletion fails
           console.error('Error deleting from Cloudinary:', cloudinaryError.message);
         }
       }

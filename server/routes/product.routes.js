@@ -38,6 +38,7 @@ const handleUpload = (req, res, next) => {
   });
 };
 
+// POST create product with upload timeout handling
 router.post(
   '/',
   verifyToken,
@@ -46,14 +47,17 @@ router.post(
   productController.createProduct
 );
 
+
+// PUT update product - use the same timeout upload middleware
 router.put(
   '/:id',
   verifyToken,
   requireRole('admin'),
-  upload.array('media', 10),
+  handleUpload,
   productController.updateProduct
 );
 
+// DELETE product
 router.delete('/:id', verifyToken, requireRole('admin'), productController.deleteProduct);
 
 module.exports = router;

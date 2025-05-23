@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema(
     media: [mediaSchema],
     codAvailable: {
       type: Boolean,
-      default: true, // or false if Razorpay-only by default
+      default: false, // or true if cod is allowed
     },
     customizable: { type: Boolean, default: false }, // whether artwork upload is allowed
     personalizationInstructions: { type: String },
