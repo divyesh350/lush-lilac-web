@@ -11,7 +11,7 @@ exports.createProduct = async (req, res) => {
       });
     }
 
-    const { title, description, price, variants } = req.body;
+    const { title, description, price, variants , codAvailable } = req.body;
     
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -67,6 +67,7 @@ exports.createProduct = async (req, res) => {
       price,
       variants: parsedVariants,
       media,
+      codAvailable: codAvailable ? true : false,
     });
 
     // Respond to the client immediately
