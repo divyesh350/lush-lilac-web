@@ -96,53 +96,73 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Section */}
         <motion.div 
-          className="bg-[#F9F0F7] dark:bg-gray-800 rounded-lg p-8 md:p-12 shadow-sm mb-16"
+          className="bg-[#F9F0F7] dark:bg-gray-800 rounded-lg p-6 sm:p-8 md:p-12 shadow-sm mb-16 relative overflow-hidden"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">Join Our Cute Community 🌸</h2>
-            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
-              Subscribe to our newsletter for exclusive offers, cute updates, and first access to new releases!
-            </p>
-          </div>
-          <div className="max-w-md mx-auto relative">
-            <form onSubmit={handleSubmit} className="flex">
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address" 
-                className="cute-input flex-1 py-3 px-4 rounded-l-button text-dark-purple dark:text-text-primary" 
-                required
+          {/* Decorative Elements */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl" />
+          
+          <div className="relative z-10">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-dark-purple dark:text-primary mb-3 sm:mb-4">Join Our Cute Community 🌸</h2>
+              <p className="text-medium-purple dark:text-text-secondary text-sm sm:text-base max-w-2xl mx-auto px-4">
+                Subscribe to our newsletter for exclusive offers, cute updates, and first access to new releases!
+              </p>
+            </div>
+
+            <div className="max-w-md mx-auto relative">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-0">
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email address" 
+                  className="cute-input flex-1 py-3 px-4 rounded-button sm:rounded-l-button sm:rounded-r-none text-dark-purple dark:text-text-primary text-sm sm:text-base" 
+                  required
+                />
+                <button 
+                  type="submit" 
+                  className="bg-primary hover:bg-[#D4B6D0] text-white px-6 py-3 rounded-button sm:rounded-l-none sm:rounded-r-button font-medium transition-all duration-300 btn-hover whitespace-nowrap text-sm sm:text-base"
+                >
+                  {subscribed ? "Subscribed!" : "Subscribe"}
+                </button>
+              </form>
+
+              {/* Decorative Image */}
+              <motion.div 
+                className="absolute -right-20 sm:-right-28 top-1/2 transform -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 hidden md:block"
+                style={{
+                  backgroundImage: "url('https://readdy.ai/api/search-image?query=cute%20purple%20gift%20box%20with%20pastel%20pink%20ribbon%20bow%20on%20top%2C%20soft%20lighting%2C%20delicate%20details%2C%203D%20rendered%2C%20centered%20composition%20on%20pure%20white%20background&width=200&height=200&seq=5&orientation=squarish')",
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center"
+                }}
+                animate={{ 
+                  rotate: [0, 5, 0, -5, 0],
+                  y: [0, -5, 0, -5, 0] 
+                }}
+                transition={{ 
+                  duration: 5, 
+                  ease: "easeInOut", 
+                  repeat: Infinity 
+                }}
               />
-              <button 
-                type="submit" 
-                className="bg-primary hover:bg-[#D4B6D0] text-white px-6 py-3 rounded-r-button font-medium transition-all duration-300 btn-hover whitespace-nowrap"
+            </div>
+
+            {/* Success Message */}
+            {subscribed && (
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-green-500 text-sm text-center mt-3"
               >
-                {subscribed ? "Subscribed!" : "Subscribe"}
-              </button>
-            </form>
-            <motion.div 
-              className="absolute -right-28 top-1/2 transform -translate-y-1/2 w-20 h-20 hidden md:block"
-              style={{
-                backgroundImage: "url('https://readdy.ai/api/search-image?query=cute%20purple%20gift%20box%20with%20pastel%20pink%20ribbon%20bow%20on%20top%2C%20soft%20lighting%2C%20delicate%20details%2C%203D%20rendered%2C%20centered%20composition%20on%20pure%20white%20background&width=200&height=200&seq=5&orientation=squarish')",
-                backgroundSize: "contain",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center"
-              }}
-              animate={{ 
-                rotate: [0, 5, 0, -5, 0],
-                y: [0, -5, 0, -5, 0] 
-              }}
-              transition={{ 
-                duration: 5, 
-                ease: "easeInOut", 
-                repeat: Infinity 
-              }}
-            />
+                Thanks for subscribing! 🎉
+              </motion.p>
+            )}
           </div>
         </motion.div>
 

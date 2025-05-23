@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
+import {
+  RiSubtractLine,
+  RiAddLine,
+  RiDeleteBinLine,
+  RiSecurePaymentLine
+} from '@remixicon/react';
 
 // Mock cart data
 const mockCartItems = [
@@ -106,7 +112,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="bg-bg-main py-12">
+    <div className="bg-bg-main dark:bg-gray-900 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           className="text-center mb-10"
@@ -114,22 +120,22 @@ const Cart = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-4xl font-semibold text-dark-purple mb-3">Your Cart 🛍️</h1>
-          <p className="text-medium-purple max-w-xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-semibold text-dark-purple dark:text-white mb-3 mt-10">Your Cart 🛍️</h1>
+          <p className="text-medium-purple dark:text-gray-300 max-w-xl mx-auto">
             Review your items and proceed to checkout when you're ready!
           </p>
         </motion.div>
 
         {cartItems.length === 0 ? (
           <motion.div 
-            className="bg-white rounded-lg p-8 text-center max-w-xl mx-auto"
+            className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center max-w-xl mx-auto"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
             <div className="text-6xl mb-4">🌸</div>
-            <h2 className="text-xl font-medium text-dark-purple mb-4">Your cart is empty</h2>
-            <p className="text-medium-purple mb-6">
+            <h2 className="text-xl font-medium text-dark-purple dark:text-white mb-4">Your cart is empty</h2>
+            <p className="text-medium-purple dark:text-gray-300 mb-6">
               Looks like you haven't added any cute items to your cart yet.
             </p>
             <Button to="/shop">
@@ -145,12 +151,12 @@ const Cart = () => {
               initial="hidden"
               animate="visible"
             >
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[#F9F0F7]">
-                  <h2 className="text-xl font-medium text-dark-purple">Shopping Cart ({cartItems.length} items)</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[#F9F0F7] dark:border-gray-700">
+                  <h2 className="text-xl font-medium text-dark-purple dark:text-white">Shopping Cart ({cartItems.length} items)</h2>
                 </div>
                 
-                <div className="divide-y divide-[#F9F0F7]">
+                <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
                   {cartItems.map((item) => (
                     <motion.div 
                       key={item.id} 
@@ -170,13 +176,13 @@ const Cart = () => {
                       <div className="flex-grow">
                         <Link 
                           to={`/product/${item.product.id}`} 
-                          className="text-lg font-medium text-dark-purple hover:text-primary"
+                          className="text-lg font-medium text-dark-purple dark:text-white hover:text-primary dark:hover:text-primary"
                         >
                           {item.product.title}
                         </Link>
                         
                         {/* Variants */}
-                        <div className="text-sm text-medium-purple mt-1 space-y-1">
+                        <div className="text-sm text-medium-purple dark:text-gray-300 mt-1 space-y-1">
                           {Object.entries(item.variant).map(([key, value]) => (
                             <p key={key}>{key.charAt(0).toUpperCase() + key.slice(1)}: {value}</p>
                           ))}
@@ -190,34 +196,34 @@ const Cart = () => {
                       
                       {/* Quantity Controls */}
                       <div className="flex flex-col sm:items-end gap-2">
-                        <div className="flex items-center border border-[#F9F0F7] rounded-button overflow-hidden">
+                        <div className="flex items-center border border-[#F9F0F7] dark:border-gray-700 rounded-button overflow-hidden">
                           <button 
-                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7]"
+                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
                             onClick={() => handleQuantityChange(item.id, -1)}
                             disabled={item.quantity <= 1}
                           >
-                            <i className="ri-subtract-line"></i>
+                            <RiSubtractLine className="w-5 h-5" />
                           </button>
-                          <span className="w-8 h-8 flex items-center justify-center text-dark-purple">
+                          <span className="w-8 h-8 flex items-center justify-center text-dark-purple dark:text-white">
                             {item.quantity}
                           </span>
                           <button 
-                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7]"
+                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
                             onClick={() => handleQuantityChange(item.id, 1)}
                             disabled={item.quantity >= 10}
                           >
-                            <i className="ri-add-line"></i>
+                            <RiAddLine className="w-5 h-5" />
                           </button>
                         </div>
                         
                         <button 
-                          className="text-xs text-medium-purple hover:text-primary flex items-center"
+                          className="text-xs text-medium-purple dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center"
                           onClick={() => handleRemoveItem(item.id)}
                         >
-                          <i className="ri-delete-bin-line mr-1"></i> Remove
+                          <RiDeleteBinLine className="w-4 h-4 mr-1" /> Remove
                         </button>
                         
-                        <div className="text-dark-purple font-medium mt-1">
+                        <div className="text-dark-purple dark:text-white font-medium mt-1">
                           ${(item.product.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
@@ -234,52 +240,52 @@ const Cart = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-20">
-                <div className="p-6 border-b border-[#F9F0F7]">
-                  <h2 className="text-xl font-medium text-dark-purple">Order Summary</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden sticky top-20">
+                <div className="p-6 border-b border-[#F9F0F7] dark:border-gray-700">
+                  <h2 className="text-xl font-medium text-dark-purple dark:text-white">Order Summary</h2>
                 </div>
                 
                 <div className="p-6 space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-medium-purple">Subtotal</span>
-                    <span className="text-dark-purple font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="text-medium-purple dark:text-gray-300">Subtotal</span>
+                    <span className="text-dark-purple dark:text-white font-medium">${subtotal.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-medium-purple">Shipping</span>
-                    <span className="text-dark-purple font-medium">
+                    <span className="text-medium-purple dark:text-gray-300">Shipping</span>
+                    <span className="text-dark-purple dark:text-white font-medium">
                       {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
                     </span>
                   </div>
                   
                   {couponApplied && (
-                    <div className="flex justify-between text-green-600">
+                    <div className="flex justify-between text-green-500">
                       <span>Discount (10%)</span>
                       <span>-${couponDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   
-                  <div className="pt-4 border-t border-[#F9F0F7]">
+                  <div className="pt-4 border-t border-[#F9F0F7] dark:border-gray-700">
                     <div className="flex justify-between text-lg">
-                      <span className="font-medium text-dark-purple">Total</span>
-                      <span className="font-semibold text-dark-purple">${total.toFixed(2)}</span>
+                      <span className="font-medium text-dark-purple dark:text-white">Total</span>
+                      <span className="font-semibold text-dark-purple dark:text-white">${total.toFixed(2)}</span>
                     </div>
                     
-                    <p className="text-xs text-medium-purple mt-1">
+                    <p className="text-xs text-medium-purple dark:text-gray-400 mt-1">
                       Including taxes and duties
                     </p>
                   </div>
                   
                   {/* Coupon Code */}
                   <form onSubmit={handleApplyCoupon} className="pt-4">
-                    <label className="block text-dark-purple font-medium mb-2">Have a coupon?</label>
+                    <label className="block text-dark-purple dark:text-white font-medium mb-2">Have a coupon?</label>
                     <div className="flex">
                       <input 
                         type="text" 
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                         placeholder="Enter coupon code" 
-                        className="cute-input flex-1 py-2 px-3 rounded-l-button text-dark-purple"
+                        className="cute-input dark:bg-gray-700 dark:text-white dark:border-gray-600 flex-1 py-2 px-3 rounded-l-button text-dark-purple"
                       />
                       <button 
                         type="submit" 
@@ -289,7 +295,7 @@ const Cart = () => {
                       </button>
                     </div>
                     {couponApplied && (
-                      <p className="text-xs text-green-600 mt-1">Coupon applied successfully!</p>
+                      <p className="text-xs text-green-500 mt-1">Coupon applied successfully!</p>
                     )}
                     {couponCode && !couponApplied && (
                       <p className="text-xs text-red-500 mt-1">Invalid coupon code</p>
