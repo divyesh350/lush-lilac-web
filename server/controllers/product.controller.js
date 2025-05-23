@@ -13,6 +13,7 @@ exports.createProduct = async (req, res) => {
       personalizationInstructions,
       category,
       slug,
+      isFeatured,
     } = req.body;
 
     // Validate required fields
@@ -84,6 +85,7 @@ exports.createProduct = async (req, res) => {
       personalizationInstructions: personalizationInstructions || '',
       category: category || '',
       slug: slug || '',
+      isFeatured,
     });
 
     res.status(201).json(product);
@@ -194,6 +196,8 @@ exports.updateProduct = async (req, res) => {
       category,
       slug,
       codAvailable,
+      isFeatured,
+      isActive,
     } = req.body;
 
     // Prepare new media info (unchanged)
@@ -235,6 +239,8 @@ exports.updateProduct = async (req, res) => {
         ...(slug !== undefined && { slug }),
         ...(codAvailable !== undefined && { codAvailable }),
         ...(newMedia.length > 0 && { $push: { media: { $each: newMedia } } }),
+        ...(isFeatured !== undefined && { isFeatured }),
+        ...(isActive !== undefined && { isActive }),
       },
       { new: true }
     );

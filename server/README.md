@@ -166,6 +166,7 @@ Response (200):
   customizable: Boolean, // Default: false
   personalizationInstructions: String,
   isActive: Boolean      // Default: true
+  isFeatured:Boolean     // Default: false
 }
 ```
 

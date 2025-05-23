@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema(
     personalizationInstructions: { type: String },
 
     isActive: { type: Boolean, default: true }, // soft delete toggle
+    isFeatured: { type: Boolean, default: false }, // featured product
   },
   { timestamps: true }
 );
