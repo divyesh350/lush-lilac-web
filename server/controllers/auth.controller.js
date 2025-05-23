@@ -7,7 +7,6 @@ const {
 
 exports.register = async (req, res) => {
   try {
-    console.log("Incoming registration data:", req.body);
     const { name, email, password } = req.body;
     const role = req.body.role || 'customer';
     const userExists = await User.findOne({ email });
@@ -94,11 +93,39 @@ exports.refreshToken = async (req, res) => {
 
     const decoded = verifyRefreshToken(token);
     const user = await User.findById(decoded.id);
-    if (!user || user.refreshToken !== token) return res.status(403).json({ message: 'Forbidden' });
+    if (!user || user.refreshToken !== token) {
+      return res.status(403).json({ message: 'Forbidden or token mismatch' });
+    }
 
+    // Generate new access and refresh tokens
     const newAccessToken = generateAccessToken(user);
-    res.status(200).json({ accessToken: newAccessToken });
+    const newRefreshToken = generateRefreshToken(user);
+
+    // Save the new refresh token in DB
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    // Set new refresh token in HTTP-only cookie
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    
+    res.status(200).json({ 
+      accessToken: newAccessToken,
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      }
+    });
+
   } catch (err) {
+    console.error('Refresh token error:', err);
     res.status(403).json({ message: 'Invalid or expired refresh token' });
   }
 };

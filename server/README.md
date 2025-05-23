@@ -83,12 +83,9 @@ Response (201):
     "email": "john@example.com",
     "role": "customer"
   },
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-
-Response (400):
-{
-  "message": "User already exists"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "message": "User registered successfully"
 }
 ```
 
@@ -110,12 +107,9 @@ Response (200):
     "email": "john@example.com",
     "role": "customer"
   },
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-
-Response (401):
-{
-  "message": "Invalid email or password"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer",
+  "message": "User logged in successfully"
 }
 ```
 
@@ -126,12 +120,8 @@ Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 Response (200):
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-
-Response (403):
-{
-  "message": "Invalid or expired refresh token"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "Bearer"
 }
 ```
 
@@ -416,7 +406,9 @@ CLOUDINARY_API_SECRET=your_api_secret
    - Dual token system (Access & Refresh tokens)
    - Access tokens expire after 15 minutes
    - Refresh tokens expire after 7 days
-   - Secure cookie storage for refresh tokens
+   - Secure httpOnly cookie storage for refresh tokens
+   - Refresh token rotation on each refresh
+   - Clear token type indication for frontend integration
 
 2. **Password Security**:
    - Password hashing with bcrypt
@@ -431,6 +423,12 @@ CLOUDINARY_API_SECRET=your_api_secret
    - Input validation for all requests
    - Email format validation
    - Required field checks
+
+5. **Token Security**:
+   - Refresh tokens stored in httpOnly cookies
+   - No refresh tokens in JSON responses
+   - Automatic refresh token rotation
+   - Clear token type specification
 
 ## 🚀 Getting Started
 

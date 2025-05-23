@@ -22,7 +22,7 @@ const Form = ({ title, fields, buttonText, onSubmit, error, children }) => {
             <label className="block text-medium-purple dark:text-text-secondary mb-2">{field.label}</label>
             <div className="relative">
               <input
-                type={field.type}
+                type={field.type === 'password' ? (showPasswords[field.name] ? 'text' : 'password') : field.type}
                 name={field.name}
                 value={field.value}
                 onChange={field.onChange}
@@ -37,9 +37,9 @@ const Form = ({ title, fields, buttonText, onSubmit, error, children }) => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-medium-purple hover:text-primary transition-colors"
                 >
                   {showPasswords[field.name] ? (
-                    <RiEyeOffLine className="w-5 h-5" />
-                  ) : (
                     <RiEyeLine className="w-5 h-5" />
+                  ) : (
+                    <RiEyeOffLine className="w-5 h-5" />
                   )}
                 </button>
               )}

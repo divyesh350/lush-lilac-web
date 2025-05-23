@@ -1,43 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Form from '../components/ui/Form';
-import useAuthStore from '../store/authStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated, error: authError, clearError } = useAuthStore();
+  const { login, isAuthenticated, error: authError, clearError, isLoading } = useAuthStore();
+
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localError, setLocalError] = useState('');
 
   useEffect(() => {
-    // Clear any previous errors
-    clearError();
-    // If user is already authenticated, redirect to home
+    // If already authenticated, redirect to homepage or dashboard
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/', { replace: true });
     }
-  }, [isAuthenticated, navigate, clearError]);
+  }, [isAuthenticated, navigate]);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  
+  // Sync store error to local error state for display
+  useEffect(() => {
+    if (authError) {
+      setLocalError(authError);
+    }
+  }, [authError]);
+
+  const handleChange = e => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (localError) {
+      setLocalError('');
+      clearError();
+    }
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
-    if (isSubmitting) return;
-    
-    setError('');
-    setIsSubmitting(true);
-    
-    try {
-      const result = await login(form.email, form.password);
-      if (result.success) {
-        navigate('/');
-      } else {
-        setError(result.error);
-      }
-    } finally {
-      setIsSubmitting(false);
+    setLocalError('');
+
+    // Basic client-side validation
+    if (!form.email || !form.password) {
+      setLocalError('Please fill in both email and password.');
+      return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function isValidEmail(email) {
+      return emailRegex.test(email);
+    }
+    if (!isValidEmail(form.email)) {
+      setLocalError('Invalid email address.');
+      return;
+    }
+    const result = await login(form.email, form.password);
+    if (!result.success) {
+      setLocalError(result.error || 'Login failed. Please try again.');
+    }
+    // On success, the `useEffect` will handle navigation
   };
 
   return (
@@ -47,12 +64,13 @@ const Login = () => {
         <Form
           title="Login to Lush Lilac"
           fields={[
-            { label: 'Email', type: 'email', name: 'email', value: form.email, onChange: handleChange, placeholder: 'Enter your email' },
-            { label: 'Password', type: 'password', name: 'password', value: form.password, onChange: handleChange, placeholder: 'Enter your password' }
+            { label: 'Email', type: 'email', name: 'email', value: form.email, onChange: handleChange, placeholder: 'Enter your email', autoComplete: 'email' },
+            { label: 'Password', type: 'password', name: 'password', value: form.password, onChange: handleChange, placeholder: 'Enter your password', autoComplete: 'current-password' }
           ]}
-          buttonText={isSubmitting ? "Logging in..." : "Login"}
+          buttonText={isLoading ? "Logging in..." : "Login"}
           onSubmit={handleSubmit}
-          error={error || authError}
+          error={localError}
+          disabled={isLoading}
         >
           <div className="text-center mt-4">
             <a href="/register" className="text-primary dark:text-primary hover:underline">Don't have an account? Register</a>
