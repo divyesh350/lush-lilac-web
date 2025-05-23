@@ -39,7 +39,7 @@ const ProductCard = ({
       transition={{ duration: 0.5 }}
     >
       {/* Product Image */}
-      <Link to={`/product/${product.id}`}>
+      <Link to={`/product/${product._id}`}>
         <div className="relative h-64 bg-[#F9F0F7] dark:bg-gray-700 overflow-hidden group">
           {product.media && product.media.length > 0 ? (
             <img 
@@ -84,7 +84,7 @@ const ProductCard = ({
                 ${variant === 'primary' ? 'text-[#6BBBFF] dark:text-primary' : 'text-medium-purple dark:text-text-secondary'} 
                 font-medium`
               }>
-                ${product.price?.toFixed(2)}
+                ${product.basePrice}
               </span>
             </div>
             <h3 className={`
@@ -116,7 +116,7 @@ const ProductCard = ({
             {/* Default card layout */}
             <h3 className="text-dark-purple dark:text-text-primary font-medium">{product.title}</h3>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-medium-purple dark:text-text-secondary font-medium">${product.price?.toFixed(2)}</span>
+              <span className="text-medium-purple dark:text-text-secondary font-medium">${product.basePrice?.toFixed(2)}</span>
               <div className="flex space-x-2">
                 <motion.button 
                   className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"

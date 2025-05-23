@@ -4,15 +4,9 @@ import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
 import { Link } from 'react-router-dom';
+import useProductStore from '../store/useProductStore';
 
-// Mock data for products
-const mockBestsellers = [
-  { id: 1, title: 'Floral Phone Case', price: 19.99, media: [] },
-  { id: 2, title: 'Pastel Mouse Pad', price: 14.99, media: [] },
-  { id: 3, title: 'Flower Mirror', price: 24.99, media: [] },
-  { id: 4, title: 'Lilac Candle', price: 16.99, media: [] }
-];
-
+// Mock data for new arrivals (we'll keep this for now)
 const mockNewArrivals = [
   { id: 5, title: 'Butterfly Phone Case', price: 22.99, media: [] },
   { id: 6, title: 'Floral Mouse Pad', price: 18.99, media: [] },
@@ -28,14 +22,18 @@ const categories = [
 ];
 
 const Home = () => {
-  const [bestsellers, setBestsellers] = useState(mockBestsellers);
+  const { 
+    featuredProducts, 
+    fetchFeaturedProducts, 
+    loading: productsLoading, 
+    error: productsError 
+  } = useProductStore();
   const [newArrivals, setNewArrivals] = useState(mockNewArrivals);
 
-  // In a real app, you would fetch the data from the API
+  // Fetch featured products
   useEffect(() => {
-    // Fetch bestsellers and new arrivals from API
-    // For now, we'll use the mock data
-  }, []);
+    fetchFeaturedProducts();
+  }, [fetchFeaturedProducts]);
 
   // Animation variants
   const containerVariants = {
@@ -80,8 +78,8 @@ const Home = () => {
         {/* Decorative Flowers handled by Layout component */}
       </div>
 
-      {/* Featured Products */}
-      <div className="py-16  dark:bg-gray-900 bg-cover bg-center">
+      {/* Featured Products (Bestsellers) */}
+      <div className="py-16 dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -96,17 +94,32 @@ const Home = () => {
             </p>
           </motion.div>
 
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {bestsellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </motion.div>
+          {productsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-medium-purple dark:text-text-secondary">Loading bestsellers...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-8">
+              <p className="text-red-500">{productsError}</p>
+            </div>
+          ) : !featuredProducts || featuredProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-medium-purple dark:text-text-secondary">No featured products available at the moment.</p>
+            </div>
+          ) : (
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              {featuredProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
 
@@ -146,7 +159,7 @@ const Home = () => {
       </div>
 
       {/* New Arrivals */}
-      <div className="py-16  dark:bg-gray-900 bg-cover bg-center">
+      <div className="py-16 dark:bg-gray-900 bg-cover bg-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-12"

@@ -283,3 +283,40 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete product', error: err.message });
   }
 };
+
+exports.getFeaturedProducts = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Find featured products with pagination and ensure they are active
+    const products = await Product.find({ 
+      isFeatured: true,
+      isActive: true 
+    })
+      .skip(skip)
+      .limit(Number(limit))
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Get total count of featured products
+    const total = await Product.countDocuments({ 
+      isFeatured: true,
+      isActive: true 
+    });
+
+    res.json({
+      success: true,
+      products,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to fetch featured products', 
+      error: error.message 
+    });
+  }
+};

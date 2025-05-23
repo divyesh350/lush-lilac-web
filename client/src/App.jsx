@@ -13,6 +13,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import ThemeToggle from "./components/ui/ThemeToggle";
 import AuthProvider from "./providers/AuthProvider";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ProductDetails from "./pages/ProductDetails";
 const App = () => {
   return (
     <AuthProvider>
@@ -52,6 +53,7 @@ const App = () => {
                 <Route path="contact" element={<Contact />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path="product/:id" element={<ProductDetails />} />
 
                 {/* ✅ Protected Routes */}
                 <Route
