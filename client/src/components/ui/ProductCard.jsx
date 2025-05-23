@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from './Button';
@@ -13,22 +13,52 @@ const ProductCard = ({
 }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  // Handle wishlist toggle
-  const handleWishlistToggle = (e) => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleWishlistToggle = useCallback((e) => {
     e.preventDefault();
-    setIsWishlisted(!isWishlisted);
-    if (onAddToWishlist) {
-      onAddToWishlist(product);
-    }
-  };
+    setIsWishlisted(prev => {
+      const newState = !prev;
+      if (onAddToWishlist) {
+        onAddToWishlist(product);
+      }
+      return newState;
+    });
+  }, [product, onAddToWishlist]);
 
-  // Handle add to cart
-  const handleAddToCart = (e) => {
+  const handleAddToCart = useCallback((e) => {
     e.preventDefault();
     if (onAddToCart) {
       onAddToCart(product);
     }
-  };
+  }, [product, onAddToCart]);
+
+  // Memoize computed values
+  const badgeStyles = useMemo(() => {
+    if (variant === 'primary') {
+      return 'bg-[#FFE4E1] dark:bg-gray-600 text-[#6BBBFF] dark:text-primary';
+    }
+    if (variant === 'secondary') {
+      return 'bg-[#FFF4D2] dark:bg-gray-600 text-dark-purple dark:text-primary';
+    }
+    return 'bg-[#D4F1F4] dark:bg-gray-600 text-dark-purple dark:text-primary';
+  }, [variant]);
+
+  const priceStyles = useMemo(() => {
+    return variant === 'primary' 
+      ? 'text-[#6BBBFF] dark:text-primary' 
+      : 'text-medium-purple dark:text-text-secondary';
+  }, [variant]);
+
+  const titleStyles = useMemo(() => {
+    return variant === 'primary'
+      ? 'text-[#6BBBFF] dark:text-primary'
+      : 'text-dark-purple dark:text-text-primary';
+  }, [variant]);
+
+  // Memoize the main image URL
+  const mainImageUrl = useMemo(() => {
+    return product.media?.[0]?.url;
+  }, [product.media]);
 
   return (
     <motion.div 
@@ -41,11 +71,12 @@ const ProductCard = ({
       {/* Product Image */}
       <Link to={`/product/${product._id}`}>
         <div className="relative h-64 bg-[#F9F0F7] dark:bg-gray-700 overflow-hidden group">
-          {product.media && product.media.length > 0 ? (
+          {mainImageUrl ? (
             <img 
-              src={product.media[0].url} 
+              src={mainImageUrl} 
               alt={product.title} 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-primary opacity-50">
@@ -55,11 +86,7 @@ const ProductCard = ({
           
           {/* New badge */}
           {isNew && (
-            <div className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs
-              ${variant === 'primary' ? 'bg-[#FFE4E1] dark:bg-gray-600 text-[#6BBBFF] dark:text-primary' : 
-               variant === 'secondary' ? 'bg-[#FFF4D2] dark:bg-gray-600 text-dark-purple dark:text-primary' : 
-               'bg-[#D4F1F4] dark:bg-gray-600 text-dark-purple dark:text-primary'}`
-            }>
+            <div className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs ${badgeStyles}`}>
               New
             </div>
           )}
@@ -72,25 +99,14 @@ const ProductCard = ({
           <>
             {/* New arrival card layout */}
             <div className="flex justify-between items-center mb-2">
-              <span className={`
-                ${variant === 'primary' ? 'bg-[#FFE4E1] dark:bg-gray-600 text-[#6BBBFF] dark:text-primary' : 
-                 variant === 'secondary' ? 'bg-[#FFF4D2] dark:bg-gray-600 text-dark-purple dark:text-primary' : 
-                 'bg-[#D4F1F4] dark:bg-gray-600 text-dark-purple dark:text-primary'} 
-                px-3 py-1 rounded-full text-xs`
-              }>
+              <span className={`${badgeStyles} px-3 py-1 rounded-full text-xs`}>
                 New
               </span>
-              <span className={`
-                ${variant === 'primary' ? 'text-[#6BBBFF] dark:text-primary' : 'text-medium-purple dark:text-text-secondary'} 
-                font-medium`
-              }>
-                ${product.basePrice}
+              <span className={`${priceStyles} font-medium`}>
+                <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{product.basePrice}
               </span>
             </div>
-            <h3 className={`
-              ${variant === 'primary' ? 'text-[#6BBBFF] dark:text-primary' : 'text-dark-purple dark:text-text-primary'} 
-              font-medium`
-            }>
+            <h3 className={`${titleStyles} font-medium`}>
               {product.title}
             </h3>
             <div className="flex justify-between items-center mt-2">
@@ -116,7 +132,9 @@ const ProductCard = ({
             {/* Default card layout */}
             <h3 className="text-dark-purple dark:text-text-primary font-medium">{product.title}</h3>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-medium-purple dark:text-text-secondary font-medium">${product.basePrice?.toFixed(2)}</span>
+              <span className="text-medium-purple dark:text-text-secondary font-medium text-base">
+                <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{product.basePrice?.toFixed(2)}
+              </span>
               <div className="flex space-x-2">
                 <motion.button 
                   className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"

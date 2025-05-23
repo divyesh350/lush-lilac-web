@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
@@ -20,6 +20,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
+  // Memoize the product loading effect
   useEffect(() => {
     const loadProduct = async () => {
       if (id) {
@@ -41,21 +42,22 @@ const ProductDetails = () => {
     }
   }, [selectedProduct]);
 
-  // Handle quantity change
-  const handleQuantityChange = (change) => {
-    const newQuantity = quantity + change;
-    if (newQuantity > 0 && newQuantity <= 10) {
-      setQuantity(newQuantity);
-    }
-  };
+  // Memoize handlers
+  const handleQuantityChange = useCallback((change) => {
+    setQuantity(prev => {
+      const newQuantity = prev + change;
+      if (newQuantity > 0 && newQuantity <= 10) {
+        return newQuantity;
+      }
+      return prev;
+    });
+  }, []);
 
-  // Handle variant selection
-  const handleVariantChange = (variant) => {
+  const handleVariantChange = useCallback((variant) => {
     setSelectedVariant(variant);
-  };
+  }, []);
 
-  // Handle adding to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     if (!selectedVariant) return;
     
     console.log('Added to cart:', {
@@ -64,13 +66,46 @@ const ProductDetails = () => {
       quantity
     });
     // TODO: Implement add to cart functionality
-  };
+  }, [selectedProduct, selectedVariant, quantity]);
 
-  // Handle wishlist toggle
-  const handleWishlistToggle = () => {
-    setIsWishlisted(!isWishlisted);
+  const handleWishlistToggle = useCallback(() => {
+    setIsWishlisted(prev => !prev);
     // TODO: Implement wishlist functionality
-  };
+  }, []);
+
+  // Memoize computed values
+  const totalPrice = useMemo(() => {
+    return (selectedProduct?.basePrice || 0) + (selectedVariant?.price || 0);
+  }, [selectedProduct?.basePrice, selectedVariant?.price]);
+
+  const productMedia = useMemo(() => {
+    return selectedProduct?.media || [];
+  }, [selectedProduct?.media]);
+
+  const productReviews = useMemo(() => {
+    return selectedProduct?.reviews || [];
+  }, [selectedProduct?.reviews]);
+
+  const relatedProducts = useMemo(() => {
+    return selectedProduct?.relatedProducts || [];
+  }, [selectedProduct?.relatedProducts]);
+
+  // Memoize stock status
+  const stockStatus = useMemo(() => {
+    if (!selectedVariant) {
+      return {
+        hasStock: false,
+        message: 'Select a variant to see stock',
+        color: 'gray'
+      };
+    }
+    
+    return {
+      hasStock: selectedVariant.stock > 0,
+      message: selectedVariant.stock > 0 ? `${selectedVariant.stock} in stock` : 'Out of stock',
+      color: selectedVariant.stock > 0 ? 'green' : 'red'
+    };
+  }, [selectedVariant]);
 
   if (productLoading) {
     return (
@@ -100,11 +135,6 @@ const ProductDetails = () => {
     );
   }
 
-  // Ensure media array exists before rendering
-  const productMedia = selectedProduct.media || [];
-  const productReviews = selectedProduct.reviews || [];
-  const relatedProducts = selectedProduct.relatedProducts || [];
-
   return (
     <div className="bg-bg-main py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,6 +161,7 @@ const ProductDetails = () => {
                 src={productMedia[selectedImage]?.url} 
                 alt={selectedProduct.title} 
                 className="w-full h-auto object-contain aspect-square"
+                loading="lazy"
               />
             </div>
             
@@ -151,6 +182,7 @@ const ProductDetails = () => {
                       src={image.url} 
                       alt={`${selectedProduct.title} ${index + 1}`} 
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </motion.button>
                 ))}
@@ -168,36 +200,17 @@ const ProductDetails = () => {
             <h1 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-2">{selectedProduct.title}</h1>
             
             <p className="text-2xl font-medium text-dark-purple dark:text-primary mb-6">
-              ${(selectedProduct.basePrice + (selectedVariant?.price || 0)).toFixed(2)}
+              <small className='text-dark-purple dark:text-text-primary relative -top-2 text-sm'>₹</small>{totalPrice.toFixed(2)}
             </p>
 
             {/* Stock Status */}
             <div className="mb-6">
-              {selectedVariant ? (
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${
-                    selectedVariant.stock > 0 
-                      ? 'bg-green-500' 
-                      : 'bg-red-500'
-                  }`}></span>
-                  <span className={`text-sm font-medium ${
-                    selectedVariant.stock > 0 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {selectedVariant.stock > 0 
-                      ? `${selectedVariant.stock} in stock` 
-                      : 'Out of stock'}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-gray-400"></span>
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Select a variant to see stock
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <span className={`w-3 h-3 rounded-full bg-${stockStatus.color}-500`}></span>
+                <span className={`text-sm font-medium text-${stockStatus.color}-600 dark:text-${stockStatus.color}-400`}>
+                  {stockStatus.message}
+                </span>
+              </div>
             </div>
             
             <p className="text-medium-purple dark:text-text-secondary mb-6">{selectedProduct.description}</p>
