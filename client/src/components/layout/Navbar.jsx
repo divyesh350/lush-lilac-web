@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Badge, styled } from '@mui/material';
 import {
   RiSearchLine,
   RiFlowerLine,
@@ -11,6 +12,23 @@ import {
   RiLogoutBoxLine,
 } from "@remixicon/react";
 import { useAuthStore } from "../../store/useAuthStore";
+import useWishlistStore from "../../store/useWishlistStore";
+
+// Styled Badge component
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    right: -3,
+    top: 3,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+    backgroundColor: '#D4B6D0',
+    color: '#fff',
+    fontSize: '0.75rem',
+    minWidth: '20px',
+    height: '20px',
+    borderRadius: '10px',
+  },
+}));
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -20,6 +38,7 @@ const Navbar = () => {
 
   // Pull user and logout from store
   const { user, logout, isAuthenticated } = useAuthStore();
+  const { wishlist } = useWishlistStore();
 
   // Handle scroll effect
   useEffect(() => {
@@ -168,7 +187,9 @@ const Navbar = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
+                <StyledBadge badgeContent={wishlist.length} showZero>
+                  <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
+                </StyledBadge>
               </motion.div>
             </Link>
 
