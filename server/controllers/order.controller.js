@@ -84,11 +84,10 @@ exports.createRazorpayOrder = async (req, res) => {
 exports.createOrder = async (req, res) => {
   try {
     const { items, totalAmount, shippingAddress, paymentInfo } = req.body;
-
     if (!items || !totalAmount || !shippingAddress || !paymentInfo) {
       return res.status(400).json({ message: "Missing required order fields" });
     }
-
+    console.log("Incoming order payload:", req.body);
     const existingOrder = await Order.findOne({
       "paymentInfo.paymentId": paymentInfo.paymentId,
     });
@@ -111,7 +110,10 @@ exports.createOrder = async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email");
+    const populatedOrder = await Order.findById(savedOrder._id).populate(
+      "user",
+      "name email"
+    );
 
     const pdfBuffer = await generateReceiptPDF(populatedOrder);
 
@@ -128,7 +130,10 @@ exports.createOrder = async (req, res) => {
       receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
     });
   } catch (err) {
-    res.status(500).json({ message: "Failed to create order", error: err.message });
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Failed to create order", error: err.message });
   }
 };
 
@@ -161,7 +166,10 @@ exports.createCodOrder = async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email");
+    const populatedOrder = await Order.findById(savedOrder._id).populate(
+      "user",
+      "name email"
+    );
 
     const pdfBuffer = await generateReceiptPDF(populatedOrder);
 
@@ -178,7 +186,9 @@ exports.createCodOrder = async (req, res) => {
       receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
     });
   } catch (err) {
-    res.status(500).json({ message: "COD order creation failed", error: err.message });
+    res
+      .status(500)
+      .json({ message: "COD order creation failed", error: err.message });
   }
 };
 
@@ -187,10 +197,14 @@ exports.createCodOrder = async (req, res) => {
 // ================================
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(orders);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch user orders", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch user orders", error: err.message });
   }
 };
 
@@ -199,7 +213,14 @@ exports.getMyOrders = async (req, res) => {
 // ================================
 exports.getOrders = async (req, res) => {
   try {
-    const { status, userId, startDate, endDate, page = 1, limit = 10 } = req.query;
+    const {
+      status,
+      userId,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 10,
+    } = req.query;
 
     const query = {};
 
@@ -233,7 +254,9 @@ exports.getOrders = async (req, res) => {
       pages: Math.ceil(total / limit),
     });
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch orders", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch orders", error: err.message });
   }
 };
 
@@ -242,7 +265,10 @@ exports.getOrders = async (req, res) => {
 // ================================
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate("user", "name email");
+    const order = await Order.findById(req.params.id).populate(
+      "user",
+      "name email"
+    );
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
@@ -250,12 +276,16 @@ exports.getOrderById = async (req, res) => {
     const isAdmin = req.user.role === "admin";
 
     if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Not authorized to view this order" });
+      return res
+        .status(403)
+        .json({ message: "Not authorized to view this order" });
     }
 
     res.status(200).json(order);
   } catch (err) {
-    res.status(500).json({ message: "Failed to get order", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to get order", error: err.message });
   }
 };
 
@@ -274,6 +304,8 @@ exports.updateOrderStatus = async (req, res) => {
 
     res.status(200).json(updatedOrder);
   } catch (err) {
-    res.status(500).json({ message: "Failed to update order status", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update order status", error: err.message });
   }
 };

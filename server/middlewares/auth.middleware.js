@@ -13,11 +13,14 @@ exports.verifyToken = (req, res, next) => {
   });
 };
 
-exports.requireRole = (role) => {
+exports.requireRole = (allowedRoles) => {
   return (req, res, next) => {
-    if (req.user.role !== role)
+    if (!allowedRoles.includes(req.user.role)) {
+      console.log('User role:', req.user.role);
       return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+    }
     next();
   };
 };
+
 
