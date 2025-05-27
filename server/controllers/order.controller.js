@@ -3,33 +3,84 @@ const Product = require("../models/Product");
 const razorpay = require("../config/razorpay");
 const sendEmail = require("../utils/email.util");
 const generateReceiptPDF = require("../utils/pdfReceipt.util");
-const crypto = require("crypto");
 
-// Create Razorpay payment order
+// Util: Build Order Items Array
+const buildOrderItems = async (items, checkCod = false) => {
+  const orderItems = [];
+
+  for (const item of items) {
+    const product = await Product.findById(item.productId);
+    if (!product) {
+      throw new Error(`Product not found: ${item.productId}`);
+    }
+
+    if (checkCod && !product.codAvailable) {
+      throw new Error(`COD is not available for product: ${product.title}`);
+    }
+
+    const variant = product.variants.find(
+      (v) =>
+        v.size === item.variant.size &&
+        v.color === item.variant.color &&
+        v.material === item.variant.material
+    );
+
+    if (!variant) {
+      throw new Error(`Variant not found for product: ${product.title}`);
+    }
+
+    const variantKey = [variant.size, variant.color, variant.material]
+      .filter(Boolean)
+      .join("-");
+
+    const thumbnailUrl =
+      product.media.find((m) => m.type === "image")?.url || "";
+
+    orderItems.push({
+      productId: item.productId,
+      variant: item.variant,
+      quantity: item.quantity,
+      price: item.price,
+      variantKey,
+      productSnapshot: {
+        title: product.title,
+        thumbnailUrl,
+        basePrice: product.basePrice,
+      },
+    });
+  }
+
+  return orderItems;
+};
+
+// ================================
+// Razorpay: Create Payment Order
+// ================================
 exports.createRazorpayOrder = async (req, res) => {
   try {
     const { amount, currency = "INR", receipt } = req.body;
-
     if (!amount) {
       return res.status(400).json({ message: "Amount is required" });
     }
 
-    const options = {
-      amount: amount * 100, // Razorpay expects amount in paise
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
       currency,
       receipt: receipt || `receipt_order_${Date.now()}`,
-    };
+    });
 
-    const order = await razorpay.orders.create(options);
     res.status(200).json(order);
   } catch (err) {
-    res.status(500).json({ message: "Failed to create Razorpay order", error: err.message });
+    res.status(500).json({
+      message: "Failed to create Razorpay order",
+      error: err.message,
+    });
   }
 };
 
-
-
-// Create a new order after successful Razorpay payment (assumes verifyRazorpayPayment middleware was called)
+// ================================
+// Create Paid Order (Razorpay)
+// ================================
 exports.createOrder = async (req, res) => {
   try {
     const { items, totalAmount, shippingAddress, paymentInfo } = req.body;
@@ -38,46 +89,16 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: "Missing required order fields" });
     }
 
-    const orderItems = [];
-
-    for (const item of items) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        return res.status(404).json({ message: `Product not found: ${item.productId}` });
-      }
-
-      const variant = product.variants.find(
-        (v) =>
-          v.size === item.variant.size &&
-          v.color === item.variant.color &&
-          v.material === item.variant.material
-      );
-
-      if (!variant) {
-        return res.status(400).json({
-          message: `Variant not found for product: ${product.title}`,
-        });
-      }
-
-      const variantKey = [variant.size, variant.color, variant.material]
-        .filter(Boolean)
-        .join("-");
-
-      const thumbnailUrl = product.media.find((m) => m.type === "image")?.url || "";
-
-      orderItems.push({
-        productId: item.productId,
-        variant: item.variant,
-        quantity: item.quantity,
-        price: item.price,
-        variantKey,
-        productSnapshot: {
-          title: product.title,
-          thumbnailUrl,
-          basePrice: product.basePrice,
-        },
+    const existingOrder = await Order.findOne({
+      "paymentInfo.paymentId": paymentInfo.paymentId,
+    });
+    if (existingOrder) {
+      return res.status(400).json({
+        message: "This payment has already been used to create an order.",
       });
     }
+
+    const orderItems = await buildOrderItems(items);
 
     const newOrder = new Order({
       user: req.user._id,
@@ -98,12 +119,7 @@ exports.createOrder = async (req, res) => {
       populatedOrder.user.email,
       "Your Lush Lilac Order Receipt",
       "Thank you for your order! Please find attached your order receipt.",
-      [
-        {
-          filename: `receipt_${populatedOrder._id}.pdf`,
-          content: pdfBuffer,
-        },
-      ]
+      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }]
     );
 
     res.status(201).json({
@@ -116,6 +132,9 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+// ================================
+// Create COD Order
+// ================================
 exports.createCodOrder = async (req, res) => {
   try {
     const { items, totalAmount, shippingAddress } = req.body;
@@ -124,52 +143,7 @@ exports.createCodOrder = async (req, res) => {
       return res.status(400).json({ message: "Missing required order fields" });
     }
 
-    const orderItems = [];
-
-    for (const item of items) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        return res.status(404).json({ message: `Product not found: ${item.productId}` });
-      }
-
-      if (!product.codAvailable) {
-        return res.status(400).json({
-          message: `COD is not available for product: ${product.title}`,
-        });
-      }
-
-      const variant = product.variants.find(
-        (v) =>
-          v.size === item.variant.size &&
-          v.color === item.variant.color &&
-          v.material === item.variant.material
-      );
-
-      if (!variant) {
-        return res.status(400).json({
-          message: `Variant not found for product: ${product.title}`,
-        });
-      }
-
-      const variantKey = [variant.size, variant.color, variant.material]
-        .filter(Boolean)
-        .join("-");
-
-      const thumbnailUrl = product.media.find((m) => m.type === "image")?.url || "";
-
-      orderItems.push({
-        productId: item.productId,
-        variant: item.variant,
-        quantity: item.quantity,
-        price: item.price,
-        variantKey,
-        productSnapshot: {
-          title: product.title,
-          thumbnailUrl,
-          basePrice: product.basePrice,
-        },
-      });
-    }
+    const orderItems = await buildOrderItems(items, true);
 
     const newOrder = new Order({
       user: req.user._id,
@@ -195,12 +169,7 @@ exports.createCodOrder = async (req, res) => {
       populatedOrder.user.email,
       "Your Lush Lilac Order Receipt (Cash on Delivery)",
       "Thank you for your order! Please find attached your order receipt. Payment will be collected upon delivery.",
-      [
-        {
-          filename: `receipt_${populatedOrder._id}.pdf`,
-          content: pdfBuffer,
-        },
-      ]
+      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }]
     );
 
     res.status(201).json({
@@ -208,13 +177,14 @@ exports.createCodOrder = async (req, res) => {
       order: savedOrder,
       receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
     });
-  } catch (error) {
-    res.status(500).json({ message: "COD order creation failed", error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "COD order creation failed", error: err.message });
   }
 };
 
-
-// Get logged-in user's orders
+// ================================
+// Get My Orders
+// ================================
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -224,32 +194,22 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// Admin or Customer: Get orders with optional filters and pagination
+// ================================
+// Get Orders (Admin/Customer)
+// ================================
 exports.getOrders = async (req, res) => {
   try {
-    const {
-      status,
-      userId,
-      startDate,
-      endDate,
-      page = 1,
-      limit = 10,
-    } = req.query;
+    const { status, userId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     const query = {};
 
-    // Access control: Customers only see their own orders
-    // Admins can filter by userId or see all orders
     if (req.user.role === "customer") {
       query.user = req.user._id;
     } else if (userId) {
       query.user = userId;
     }
 
-    if (status) {
-      query.status = status;
-    }
-
+    if (status) query.status = status;
     if (startDate || endDate) {
       query.createdAt = {};
       if (startDate) query.createdAt.$gte = new Date(startDate);
@@ -272,12 +232,14 @@ exports.getOrders = async (req, res) => {
       page: Number(page),
       pages: Math.ceil(total / limit),
     });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch orders", error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch orders", error: err.message });
   }
 };
 
-// Admin or Owner: Get single order by ID
+// ================================
+// Get Order By ID (Admin/Owner)
+// ================================
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate("user", "name email");
@@ -297,7 +259,9 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// Admin: Update order status
+// ================================
+// Admin: Update Order Status
+// ================================
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;

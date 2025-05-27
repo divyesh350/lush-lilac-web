@@ -7,17 +7,26 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   },
   variant: {
-    size: String,
-    color: String,
-    material: String,
+    type: Object,
+    required: true,
   },
   quantity: {
     type: Number,
     required: true,
+    min: 1,
   },
   price: {
     type: Number,
-    required: true, // capture price at order time
+    required: true,
+  },
+  variantKey: {
+    type: String,
+    required: true,
+  },
+  productSnapshot: {
+    title: { type: String, required: true },
+    thumbnailUrl: { type: String, required: true },
+    basePrice: { type: Number, required: true },
   },
 });
 
@@ -57,7 +66,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    variantKey: String, // Optional but recommended
+    
     artwork: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Artwork",
@@ -73,11 +82,7 @@ const orderSchema = new mongoose.Schema(
       enum: ["razorpay", "cod"],
       required: true,
     },
-    productSnapshot: {
-      title: String,
-      thumbnailUrl: String,
-      basePrice: Number,
-    }    
+    
   },
   { timestamps: true }
 );
