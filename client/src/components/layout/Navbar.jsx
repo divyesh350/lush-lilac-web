@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Badge, styled } from '@mui/material';
+import { Badge, styled } from "@mui/material";
 import {
   RiSearchLine,
   RiFlowerLine,
@@ -10,23 +10,24 @@ import {
   RiMenuLine,
   RiCloseLine,
   RiLogoutBoxLine,
+  RiFlowerFill,
 } from "@remixicon/react";
 import { useAuthStore } from "../../store/useAuthStore";
 import useWishlistStore from "../../store/useWishlistStore";
 
 // Styled Badge component
 const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
+  "& .MuiBadge-badge": {
     right: -3,
     top: 3,
     border: `2px solid ${theme.palette.background.paper}`,
-    padding: '0 4px',
-    backgroundColor: '#D4B6D0',
-    color: '#fff',
-    fontSize: '0.75rem',
-    minWidth: '20px',
-    height: '20px',
-    borderRadius: '10px',
+    padding: "0 4px",
+    backgroundColor: "#D4B6D0",
+    color: "#fff",
+    fontSize: "0.75rem",
+    minWidth: "20px",
+    height: "20px",
+    borderRadius: "10px",
   },
 }));
 
@@ -45,19 +46,19 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (mobileMenuOpen && !event.target.closest('.mobile-menu')) {
+      if (mobileMenuOpen && !event.target.closest(".mobile-menu")) {
         setMobileMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
@@ -139,7 +140,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="font-pacifico text-2xl sm:text-2xl md:text-3xl text-primary">
+            <Link
+              to="/"
+              className="font-pacifico text-2xl sm:text-2xl md:text-3xl text-primary"
+            >
               Lush Lilac
             </Link>
           </div>
@@ -147,22 +151,24 @@ const Navbar = () => {
           {/* Desktop menu */}
           <div className="hidden lg:block">
             <div className="ml-10 flex items-center space-x-6 xl:space-x-8">
-              {["Home", "Shop", "About", "Contact"].map(
-                (item, i) => (
-                  <motion.div key={item} custom={i} variants={itemVariants}>
-                    <NavLink
-                      to={item === "Home" ? "/" : item.toLowerCase().replace(" ", "-")}
-                      className={({ isActive }) =>
-                        `text-primary hover:text-[#D4B6D0] px-2 xl:px-3 py-2 text-sm xl:text-base font-medium transition-colors duration-200 ${
-                          isActive ? "border-b-2 border-primary" : ""
-                        }`
-                      }
-                    >
-                      {item}
-                    </NavLink>
-                  </motion.div>
-                )
-              )}
+              {["Home", "Shop", "About", "Contact"].map((item, i) => (
+                <motion.div key={item} custom={i} variants={itemVariants}>
+                  <NavLink
+                    to={
+                      item === "Home"
+                        ? "/"
+                        : item.toLowerCase().replace(" ", "-")
+                    }
+                    className={({ isActive }) =>
+                      `text-primary hover:text-[#D4B6D0] px-2 xl:px-3 py-2 text-sm xl:text-base font-medium transition-colors duration-200 ${
+                        isActive ? "border-b-2 border-primary" : ""
+                      }`
+                    }
+                  >
+                    {item}
+                  </NavLink>
+                </motion.div>
+              ))}
             </div>
           </div>
 
@@ -188,7 +194,11 @@ const Navbar = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <StyledBadge badgeContent={wishlist.length} showZero>
-                  <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
+                  {wishlist.length > 0 ? (
+                    <RiFlowerFill className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ) : (
+                    <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
+                  )}
                 </StyledBadge>
               </motion.div>
             </Link>
@@ -311,22 +321,22 @@ const Navbar = () => {
               </div>
 
               {/* Mobile Navigation Links */}
-              {["Home", "Shop", "About", "Contact"].map(
-                (item) => (
-                  <NavLink
-                    key={item}
-                    to={item === "Home" ? "/" : item.toLowerCase().replace(" ", "-")}
-                    className={({ isActive }) =>
-                      `block px-3 py-2 rounded-md text-base font-medium text-primary hover:text-[#D4B6D0] transition-colors duration-200 ${
-                        isActive ? "bg-[#F9F0F7]" : ""
-                      }`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item}
-                  </NavLink>
-                )
-              )}
+              {["Home", "Shop", "About", "Contact"].map((item) => (
+                <NavLink
+                  key={item}
+                  to={
+                    item === "Home" ? "/" : item.toLowerCase().replace(" ", "-")
+                  }
+                  className={({ isActive }) =>
+                    `block px-3 py-2 rounded-md text-base font-medium text-primary hover:text-[#D4B6D0] transition-colors duration-200 ${
+                      isActive ? "bg-[#F9F0F7]" : ""
+                    }`
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item}
+                </NavLink>
+              ))}
 
               {/* Mobile Auth Links */}
               {!isAuthenticated && (
