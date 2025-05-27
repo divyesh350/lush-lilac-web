@@ -5,6 +5,14 @@ import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
 import { Link } from 'react-router-dom';
 import useProductStore from '../store/useProductStore';
+import { 
+  RiSmartphoneLine,
+  RiMouseLine,
+  RiContrast2Line,
+  RiCupLine,
+  RiFireLine
+} from '@remixicon/react';
+
 
 // Mock data for new arrivals (we'll keep this for now)
 const mockNewArrivals = [
@@ -14,11 +22,11 @@ const mockNewArrivals = [
 ];
 
 const categories = [
-  { name: 'Phone Cases', icon: 'ri-smartphone-line', bgColor: '#FFB5D8' },
-  { name: 'Mouse Pads', icon: 'ri-mouse-line', bgColor: '#FFF4D2' },
-  { name: 'Mirrors', icon: 'ri-contrast-2-line', bgColor: '#D4F1F4' },
-  { name: 'Glass Tumblers', icon: 'ri-cup-line', bgColor: '#E8D5E4' },
-  { name: 'Candles', icon: 'ri-fire-line', bgColor: '#FFB5D8' }
+  { name: 'Phone Cases', icon: RiSmartphoneLine, bgColor: '#FFB5D8' },
+  { name: 'Mouse Pads', icon: RiMouseLine, bgColor: '#FFF4D2' },
+  { name: 'Mirrors', icon: RiContrast2Line, bgColor: '#D4F1F4' },
+  { name: 'Glass Tumblers', icon: RiCupLine, bgColor: '#E8D5E4' },
+  { name: 'Candles', icon: RiFireLine, bgColor: '#FFB5D8' }
 ];
 
 const Home = () => {
@@ -28,7 +36,6 @@ const Home = () => {
     loading: productsLoading, 
     error: productsError 
   } = useProductStore();
-  const [newArrivals, setNewArrivals] = useState(mockNewArrivals);
 
   // Fetch featured products
   useEffect(() => {
@@ -152,41 +159,6 @@ const Home = () => {
                 category={category.name}
                 icon={category.icon}
                 bgColor={category.bgColor}
-              />
-            ))}
-          </motion.div>
-        </div>
-      </div>
-
-      {/* New Arrivals */}
-      <div className="py-16 dark:bg-gray-900 bg-cover bg-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-4">New Arrivals 🌺</h2>
-            <p className="text-medium-purple dark:text-text-secondary max-w-2xl mx-auto">
-              Check out our latest cute additions to the Lush Lilac family!
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {newArrivals.map((product, index) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                isNew={true} 
-                variant={index === 0 ? 'primary' : 'default'} 
               />
             ))}
           </motion.div>
