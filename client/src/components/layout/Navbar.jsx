@@ -128,7 +128,7 @@ const Navbar = () => {
           {/* Desktop menu */}
           <div className="hidden lg:block">
             <div className="ml-10 flex items-center space-x-6 xl:space-x-8">
-              {["Home", "Shop", "New Arrivals", "About", "Contact"].map(
+              {["Home", "Shop", "About", "Contact"].map(
                 (item, i) => (
                   <motion.div key={item} custom={i} variants={itemVariants}>
                     <NavLink
@@ -290,7 +290,7 @@ const Navbar = () => {
               </div>
 
               {/* Mobile Navigation Links */}
-              {["Home", "Shop", "New Arrivals", "About", "Contact"].map(
+              {["Home", "Shop", "About", "Contact"].map(
                 (item) => (
                   <NavLink
                     key={item}
