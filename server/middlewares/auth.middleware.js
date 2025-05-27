@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 
+
 exports.verifyToken = (req, res, next) => {
+  console.log('JWT_SECRET:', process.env.JWT_SECRET); // Should print your secret string
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer '))
     return res.status(401).json({ message: 'Access token missing' });

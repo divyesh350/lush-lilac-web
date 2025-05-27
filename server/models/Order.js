@@ -66,7 +66,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    
+
     artwork: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Artwork",
@@ -79,10 +79,9 @@ const orderSchema = new mongoose.Schema(
     paymentInfo: paymentInfoSchema,
     paymentMethod: {
       type: String,
-      enum: ["razorpay", "cod"],
+      enum: ["razorpay", "cod", "upi"],
       required: true,
     },
-    
   },
   { timestamps: true }
 );

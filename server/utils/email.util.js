@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendEmail(to, subject, text, attachments = []) {
   const mailOptions = {
-    from: `"Lush Lilac" <${process.env.SMTP_EMAIL}>`,
+    from: `"Lush Lilac" <no-reply@lushlilac.com>`,
     to,
     subject,
     text,

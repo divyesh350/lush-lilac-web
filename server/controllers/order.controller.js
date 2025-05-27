@@ -100,7 +100,7 @@ exports.createOrder = async (req, res) => {
     const orderItems = await buildOrderItems(items);
 
     const newOrder = new Order({
-      user: req.user._id,
+      user: req.user.id,
       items: orderItems,
       totalAmount,
       shippingAddress,

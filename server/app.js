@@ -1,11 +1,12 @@
 // app.js
+require('dotenv').config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const morgan = require("morgan");
-require("dotenv").config();
+
 
 const app = express();
 
