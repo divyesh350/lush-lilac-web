@@ -162,13 +162,15 @@ const Navbar = () => {
             </div>
 
             {/* Icons */}
-            <motion.div
-              className="flower-wishlist w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-primary"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
-            </motion.div>
+            <Link to="/wishlist">
+              <motion.div
+                className="flower-wishlist w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-primary"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
+              </motion.div>
+            </Link>
 
             <Link to="/cart">
               <motion.div

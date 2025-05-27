@@ -14,6 +14,8 @@ import ThemeToggle from "./components/ui/ThemeToggle";
 import AuthProvider from "./providers/AuthProvider";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ProductDetails from "./pages/ProductDetails";
+import WishList from "./pages/WishList";
+
 const App = () => {
   return (
     <AuthProvider>
@@ -61,6 +63,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Cart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="wishlist"
+                  element={
+                    <ProtectedRoute>
+                      <WishList />
                     </ProtectedRoute>
                   }
                 />
