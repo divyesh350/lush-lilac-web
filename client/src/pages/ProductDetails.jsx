@@ -5,7 +5,8 @@ import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import useProductStore from '../store/useProductStore';
 import useWishlistStore from '../store/useWishlistStore';
-import { RiSubtractLine, RiAddLine, RiFlowerFill, RiFlowerLine } from '@remixicon/react';
+import useCartStore from '../store/useCartStore';
+import { RiSubtractLine, RiAddLine, RiFlowerFill, RiFlowerLine, RiShoppingBagFill, RiShoppingBagLine } from '@remixicon/react';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const ProductDetails = () => {
   } = useProductStore();
 
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const { items, addToCart, removeFromCart } = useCartStore();
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -24,6 +26,17 @@ const ProductDetails = () => {
 
   // Remove the memoized isWishlisted and use direct check
   const isWishlisted = selectedProduct ? isInWishlist(selectedProduct._id) : false;
+
+  // Check if product is in cart
+  const isInCart = useMemo(() => {
+    if (!selectedProduct || !selectedVariant) return false;
+    return items.some(item => 
+      item.productId === selectedProduct._id && 
+      item.variant.size === selectedVariant.size &&
+      item.variant.color === selectedVariant.color &&
+      item.variant.material === selectedVariant.material
+    );
+  }, [items, selectedProduct, selectedVariant]);
 
   // Memoize the product loading effect
   useEffect(() => {
@@ -62,16 +75,15 @@ const ProductDetails = () => {
     setSelectedVariant(variant);
   }, []);
 
-  const handleAddToCart = useCallback(() => {
-    if (!selectedVariant) return;
+  const handleCartToggle = useCallback(() => {
+    if (!selectedProduct || !selectedVariant) return;
     
-    console.log('Added to cart:', {
-      product: selectedProduct,
-      variant: selectedVariant,
-      quantity
-    });
-    // TODO: Implement add to cart functionality
-  }, [selectedProduct, selectedVariant, quantity]);
+    if (isInCart) {
+      removeFromCart(selectedProduct._id, selectedVariant);
+    } else {
+      addToCart(selectedProduct, selectedVariant, quantity);
+    }
+  }, [selectedProduct, selectedVariant, quantity, isInCart, addToCart, removeFromCart]);
 
   const handleWishlistToggle = useCallback(() => {
     if (!selectedProduct) return;
@@ -276,13 +288,13 @@ const ProductDetails = () => {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mb-8">
               <Button
-                onClick={handleAddToCart}
-                icon="ri-shopping-bag-line"
+                onClick={handleCartToggle}
+                icon={isInCart ? "ri-shopping-bag-fill" : "ri-shopping-bag-line"}
                 iconPosition="left"
                 className="flex-1"
                 disabled={!selectedVariant || selectedVariant.stock === 0}
               >
-                {selectedVariant?.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {selectedVariant?.stock === 0 ? 'Out of Stock' : isInCart ? 'Remove from Cart' : 'Add to Cart'}
               </Button>
               
               <motion.button 

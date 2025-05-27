@@ -2,8 +2,9 @@ import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from './Button';
-import { RiImageLine, RiFlowerFill, RiFlowerLine, RiShoppingBagLine } from '@remixicon/react';
+import { RiImageLine, RiFlowerFill, RiFlowerLine, RiShoppingBagLine, RiShoppingBagFill } from '@remixicon/react';
 import useWishlistStore from '../../store/useWishlistStore';
+import useCartStore from '../../store/useCartStore';
 
 const ProductCard = ({ 
   product, 
@@ -13,7 +14,13 @@ const ProductCard = ({
   onAddToWishlist
 }) => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const { items, addToCart, removeFromCart } = useCartStore();
   const isWishlisted = isInWishlist(product._id);
+
+  // Check if product is in cart
+  const isInCart = useMemo(() => {
+    return items.some(item => item.productId === product._id);
+  }, [items, product._id]);
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleWishlistToggle = useCallback((e) => {
@@ -28,12 +35,20 @@ const ProductCard = ({
     }
   }, [product, onAddToWishlist, isWishlisted, removeFromWishlist, addToWishlist]);
 
-  const handleAddToCart = useCallback((e) => {
+  const handleCartToggle = useCallback((e) => {
     e.preventDefault();
-    if (onAddToCart) {
-      onAddToCart(product);
+    // Add to cart with default variant if none specified
+    const defaultVariant = product.variants?.[0] || { size: 'default', color: 'default', material: 'default' };
+    
+    if (isInCart) {
+      removeFromCart(product._id, defaultVariant);
+    } else {
+      addToCart(product, defaultVariant, 1);
+      if (onAddToCart) {
+        onAddToCart(product);
+      }
     }
-  }, [product, onAddToCart]);
+  }, [product, addToCart, removeFromCart, onAddToCart, isInCart]);
 
   // Memoize computed values
   const badgeStyles = useMemo(() => {
@@ -93,8 +108,6 @@ const ProductCard = ({
               New
             </div>
           )}
-
-         
         </div>
       </Link>
 
@@ -118,9 +131,9 @@ const ProductCard = ({
               <Button 
                 variant={variant === 'primary' ? 'primary' : 'secondary'} 
                 className="px-4 py-2 text-sm"
-                onClick={handleAddToCart}
+                onClick={handleCartToggle}
               >
-                Add to Cart
+                {isInCart ? 'Remove from Cart' : 'Add to Cart'}
               </Button>
             </div>
           </>
@@ -150,12 +163,19 @@ const ProductCard = ({
                 </motion.button>
 
                 <motion.button 
-                  className="w-8 h-8 flex items-center justify-center rounded-button border bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700 hover:border-primary"
-                  onClick={handleAddToCart}
+                  className={`w-8 h-8 flex items-center justify-center rounded-button border ${
+                    isInCart 
+                      ? 'bg-[#F9F0F7] dark:bg-gray-700 border-primary' 
+                      : 'bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700'
+                  }`}
+                  onClick={handleCartToggle}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <RiShoppingBagLine className="w-5 h-5 text-primary" />
+                  {isInCart ? 
+                    <RiShoppingBagFill className="w-5 h-5 text-primary" /> : 
+                    <RiShoppingBagLine className="w-5 h-5 text-primary" />
+                  }
                 </motion.button>
               </div>
             </div>

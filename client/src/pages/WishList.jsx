@@ -2,9 +2,36 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import useWishlistStore from '../store/useWishlistStore';
+import useCartStore from '../store/useCartStore';
+import { RiShoppingBagFill, RiShoppingBagLine } from '@remixicon/react';
 
 const WishList = () => {
   const { wishlist, removeFromWishlist } = useWishlistStore();
+  const { items, addToCart, removeFromCart } = useCartStore();
+
+  // Check if a product is in cart
+  const isInCart = (productId) => {
+    return items.some(item => item.productId === productId);
+  };
+
+  // Handle cart toggle for a product
+  const handleCartToggle = (product) => {
+    if (isInCart(product._id)) {
+      // If product has variants, remove the first variant
+      if (product.variants && product.variants.length > 0) {
+        removeFromCart(product._id, product.variants[0]);
+      } else {
+        removeFromCart(product._id);
+      }
+    } else {
+      // If product has variants, add the first variant
+      if (product.variants && product.variants.length > 0) {
+        addToCart(product, product.variants[0], 1);
+      } else {
+        addToCart(product, null, 1);
+      }
+    }
+  };
 
   return (
     <div className="bg-bg-main dark:bg-gray-900 min-h-[calc(100vh-4rem)] pt-20 pb-12">
@@ -74,7 +101,18 @@ const WishList = () => {
                     {product.basePrice?.toFixed(2)}
                   </p>
                   <div className="flex space-x-2">
-                    <Button className="flex-1">Add to Cart</Button>
+                    <Button 
+                      onClick={() => handleCartToggle(product)}
+                      icon={isInCart(product._id) ? "ri-shopping-bag-fill" : "ri-shopping-bag-line"}
+                      iconPosition="left"
+                      className={`flex-1 ${
+                        isInCart(product._id) 
+                          ? 'bg-[#F9F0F7] dark:bg-gray-700 border-primary text-primary' 
+                          : ''
+                      }`}
+                    >
+                      {isInCart(product._id) ? 'Remove from Cart' : 'Add to Cart'}
+                    </Button>
                     <button
                       onClick={() => removeFromWishlist(product._id)}
                       className="px-4 py-2 text-red-500 hover:text-red-600 transition-colors duration-300"

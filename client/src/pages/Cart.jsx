@@ -8,87 +8,45 @@ import {
   RiDeleteBinLine,
   RiSecurePaymentLine
 } from '@remixicon/react';
-
-// Mock cart data
-const mockCartItems = [
-  {
-    id: 1,
-    product: {
-      id: 1,
-      title: 'Floral Phone Case',
-      price: 19.99,
-      media: [{ url: 'https://via.placeholder.com/100x100/F9F0F7/9B6B9E?text=Floral+Case' }]
-    },
-    variant: {
-      phoneModel: 'iPhone 13/14',
-      color: 'Lilac'
-    },
-    quantity: 1
-  },
-  {
-    id: 2,
-    product: {
-      id: 3,
-      title: 'Flower Mirror',
-      price: 24.99,
-      media: [{ url: 'https://via.placeholder.com/100x100/FFF4D2/9B6B9E?text=Flower+Mirror' }]
-    },
-    variant: {
-      size: 'Medium',
-      color: 'Pink'
-    },
-    quantity: 2
-  }
-];
+import useCartStore from '../store/useCartStore';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(mockCartItems);
-  const [couponCode, setCouponCode] = useState('');
-  const [couponApplied, setCouponApplied] = useState(false);
-  const [couponDiscount, setCouponDiscount] = useState(0);
+  const { 
+    items: cartItems, 
+    updateQuantity, 
+    removeFromCart, 
+    getTotalAmount 
+  } = useCartStore();
 
-  // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => {
-    return total + (item.product.price * item.quantity);
-  }, 0);
+  // Calculate subtotal using the store's getTotalAmount
+  const subtotal = getTotalAmount();
 
   // Apply mock shipping cost (free above $35)
   const shippingCost = subtotal >= 35 ? 0 : 4.99;
   
   // Calculate total
-  const total = subtotal + shippingCost - couponDiscount;
+  const total = subtotal + shippingCost;
 
   // Handle quantity change
-  const handleQuantityChange = (itemId, change) => {
-    const updatedItems = cartItems.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = item.quantity + change;
-        if (newQuantity > 0 && newQuantity <= 10) {
-          return { ...item, quantity: newQuantity };
-        }
+  const handleQuantityChange = (productId, variant, change) => {
+    const currentItem = cartItems.find(item => 
+      item.productId === productId && 
+      item.variant.size === variant.size &&
+      item.variant.color === variant.color &&
+      item.variant.material === variant.material
+    );
+
+    if (currentItem) {
+      const newQuantity = currentItem.quantity + change;
+      if (newQuantity > 0 && newQuantity <= 10) {
+        updateQuantity(productId, variant, newQuantity);
       }
-      return item;
-    });
-    setCartItems(updatedItems);
+    }
   };
 
   // Handle remove item
-  const handleRemoveItem = (itemId) => {
-    const updatedItems = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedItems);
-  };
-
-  // Handle apply coupon
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    // Mock coupon validation
-    if (couponCode.toUpperCase() === 'LILAC10') {
-      setCouponApplied(true);
-      setCouponDiscount(subtotal * 0.1); // 10% discount
-    } else {
-      setCouponApplied(false);
-      setCouponDiscount(0);
-    }
+  const handleRemoveItem = (productId, variant) => {
+    removeFromCart(productId, variant);
   };
 
   // Animation variants
@@ -159,15 +117,15 @@ const Cart = () => {
                 <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
                   {cartItems.map((item) => (
                     <motion.div 
-                      key={item.id} 
+                      key={`${item.productId}-${item.variant.size}-${item.variant.color}-${item.variant.material}`} 
                       className="p-6 flex flex-col sm:flex-row gap-4"
                       variants={itemVariants}
                     >
                       {/* Product Image */}
                       <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                         <img 
-                          src={item.product.media[0].url} 
-                          alt={item.product.title} 
+                          src={item.productSnapshot.thumbnailUrl} 
+                          alt={item.productSnapshot.title} 
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -175,10 +133,10 @@ const Cart = () => {
                       {/* Product Details */}
                       <div className="flex-grow">
                         <Link 
-                          to={`/product/${item.product.id}`} 
+                          to={`/product/${item.productId}`} 
                           className="text-lg font-medium text-dark-purple dark:text-white hover:text-primary dark:hover:text-primary"
                         >
-                          {item.product.title}
+                          {item.productSnapshot.title}
                         </Link>
                         
                         {/* Variants */}
@@ -190,7 +148,7 @@ const Cart = () => {
                         
                         {/* Price */}
                         <div className="text-primary font-medium mt-2">
-                          ${item.product.price.toFixed(2)}
+                          <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{item.price.toFixed(2)}
                         </div>
                       </div>
                       
@@ -199,7 +157,7 @@ const Cart = () => {
                         <div className="flex items-center border border-[#F9F0F7] dark:border-gray-700 rounded-button overflow-hidden">
                           <button 
                             className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
-                            onClick={() => handleQuantityChange(item.id, -1)}
+                            onClick={() => handleQuantityChange(item.productId, item.variant, -1)}
                             disabled={item.quantity <= 1}
                           >
                             <RiSubtractLine className="w-5 h-5" />
@@ -209,7 +167,7 @@ const Cart = () => {
                           </span>
                           <button 
                             className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
-                            onClick={() => handleQuantityChange(item.id, 1)}
+                            onClick={() => handleQuantityChange(item.productId, item.variant, 1)}
                             disabled={item.quantity >= 10}
                           >
                             <RiAddLine className="w-5 h-5" />
@@ -218,13 +176,13 @@ const Cart = () => {
                         
                         <button 
                           className="text-xs text-medium-purple dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center"
-                          onClick={() => handleRemoveItem(item.id)}
+                          onClick={() => handleRemoveItem(item.productId, item.variant)}
                         >
                           <RiDeleteBinLine className="w-4 h-4 mr-1" /> Remove
                         </button>
                         
                         <div className="text-dark-purple dark:text-white font-medium mt-1">
-                          ${(item.product.price * item.quantity).toFixed(2)}
+                          <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     </motion.div>
@@ -248,59 +206,30 @@ const Cart = () => {
                 <div className="p-6 space-y-4">
                   <div className="flex justify-between">
                     <span className="text-medium-purple dark:text-gray-300">Subtotal</span>
-                    <span className="text-dark-purple dark:text-white font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="text-dark-purple dark:text-white font-medium">
+                      <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{subtotal.toFixed(2)}
+                    </span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-medium-purple dark:text-gray-300">Shipping</span>
                     <span className="text-dark-purple dark:text-white font-medium">
-                      {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+                      {shippingCost === 0 ? 'Free' : `₹${shippingCost.toFixed(2)}`}
                     </span>
                   </div>
-                  
-                  {couponApplied && (
-                    <div className="flex justify-between text-green-500">
-                      <span>Discount (10%)</span>
-                      <span>-${couponDiscount.toFixed(2)}</span>
-                    </div>
-                  )}
                   
                   <div className="pt-4 border-t border-[#F9F0F7] dark:border-gray-700">
                     <div className="flex justify-between text-lg">
                       <span className="font-medium text-dark-purple dark:text-white">Total</span>
-                      <span className="font-semibold text-dark-purple dark:text-white">${total.toFixed(2)}</span>
+                      <span className="font-semibold text-dark-purple dark:text-white">
+                        <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{total.toFixed(2)}
+                      </span>
                     </div>
                     
                     <p className="text-xs text-medium-purple dark:text-gray-400 mt-1">
                       Including taxes and duties
                     </p>
                   </div>
-                  
-                  {/* Coupon Code */}
-                  <form onSubmit={handleApplyCoupon} className="pt-4">
-                    <label className="block text-dark-purple dark:text-white font-medium mb-2">Have a coupon?</label>
-                    <div className="flex">
-                      <input 
-                        type="text" 
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="Enter coupon code" 
-                        className="cute-input dark:bg-gray-700 dark:text-white dark:border-gray-600 flex-1 py-2 px-3 rounded-l-button text-dark-purple"
-                      />
-                      <button 
-                        type="submit" 
-                        className="bg-primary hover:bg-[#D4B6D0] text-white px-4 py-2 rounded-r-button font-medium transition-all duration-300 btn-hover whitespace-nowrap"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                    {couponApplied && (
-                      <p className="text-xs text-green-500 mt-1">Coupon applied successfully!</p>
-                    )}
-                    {couponCode && !couponApplied && (
-                      <p className="text-xs text-red-500 mt-1">Invalid coupon code</p>
-                    )}
-                  </form>
                   
                   {/* Checkout Button */}
                   <Button 
