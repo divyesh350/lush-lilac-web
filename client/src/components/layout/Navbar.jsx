@@ -11,8 +11,6 @@ import {
   RiLogoutBoxLine,
 } from "@remixicon/react";
 import { useAuthStore } from "../../store/useAuthStore";
-import useWishlistStore from "../../store/useWishlistStore";
-import { Badge } from "@chakra-ui/react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -22,7 +20,6 @@ const Navbar = () => {
 
   // Pull user and logout from store
   const { user, logout, isAuthenticated } = useAuthStore();
-  const { wishlist } = useWishlistStore();
 
   // Handle scroll effect
   useEffect(() => {
@@ -167,29 +164,11 @@ const Navbar = () => {
             {/* Icons */}
             <Link to="/wishlist">
               <motion.div
-                className="flower-wishlist w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-primary relative"
+                className="flower-wishlist w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-primary"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <RiFlowerLine className="w-5 h-5 sm:w-6 sm:h-6" />
-                {wishlist.length > 0 && (
-                  <Badge
-                    position="absolute"
-                    top="-2"
-                    right="-2"
-                    colorScheme="pink"
-                    borderRadius="full"
-                    minW="20px"
-                    h="20px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    fontSize="xs"
-                    fontWeight="bold"
-                  >
-                    {wishlist.length}
-                  </Badge>
-                )}
               </motion.div>
             </Link>
 
