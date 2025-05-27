@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import useProductStore from '../store/useProductStore';
+import useWishlistStore from '../store/useWishlistStore';
 import { RiSubtractLine, RiAddLine, RiFlowerFill, RiFlowerLine } from '@remixicon/react';
 
 const ProductDetails = () => {
@@ -14,11 +15,15 @@ const ProductDetails = () => {
     loading: productLoading, 
     error: productError 
   } = useProductStore();
+
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  // Remove the memoized isWishlisted and use direct check
+  const isWishlisted = selectedProduct ? isInWishlist(selectedProduct._id) : false;
 
   // Memoize the product loading effect
   useEffect(() => {
@@ -69,9 +74,14 @@ const ProductDetails = () => {
   }, [selectedProduct, selectedVariant, quantity]);
 
   const handleWishlistToggle = useCallback(() => {
-    setIsWishlisted(prev => !prev);
-    // TODO: Implement wishlist functionality
-  }, []);
+    if (!selectedProduct) return;
+    
+    if (isWishlisted) {
+      removeFromWishlist(selectedProduct._id);
+    } else {
+      addToWishlist(selectedProduct);
+    }
+  }, [selectedProduct, isWishlisted, addToWishlist, removeFromWishlist]);
 
   // Memoize computed values
   const totalPrice = useMemo(() => {

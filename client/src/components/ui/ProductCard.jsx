@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from './Button';
 import { RiImageLine, RiFlowerFill, RiFlowerLine, RiShoppingBagLine } from '@remixicon/react';
+import useWishlistStore from '../../store/useWishlistStore';
 
 const ProductCard = ({ 
   product, 
@@ -11,19 +12,21 @@ const ProductCard = ({
   onAddToCart,
   onAddToWishlist
 }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const isWishlisted = isInWishlist(product._id);
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleWishlistToggle = useCallback((e) => {
     e.preventDefault();
-    setIsWishlisted(prev => {
-      const newState = !prev;
+    if (isWishlisted) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist(product);
       if (onAddToWishlist) {
         onAddToWishlist(product);
       }
-      return newState;
-    });
-  }, [product, onAddToWishlist]);
+    }
+  }, [product, onAddToWishlist, isWishlisted, removeFromWishlist, addToWishlist]);
 
   const handleAddToCart = useCallback((e) => {
     e.preventDefault();
@@ -90,6 +93,23 @@ const ProductCard = ({
               New
             </div>
           )}
+
+          {/* Wishlist button */}
+          <motion.button 
+            className={`absolute top-2 right-2 w-12 h-12 flex items-center justify-center rounded-button border ${
+              isWishlisted 
+                ? 'bg-[#F9F0F7] dark:bg-gray-700 border-primary' 
+                : 'bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700'
+            }`}
+            onClick={handleWishlistToggle}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isWishlisted ? 
+              <RiFlowerFill className="w-6 h-6 text-primary" /> : 
+              <RiFlowerLine className="w-6 h-6 text-primary" />
+            }
+          </motion.button>
         </div>
       </Link>
 
@@ -117,14 +137,6 @@ const ProductCard = ({
               >
                 Add to Cart
               </Button>
-              <motion.button 
-                className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"
-                onClick={handleWishlistToggle}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isWishlisted ? <RiFlowerFill className="w-6 h-6" style={{color: '#E8D5E4'}} /> : <RiFlowerLine className="w-6 h-6" />}
-              </motion.button>
             </div>
           </>
         ) : (
@@ -136,14 +148,6 @@ const ProductCard = ({
                 <small className='text-dark-purple dark:text-text-primary relative -top-1 text-sm'>₹</small>{product.basePrice?.toFixed(2)}
               </span>
               <div className="flex space-x-2">
-                <motion.button 
-                  className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"
-                  onClick={handleWishlistToggle}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {isWishlisted ? <RiFlowerFill className="w-6 h-6" style={{color: '#E8D5E4'}} /> : <RiFlowerLine className="w-6 h-6" />}
-                </motion.button>
                 <motion.button 
                   className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"
                   onClick={handleAddToCart}
