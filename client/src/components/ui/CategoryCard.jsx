@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const CategoryCard = ({ category, icon: Icon, bgColor = '#FFB5D8' }) => {
+  // Format category for URL (e.g., "Phone Cases" -> "phone_cases")
+  const formattedCategory = category.toLowerCase().replace(/\s+/g, '_');
+
   return (
     <motion.div 
       className="category-card bg-white rounded-lg p-6 text-center"
@@ -11,7 +14,7 @@ const CategoryCard = ({ category, icon: Icon, bgColor = '#FFB5D8' }) => {
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      <Link to={`/shop?category=${category.toLowerCase().replace(/\s+/g, '-')}`}>
+      <Link to={`/shop?category=${formattedCategory}`}>
         <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center`} style={{ backgroundColor: bgColor }}>
           {typeof Icon === 'string' ? (
             <i className={`${Icon} text-dark-purple`}></i>

@@ -20,7 +20,7 @@ const containerVariants = {
 
 const Shop = () => {
   const [searchParams] = useSearchParams();
-  const category = searchParams.get('category');
+  const categoryParam = searchParams.get('category');
   
   const { 
     products, 
@@ -34,8 +34,19 @@ const Shop = () => {
   } = useProductStore();
 
   const [selectedFilters, setSelectedFilters] = useState({
-    category: category || 'all'
+    category: categoryParam || 'all'
   });
+
+  // Update filters when URL category changes
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedFilters(prev => ({
+        ...prev,
+        category: categoryParam
+      }));
+      setFilters(mapFiltersToAPI({ category: categoryParam }));
+    }
+  }, [categoryParam, setFilters]);
 
   // Memoized filter mapping
   const mapFiltersToAPI = useCallback((filters) => ({
