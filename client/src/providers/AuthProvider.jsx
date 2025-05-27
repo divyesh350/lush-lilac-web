@@ -1,36 +1,57 @@
-// src/providers/AuthProvider.jsx
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import api from '../api/axios';
-
+import Spinner from '../components/ui/Spinner';
 const AuthProvider = ({ children }) => {
-  const { setAccessToken, setUser, checkAuth } = useAuthStore();
+  const {
+    setAccessToken,
+    setUser,
+    checkAuth,
+    hasHydrated,
+    setHasHydrated,
+    loading,
+  } = useAuthStore();
+
+  const [internalLoading, setInternalLoading] = useState(true);
+
+  const stableCheckAuth = useCallback(checkAuth, [checkAuth]);
+  const stableSetAccessToken = useCallback(setAccessToken, [setAccessToken]);
+  const stableSetUser = useCallback(setUser, [setUser]);
 
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // Check if we have stored auth data
-        const storedAuth = localStorage.getItem('auth-storage');
-        if (!storedAuth) {
-          setAccessToken(null);
-          setUser(null);
-          return;
-        }
+        const isAuthenticated = await stableCheckAuth();
 
-        const isAuthenticated = await checkAuth();
         if (!isAuthenticated) {
-          setAccessToken(null);
-          setUser(null);
+          stableSetAccessToken(null);
+          stableSetUser(null);
         }
       } catch (err) {
-        console.error('Session restore failed:', err.response?.data?.message || err.message);
-        setAccessToken(null);
-        setUser(null);
+        console.error('Session restore failed:', err);
+        stableSetAccessToken(null);
+        stableSetUser(null);
+      } finally {
+        setInternalLoading(false);
       }
     };
 
-    restoreSession();
-  }, [checkAuth, setAccessToken, setUser]);
+    if (hasHydrated) {
+      restoreSession();
+    }
+  }, [hasHydrated, stableCheckAuth, stableSetAccessToken, stableSetUser]);
+
+  // ✅ Fallback if hydration never triggers (e.g., dev edge case)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!hasHydrated) {
+        setHasHydrated(); // force hydration to continue
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [hasHydrated, setHasHydrated]);
+
+  if (!hasHydrated || internalLoading) return <Spinner />;
 
   return children;
 };

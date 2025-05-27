@@ -1,22 +1,34 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import {
   RiSubtractLine,
   RiAddLine,
   RiDeleteBinLine,
-  RiSecurePaymentLine
+  RiSecurePaymentLine,
+  RiMoneyDollarCircleLine
 } from '@remixicon/react';
 import useCartStore from '../store/useCartStore';
+import { useAuthStore } from '../store/useAuthStore';
+import toast from 'react-hot-toast';
 
 const Cart = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
   const { 
     items: cartItems, 
     updateQuantity, 
     removeFromCart, 
-    getTotalAmount 
+    getTotalAmount,
+    processOrder,
+    loading,
+    error
   } = useCartStore();
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
   // Calculate subtotal using the store's getTotalAmount
   const subtotal = getTotalAmount();
@@ -47,6 +59,29 @@ const Cart = () => {
   // Handle remove item
   const handleRemoveItem = (productId, variant) => {
     removeFromCart(productId, variant);
+  };
+
+  // Handle payment method selection
+  const handlePaymentMethodSelect = async (method) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to proceed with checkout');
+      navigate('/login');
+      return;
+    }
+
+    if (!shippingAddress.trim()) {
+      toast.error('Please enter your shipping address');
+      return;
+    }
+
+    setSelectedPaymentMethod(method);
+    try {
+      await processOrder(shippingAddress, method);
+      setShowPaymentModal(false);
+      navigate('/orders');
+    } catch (error) {
+      console.error('Order processing failed:', error);
+    }
   };
 
   // Animation variants
@@ -204,6 +239,20 @@ const Cart = () => {
                 </div>
                 
                 <div className="p-6 space-y-4">
+                  {/* Shipping Address */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-dark-purple dark:text-white">
+                      Shipping Address
+                    </label>
+                    <textarea
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                      className="w-full px-3 py-2 border border-[#F9F0F7] dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      rows={3}
+                      placeholder="Enter your complete shipping address"
+                    />
+                  </div>
+
                   <div className="flex justify-between">
                     <span className="text-medium-purple dark:text-gray-300">Subtotal</span>
                     <span className="text-dark-purple dark:text-white font-medium">
@@ -235,10 +284,10 @@ const Cart = () => {
                   <Button 
                     fullWidth 
                     className="mt-6"
-                    icon="ri-secure-payment-line"
-                    iconPosition="left"
+                    onClick={() => setShowPaymentModal(true)}
+                    disabled={loading || !shippingAddress.trim()}
                   >
-                    Proceed to Checkout
+                    {loading ? 'Processing...' : 'Proceed to Checkout'}
                   </Button>
                   
                   <div className="text-center mt-4">
@@ -249,6 +298,48 @@ const Cart = () => {
                 </div>
               </div>
             </motion.div>
+          </div>
+        )}
+
+        {/* Payment Method Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-medium text-dark-purple dark:text-white mb-4">
+                Select Payment Method
+              </h3>
+              
+              <div className="space-y-4">
+                <button
+                  onClick={() => handlePaymentMethodSelect('razorpay')}
+                  className="w-full flex items-center justify-between p-4 border border-[#F9F0F7] dark:border-gray-700 rounded-lg hover:border-primary dark:hover:border-primary"
+                >
+                  <div className="flex items-center">
+                    <RiSecurePaymentLine className="w-6 h-6 text-primary mr-3" />
+                    <span className="text-dark-purple dark:text-white">Pay with Razorpay</span>
+                  </div>
+                  <span className="text-medium-purple dark:text-gray-300">Credit/Debit Card</span>
+                </button>
+
+                <button
+                  onClick={() => handlePaymentMethodSelect('cod')}
+                  className="w-full flex items-center justify-between p-4 border border-[#F9F0F7] dark:border-gray-700 rounded-lg hover:border-primary dark:hover:border-primary"
+                >
+                  <div className="flex items-center">
+                    <RiMoneyDollarCircleLine className="w-6 h-6 text-primary mr-3" />
+                    <span className="text-dark-purple dark:text-white">Cash on Delivery</span>
+                  </div>
+                  <span className="text-medium-purple dark:text-gray-300">Pay at delivery</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="mt-6 w-full text-center text-medium-purple dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
       </div>
