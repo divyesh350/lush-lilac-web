@@ -94,22 +94,7 @@ const ProductCard = ({
             </div>
           )}
 
-          {/* Wishlist button */}
-          <motion.button 
-            className={`absolute top-2 right-2 w-12 h-12 flex items-center justify-center rounded-button border ${
-              isWishlisted 
-                ? 'bg-[#F9F0F7] dark:bg-gray-700 border-primary' 
-                : 'bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700'
-            }`}
-            onClick={handleWishlistToggle}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {isWishlisted ? 
-              <RiFlowerFill className="w-6 h-6 text-primary" /> : 
-              <RiFlowerLine className="w-6 h-6 text-primary" />
-            }
-          </motion.button>
+         
         </div>
       </Link>
 
@@ -149,12 +134,28 @@ const ProductCard = ({
               </span>
               <div className="flex space-x-2">
                 <motion.button 
-                  className="w-8 h-8 flex items-center justify-center text-medium-purple dark:text-text-secondary hover:text-primary"
-                  onClick={handleAddToCart}
-                  whileHover={{ scale: 1.1 }}
+                  className={`w-8 h-8 flex items-center justify-center rounded-button border ${
+                    isWishlisted 
+                      ? 'bg-[#F9F0F7] dark:bg-gray-700 border-primary' 
+                      : 'bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700'
+                  }`}
+                  onClick={handleWishlistToggle}
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <RiShoppingBagLine className="w-6 h-6" />
+                  {isWishlisted ? 
+                    <RiFlowerFill className="w-5 h-5 text-primary" /> : 
+                    <RiFlowerLine className="w-5 h-5 text-primary" />
+                  }
+                </motion.button>
+
+                <motion.button 
+                  className="w-8 h-8 flex items-center justify-center rounded-button border bg-white dark:bg-gray-800 border-[#F9F0F7] dark:border-gray-700 hover:border-primary"
+                  onClick={handleAddToCart}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <RiShoppingBagLine className="w-5 h-5 text-primary" />
                 </motion.button>
               </div>
             </div>
