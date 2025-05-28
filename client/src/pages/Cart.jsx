@@ -23,6 +23,7 @@ const Cart = () => {
     getTotalAmount,
     processOrder,
     loading,
+    clearCart,
     error,
   } = useCartStore();
 
@@ -89,6 +90,7 @@ const Cart = () => {
     try {
       await processOrder(shippingAddress, method); // Await the promise from processOrder
       // If the promise resolves, the order was successful
+      await clearCart();
       navigate("/payment-success");
     } catch (error) {
       // If the promise rejects, there was a failure or cancellation
