@@ -18,6 +18,7 @@ import WishList from "./pages/WishList";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrderDetails";
 
 const App = () => {
   return (
@@ -84,6 +85,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="orders/:orderId"
+                  element={
+                    <ProtectedRoute>
+                      <OrderDetails />
                     </ProtectedRoute>
                   }
                 />

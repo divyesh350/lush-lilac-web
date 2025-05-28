@@ -175,7 +175,7 @@ const Cart = () => {
                 <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
                   {cartItems.map((item) => (
                     <motion.div
-                      key={`${item.productId}-${item.variant.size}-${item.variant.color}-${item.variant.material}`}
+                      key={`${item.productSnapshot.title}-${item.variant.size}-${item.variant.color}-${item.variant.material}`}
                       className="p-6 flex flex-col sm:flex-row gap-4"
                       variants={itemVariants}
                     >

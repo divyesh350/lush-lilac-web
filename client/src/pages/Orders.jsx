@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
-
+import Spinner from '../components/ui/Spinner';
 
 import Button from '../components/ui/Button'; // Assuming you have a Button component
 import useCartStore from '../store/useCartStore'; // Import the cart store
@@ -28,7 +28,7 @@ const Orders = () => {
       >
         <div className="flex justify-between items-center border-b border-[#F9F0F7] dark:border-gray-700 pb-4 mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-dark-purple dark:text-white">Order #{order._id.slice(-6)}</h3> {/* Display last 6 chars of ID */}
+            <h3 className="text-lg font-semibold text-dark-purple dark:text-white">Order #{order._id.slice(-6)}</h3>
             <p className="text-sm text-medium-purple dark:text-gray-300">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
             {/* Add Payment Details */}
             <p className="text-sm text-medium-purple dark:text-gray-300">Payment Status: {order.paymentInfo?.paid ? 'Paid ✅' : 'Unpaid ❌'}</p>
@@ -52,7 +52,7 @@ const Orders = () => {
         <div className="flex justify-between items-center pt-4 border-t border-[#F9F0F7] dark:border-gray-700">
           <span className="text-lg font-semibold text-dark-purple dark:text-white">Total: ₹{order.totalAmount.toFixed(2)}</span>
           {/* Optional: Add a View Details button */}
-          {/* <Link to={`/orders/${order._id}`} className="text-primary hover:underline text-sm">View Details</Link> */}
+           <Link to={`/orders/${order._id}`} className="text-primary hover:underline text-sm">View Details</Link>
         </div>
       </motion.div>
     ));
@@ -60,9 +60,7 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-main py-12 px-4 sm:px-6 lg:px-8 text-text-primary">
-        Loading orders...
-      </div>
+      <Spinner/>
     );
   }
 
