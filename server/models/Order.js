@@ -29,7 +29,6 @@ const orderItemSchema = new mongoose.Schema({
     basePrice: { type: Number, required: true },
   },
 });
-
 const paymentInfoSchema = new mongoose.Schema({
   paymentId: String,
   orderId: String,
@@ -38,9 +37,12 @@ const paymentInfoSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  method: String,
+  method: String, // e.g. "card", "upi", "netbanking", "wallet"
+  provider: String, // e.g. "Visa", "ICICI", "Google Pay", etc.
+  last4: String, // last 4 digits of card if applicable
   amount: Number,
   currency: String,
+  status: String, // e.g. "captured", "failed", etc.
   timestamp: {
     type: Date,
     default: Date.now,
@@ -79,7 +81,7 @@ const orderSchema = new mongoose.Schema(
     paymentInfo: paymentInfoSchema,
     paymentMethod: {
       type: String,
-      enum: ["razorpay", "cod", "upi"],
+      enum: ["razorpay", "cod"],
       required: true,
     },
   },

@@ -56,6 +56,9 @@ const buildOrderItems = async (items, checkCod = false) => {
 // ================================
 // Razorpay: Create Payment Order
 // ================================
+// ================================
+// Create Razorpay Order
+// ================================
 exports.createRazorpayOrder = async (req, res) => {
   try {
     const { amount, currency = "INR", receipt } = req.body;
@@ -79,24 +82,38 @@ exports.createRazorpayOrder = async (req, res) => {
 };
 
 // ================================
-// Create Paid Order (Razorpay)
+// Create Order (Razorpay or COD)
 // ================================
 exports.createOrder = async (req, res) => {
   try {
-    const { items, totalAmount, shippingAddress, paymentInfo } = req.body;
-    if (!items || !totalAmount || !shippingAddress || !paymentInfo) {
+    const { items, totalAmount, shippingAddress, paymentMethod, paymentInfo } = req.body;
+
+    if (!items || !totalAmount || !shippingAddress || !paymentMethod) {
       return res.status(400).json({ message: "Missing required order fields" });
     }
-    console.log("Incoming order payload:", req.body);
-    const existingOrder = await Order.findOne({
-      "paymentInfo.paymentId": paymentInfo.paymentId,
-    });
-    if (existingOrder) {
-      return res.status(400).json({
-        message: "This payment has already been used to create an order.",
-      });
+
+    if (!["razorpay", "cod"].includes(paymentMethod)) {
+      return res.status(400).json({ message: "Invalid payment method" });
     }
 
+    // Validate Razorpay paymentInfo
+    if (paymentMethod === "razorpay") {
+      if (!paymentInfo?.paymentId || !paymentInfo?.orderId || !paymentInfo?.signature) {
+        return res.status(400).json({ message: "Incomplete Razorpay payment info" });
+      }
+
+      const existingOrder = await Order.findOne({
+        "paymentInfo.paymentId": paymentInfo.paymentId,
+      });
+
+      if (existingOrder) {
+        return res.status(400).json({
+          message: "This Razorpay payment has already been used.",
+        });
+      }
+    }
+
+    // Build order items with snapshot
     const orderItems = await buildOrderItems(items);
 
     const newOrder = new Order({
@@ -105,15 +122,12 @@ exports.createOrder = async (req, res) => {
       totalAmount,
       shippingAddress,
       status: "pending",
-      paymentMethod: paymentInfo.method || "razorpay",
-      paymentInfo,
+      paymentMethod,
+      paymentInfo: paymentMethod === "cod" ? { paid: false, method: "cod" } : paymentInfo,
     });
 
     const savedOrder = await newOrder.save();
-    const populatedOrder = await Order.findById(savedOrder._id).populate(
-      "user",
-      "name email"
-    );
+    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email");
 
     const pdfBuffer = await generateReceiptPDF(populatedOrder);
 
@@ -126,14 +140,13 @@ exports.createOrder = async (req, res) => {
 
     res.status(201).json({
       message: "Order placed successfully",
+      success:true,
       order: savedOrder,
       receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
     });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: "Failed to create order", error: err.message });
+    res.status(500).json({ message: "Failed to create order", error: err.message , success:false});
   }
 };
 

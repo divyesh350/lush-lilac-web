@@ -15,6 +15,8 @@ import AuthProvider from "./providers/AuthProvider";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ProductDetails from "./pages/ProductDetails";
 import WishList from "./pages/WishList";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 const App = () => {
   return (
@@ -56,6 +58,8 @@ const App = () => {
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="product/:id" element={<ProductDetails />} />
+                <Route path="payment-success" element={<PaymentSuccess />} />
+                <Route path="payment-failure" element={<PaymentFailure />} />
 
                 {/* ✅ Protected Routes */}
                 <Route
