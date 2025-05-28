@@ -8,13 +8,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendEmail(to, subject, text, attachments = []) {
+async function sendEmail(to, subject, text, attachments = [], html) {
   const mailOptions = {
     from: `"Lush Lilac" <no-reply@lushlilac.com>`,
     to,
     subject,
     text,
     attachments, // Accepts array of { filename, content }
+    html, // Add the html body here
   };
 
   await transporter.sendMail(mailOptions);

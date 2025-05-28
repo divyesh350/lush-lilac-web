@@ -3,6 +3,7 @@ const Product = require("../models/Product");
 const razorpay = require("../config/razorpay");
 const sendEmail = require("../utils/email.util");
 const generateReceiptPDF = require("../utils/pdfReceipt.util");
+const generateReceiptHTML = require("../utils/htmlReceipt.util");
 
 // Util: Build Order Items Array
 const buildOrderItems = async (items, checkCod = false) => {
@@ -46,6 +47,7 @@ const buildOrderItems = async (items, checkCod = false) => {
         title: product.title,
         thumbnailUrl,
         basePrice: product.basePrice,
+        codAvailable: product.codAvailable
       },
     });
   }
@@ -113,7 +115,7 @@ exports.createOrder = async (req, res) => {
       }
     }
 
-    // Build order items with snapshot
+    // Build order items with snapshot (ensure codAvailable is included)
     const orderItems = await buildOrderItems(items);
 
     const newOrder = new Order({
@@ -127,15 +129,18 @@ exports.createOrder = async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email");
+    const populatedOrder = await Order.findById(savedOrder._id).populate("user", "name email").populate("items.productId", "title"); // Populate product title for HTML receipt
 
+    // Generate PDF and HTML receipts
     const pdfBuffer = await generateReceiptPDF(populatedOrder);
+    const htmlBody = generateReceiptHTML(populatedOrder);
 
     await sendEmail(
       populatedOrder.user.email,
       "Your Lush Lilac Order Receipt",
-      "Thank you for your order! Please find attached your order receipt.",
-      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }]
+      null, // text body (set to null)
+      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }],
+      htmlBody // html body
     );
 
     res.status(201).json({
@@ -161,6 +166,7 @@ exports.createCodOrder = async (req, res) => {
       return res.status(400).json({ message: "Missing required order fields" });
     }
 
+    // Build order items with snapshot (checks cod availability)
     const orderItems = await buildOrderItems(items, true);
 
     const newOrder = new Order({
@@ -182,15 +188,18 @@ exports.createCodOrder = async (req, res) => {
     const populatedOrder = await Order.findById(savedOrder._id).populate(
       "user",
       "name email"
-    );
+    ).populate("items.productId", "title"); // Populate product title for HTML receipt
 
+     // Generate PDF and HTML receipts
     const pdfBuffer = await generateReceiptPDF(populatedOrder);
+    const htmlBody = generateReceiptHTML(populatedOrder);
 
     await sendEmail(
       populatedOrder.user.email,
       "Your Lush Lilac Order Receipt (Cash on Delivery)",
-      "Thank you for your order! Please find attached your order receipt. Payment will be collected upon delivery.",
-      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }]
+      null, // text body (set to null)
+      [{ filename: `receipt_${populatedOrder._id}.pdf`, content: pdfBuffer }],
+      htmlBody // html body
     );
 
     res.status(201).json({
@@ -199,9 +208,8 @@ exports.createCodOrder = async (req, res) => {
       receiptPDF: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "COD order creation failed", error: err.message });
+    console.log(err);
+    res.status(500).json({ message: "Failed to create COD order", error: err.message});
   }
 };
 

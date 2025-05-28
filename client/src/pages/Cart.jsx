@@ -95,6 +95,9 @@ const Cart = () => {
       console.error("Order processing failed or cancelled:", error);
       // The processOrder promise already handles showing a toast message
       navigate("/payment-failure");
+    } finally {
+      // Ensure loading state is reset regardless of success or failure
+      get().set({ loading: false });
     }
   };
 
