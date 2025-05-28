@@ -13,9 +13,16 @@ exports.subscribe = async (req, res) => {
     const subscriber = new Newsletter({ email });
     await subscriber.save();
 
-    res.status(201).json({ message: "Subscribed successfully" });
+    res.status(201).json({ 
+      success: true,
+      message: "Subscribed successfully" 
+    });
   } catch (err) {
-    res.status(500).json({ message: "Subscription failed", error: err.message });
+    res.status(500).json({ 
+      success: false,
+      message: "Subscription failed", 
+      error: err.message 
+    });
   }
 };
 
@@ -28,49 +35,63 @@ exports.unsubscribe = async (req, res) => {
     const deleted = await Newsletter.findOneAndDelete({ email });
     if (!deleted) return res.status(404).json({ message: "Email not found" });
 
-    res.json({ message: "Unsubscribed successfully" });
+    res.json({ 
+      success: true,
+      message: "Unsubscribed successfully" 
+    });
   } catch (err) {
-    res.status(500).json({ message: "Unsubscribe failed", error: err.message });
+    res.status(500).json({ 
+      success: false,
+      message: "Unsubscribe failed", 
+      error: err.message 
+    });
   }
 };
 
 // Admin: send newsletter to all subscribers
 exports.sendNewsletter = async (req, res) => {
-    try {
-      const { subject, content } = req.body;
-      if (!subject || !content) 
-        return res.status(400).json({ message: "Subject and content required" });
-  
-      const subscribers = await Newsletter.find();
-  
-      if (!subscribers.length) 
-        return res.status(400).json({ message: "No subscribers found" });
-  
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: false, // true for 465
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
+  try {
+    const { subject, content } = req.body;
+    if (!subject || !content) 
+      return res.status(400).json({ message: "Subject and content required" });
+
+    const subscribers = await Newsletter.find();
+
+    if (!subscribers.length) 
+      return res.status(400).json({ message: "No subscribers found" });
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: false, // true for 465
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+
+    const sendPromises = subscribers.map(subscriber => {
+      return transporter.sendMail({
+        from: process.env.SMTP_EMAIL,
+        to: subscriber.email,
+        subject,
+        html: content,
       });
-  
-      const sendPromises = subscribers.map(subscriber => {
-        return transporter.sendMail({
-          from: process.env.SMTP_USER,
-          to: subscriber.email,
-          subject,
-          html: content,
-        });
-      });
-  
-      await Promise.all(sendPromises);
-  
-      res.json({ message: "Newsletter sent to all subscribers" });
-    } catch (err) {
-      res.status(500).json({ message: "Failed to send newsletter", error: err.message });
-    }
-  };
+    });
+
+    await Promise.all(sendPromises);
+
+    res.json({ 
+      success: true,
+      message: "Newsletter sent to all subscribers" 
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to send newsletter", 
+      error: err.message 
+    });
+  }
+};
   
 

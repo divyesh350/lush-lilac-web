@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RiInstagramLine, RiFacebookLine, RiPinterestLine, RiTiktokLine, RiVisaLine, RiMastercardLine, RiPaypalLine, RiAppleFill } from '@remixicon/react';
+import useNewsletterStore from '../../store/useNewslatterStore';
+import {useAuthStore}  from '../../store/useAuthStore';
+import ReactConfetti from 'react-confetti';
 
 const socialIconMap = {
   'ri-instagram-line': RiInstagramLine,
@@ -19,16 +22,52 @@ const paymentIconMap = {
 
 const Footer = () => {
   const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const { subscribe, loading, error, success, reset } = useNewsletterStore();
+  const { user } = useAuthStore();
 
-  const handleSubmit = (e) => {
+  // Reset success state after 3 seconds
+  useEffect(() => {
+    if (success) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => {
+        reset();
+        setShowConfetti(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, reset]);
+
+  // Update dimensions when window resizes
+  useEffect(() => {
+    const updateDimensions = () => {
+      const newsletterSection = document.getElementById('newsletter-section');
+      if (newsletterSection) {
+        setDimensions({
+          width: newsletterSection.offsetWidth,
+          height: newsletterSection.offsetHeight
+        });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would connect to your newsletter API
-    // For now, just show a success state
-    if (email) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
+    const emailToSubscribe = user?.email || email;
+    if (emailToSubscribe) {
+      try {
+        await subscribe(emailToSubscribe);
+        if (!user) {
+          setEmail(''); // Only clear email if it was manually entered
+        }
+      } catch (error) {
+        console.error('Subscription error:', error);
+      }
     }
   };
 
@@ -96,12 +135,24 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Section */}
         <motion.div 
+          id="newsletter-section"
           className="bg-[#F9F0F7] dark:bg-gray-800 rounded-lg p-6 sm:p-8 md:p-12 shadow-sm mb-16 relative overflow-hidden"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
+          {showConfetti && (
+            <ReactConfetti
+              width={dimensions.width}
+              height={dimensions.height}
+              recycle={false}
+              numberOfPieces={200}
+              gravity={0.3}
+              style={{ position: 'absolute', top: 0, left: 0 }}
+            />
+          )}
+          
           {/* Decorative Elements */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl" />
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl" />
@@ -116,19 +167,27 @@ const Footer = () => {
 
             <div className="max-w-md mx-auto relative">
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-0">
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email address" 
-                  className="cute-input flex-1 py-3 px-4 rounded-button sm:rounded-l-button sm:rounded-r-none text-dark-purple dark:text-text-primary text-sm sm:text-base" 
-                  required
-                />
+                {user ? (
+                  <div className="flex-1 py-3 px-4 rounded-button sm:rounded-l-button sm:rounded-r-none bg-white dark:bg-gray-700 text-dark-purple dark:text-text-primary text-sm sm:text-base">
+                    {user.email}
+                  </div>
+                ) : (
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Your email address" 
+                    className="cute-input flex-1 py-3 px-4 rounded-button sm:rounded-l-button sm:rounded-r-none text-dark-purple dark:text-text-primary text-sm sm:text-base" 
+                    required
+                    disabled={loading}
+                  />
+                )}
                 <button 
                   type="submit" 
-                  className="bg-primary hover:bg-[#D4B6D0] text-white px-6 py-3 rounded-button sm:rounded-l-none sm:rounded-r-button font-medium transition-all duration-300 btn-hover whitespace-nowrap text-sm sm:text-base"
+                  className="bg-primary hover:bg-[#D4B6D0] text-white px-6 py-3 rounded-button sm:rounded-l-none sm:rounded-r-button font-medium transition-all duration-300 btn-hover whitespace-nowrap text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
                 >
-                  {subscribed ? "Subscribed!" : "Subscribe"}
+                  {loading ? "Subscribing..." : success ? "Subscribed!" : "Subscribe"}
                 </button>
               </form>
 
@@ -153,8 +212,17 @@ const Footer = () => {
               />
             </div>
 
-            {/* Success Message */}
-            {subscribed && (
+            {/* Status Messages */}
+            {error && (
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm text-center mt-3"
+              >
+                {error}
+              </motion.p>
+            )}
+            {success && (
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

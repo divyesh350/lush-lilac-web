@@ -14,12 +14,6 @@ import {
 } from '@remixicon/react';
 
 
-// Mock data for new arrivals (we'll keep this for now)
-const mockNewArrivals = [
-  { id: 5, title: 'Butterfly Phone Case', price: 22.99, media: [] },
-  { id: 6, title: 'Floral Mouse Pad', price: 18.99, media: [] },
-  { id: 7, title: 'Heart-Shaped Mirror', price: 29.99, media: [] }
-];
 
 const categories = [
   { name: 'Phone Cases', icon: RiSmartphoneLine, bgColor: '#FFB5D8' },
