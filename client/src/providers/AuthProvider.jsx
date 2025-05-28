@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import Spinner from '../components/ui/Spinner';
+
 const AuthProvider = ({ children }) => {
   const {
     setAccessToken,
@@ -8,7 +9,6 @@ const AuthProvider = ({ children }) => {
     checkAuth,
     hasHydrated,
     setHasHydrated,
-    loading,
   } = useAuthStore();
 
   const [internalLoading, setInternalLoading] = useState(true);
@@ -17,17 +17,17 @@ const AuthProvider = ({ children }) => {
   const stableSetAccessToken = useCallback(setAccessToken, [setAccessToken]);
   const stableSetUser = useCallback(setUser, [setUser]);
 
+  // Session restoration
   useEffect(() => {
     const restoreSession = async () => {
       try {
         const isAuthenticated = await stableCheckAuth();
-
         if (!isAuthenticated) {
           stableSetAccessToken(null);
           stableSetUser(null);
         }
-      } catch (err) {
-        console.error('Session restore failed:', err);
+      } catch {
+        // Silently handle auth errors
         stableSetAccessToken(null);
         stableSetUser(null);
       } finally {
@@ -37,21 +37,30 @@ const AuthProvider = ({ children }) => {
 
     if (hasHydrated) {
       restoreSession();
+    } else {
+      // If not hydrated, still set loading to false after a timeout
+      const timeout = setTimeout(() => {
+        setInternalLoading(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
     }
   }, [hasHydrated, stableCheckAuth, stableSetAccessToken, stableSetUser]);
 
-  // ✅ Fallback if hydration never triggers (e.g., dev edge case)
+  // Fallback if hydration never triggers
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!hasHydrated) {
-        setHasHydrated(); // force hydration to continue
+        setHasHydrated();
       }
     }, 3000);
 
     return () => clearTimeout(timeout);
   }, [hasHydrated, setHasHydrated]);
 
-  if (!hasHydrated || internalLoading) return <Spinner />;
+  // Show spinner only during initial load
+  if (internalLoading && hasHydrated) {
+    return <Spinner />;
+  }
 
   return children;
 };

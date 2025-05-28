@@ -29,6 +29,8 @@
     "supertest": "^7.1.1"
   },
   "dependencies": {
+    "@arcjet/inspect": "^1.0.0-beta.7",
+    "@arcjet/node": "^1.0.0-beta.7",
     "bcrypt": "^6.0.0",
     "cloudinary": "^1.30.0",
     "cookie-parser": "^1.4.7",
