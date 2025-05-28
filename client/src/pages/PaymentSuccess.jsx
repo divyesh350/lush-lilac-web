@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import success from '../assets/success.png';
+import ReactConfetti from 'react-confetti';
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [receiptPDF, setReceiptPDF] = useState(null);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
 
   useEffect(() => {
     // Check if state data exists, otherwise redirect to home or shop
@@ -19,6 +24,19 @@ const PaymentSuccess = () => {
     }
   }, [location.state, navigate]);
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!order) {
     // Optionally show a loading state or a message while redirecting
     return null; 
@@ -26,6 +44,15 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-main py-12 px-4 sm:px-6 lg:px-8">
+      <ReactConfetti
+        width={dimensions.width}
+        height={dimensions.height}
+        recycle={false}
+        numberOfPieces={500}
+        gravity={0.2}
+        initialVelocityY={10}
+        colors={['#FF69B4', '#9370DB', '#FFB6C1', '#DDA0DD', '#EE82EE']}
+      />
       <div className="max-w-2xl w-full space-y-8 text-center bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
         <div className="flex flex-col items-center">
           <img src={success} alt="Payment Successful" className="w-24 h-24 mb-4" />
