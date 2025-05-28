@@ -169,6 +169,20 @@ const Navbar = () => {
                   </NavLink>
                 </motion.div>
               ))}
+              {isAuthenticated && (
+                <motion.div custom={4} variants={itemVariants}>
+                  <NavLink
+                    to="/orders"
+                    className={({ isActive }) =>
+                      `text-primary hover:text-[#D9B6D0] px-2 xl:px-3 py-2 text-sm xl:text-base font-medium transition-colors duration-200 ${
+                        isActive ? "border-b-2 border-primary" : ""
+                      }`
+                    }
+                  >
+                    Orders
+                  </NavLink>
+                </motion.div>
+              )}
             </div>
           </div>
 
@@ -337,6 +351,21 @@ const Navbar = () => {
                   {item}
                 </NavLink>
               ))}
+
+              {/* Orders Link for Mobile */}
+              {isAuthenticated && (
+                <NavLink
+                  to="/orders"
+                  className={({ isActive }) =>
+                    `block px-3 py-2 rounded-md text-base font-medium text-primary hover:text-[#D4B6D0] transition-colors duration-200 ${
+                      isActive ? "bg-[#F9F0F7]" : ""
+                    }`
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Orders
+                </NavLink>
+              )}
 
               {/* Mobile Auth Links */}
               {!isAuthenticated && (

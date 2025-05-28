@@ -5,6 +5,7 @@ import ProductCard from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
 import { RiArrowLeftSFill, RiArrowRightSFill } from '@remixicon/react';
 import useProductStore from '../store/useProductStore';
+import Spinner from '../components/ui/Spinner';
 
 // Constants
 const CATEGORIES = ['all', 'phone_cases', 'mouse_pads', 'mirrors', 'tumblers', 'candles'];
@@ -136,9 +137,7 @@ const Shop = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
-      </div>
+     <Spinner/>
     );
   }
 

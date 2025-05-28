@@ -7,6 +7,7 @@ import useProductStore from '../store/useProductStore';
 import useWishlistStore from '../store/useWishlistStore';
 import useCartStore from '../store/useCartStore';
 import { RiSubtractLine, RiAddLine, RiFlowerFill, RiFlowerLine, RiShoppingBagFill, RiShoppingBagLine } from '@remixicon/react';
+import Spinner from '../components/ui/Spinner';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -131,9 +132,7 @@ const ProductDetails = () => {
 
   if (productLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
-      </div>
+      <Spinner/>
     );
   }
 

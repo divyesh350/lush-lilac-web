@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useCartStore from '../store/useCartStore';
 import { motion } from 'framer-motion';
@@ -11,18 +11,68 @@ const OrderDetails = () => {
   const { fetchOrderById, ordersLoading: loading, ordersError: error } = useCartStore();
   const [order, setOrder] = useState(null);
 
-  useEffect(() => {
+  const fetchOrder = useCallback(async () => {
     if (orderId) {
-      fetchOrderById(orderId)
-        .then(data => setOrder(data))
-        .catch(err => console.error("Failed to fetch order details:", err));
+      try {
+        const data = await fetchOrderById(orderId);
+        setOrder(data);
+      } catch (err) {
+        console.error("Failed to fetch order details:", err);
+      }
     }
   }, [orderId, fetchOrderById]);
 
+  useEffect(() => {
+    fetchOrder();
+  }, [fetchOrder]);
+
+  const handleBackClick = useCallback(() => {
+    navigate('/orders');
+  }, [navigate]);
+
+  // Memoize the status badge styles
+  const statusBadgeStyles = useMemo(() => {
+    if (!order) return '';
+    return order.status === 'delivered' 
+      ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
+      : order.status === 'cancelled' 
+      ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' 
+      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
+  }, [order?.status]);
+
+  // Memoize the formatted date
+  const formattedDate = useMemo(() => {
+    return order ? new Date(order.createdAt).toLocaleDateString() : '';
+  }, [order?.createdAt]);
+
+  // Memoize the order items list
+  const orderItems = useMemo(() => {
+    if (!order?.items) return [];
+    return order.items.map((item, index) => (
+      <div 
+        key={`${item.productSnapshot?.title}-${index}`} 
+        className="flex items-center border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 last:pb-0"
+      >
+        <img src={item.productSnapshot?.thumbnailUrl} alt={item.productSnapshot?.title} className="w-16 h-16 object-cover rounded mr-4" />
+        <div className="flex-grow">
+          <h3 className="text-lg font-medium text-dark-purple dark:text-white">{item.productSnapshot?.title}</h3>
+          {item.variant && Object.keys(item.variant).length > 0 && (
+            <p className="text-sm text-medium-purple dark:text-gray-300">
+              Variant: {Object.entries(item.variant)
+                .filter(([key]) => key !== '_id' && key !== 'stock')
+                .map(([key, value]) => `${key}: ${value}`)
+                .join(', ')}
+            </p>
+          )}
+          <p className="text-sm text-medium-purple dark:text-gray-300">Quantity: {item.quantity}</p>
+          <p className="text-sm font-semibold text-dark-purple dark:text-white">Price: ₹{(item.price * item.quantity).toFixed(2)}</p>
+        </div>
+      </div>
+    ));
+  }, [order?.items]);
+
   if (loading) {
-    return (
-      <Spinner/>
-    );
+    return <Spinner />;
   }
 
   if (error) {
@@ -50,7 +100,7 @@ const OrderDetails = () => {
           transition={{ duration: 0.5 }}
         >
           <button 
-            onClick={() => navigate('/orders')}
+            onClick={handleBackClick}
             className="flex items-center text-medium-purple dark:text-gray-300 hover:text-primary dark:hover:text-primary mb-4 transition-colors duration-200"
           >
             <RiArrowLeftCircleLine className="mr-2" />
@@ -63,18 +113,12 @@ const OrderDetails = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
             <div className="flex justify-between items-center border-b border-[#F9F0F7] dark:border-gray-700 pb-4 mb-4">
               <h2 className="text-xl font-semibold text-dark-purple dark:text-white">Summary</h2>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                order.status === 'delivered' 
-                  ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                  : order.status === 'cancelled' 
-                  ? 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100' 
-                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-              }`}>
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusBadgeStyles}`}>
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </div>
             </div>
             <p className="text-medium-purple dark:text-gray-300">Order Number: #{order._id.slice(-6)}</p>
-            <p className="text-medium-purple dark:text-gray-300">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+            <p className="text-medium-purple dark:text-gray-300">Date: {formattedDate}</p>
             <p className="text-medium-purple dark:text-gray-300">Payment Status: {order.paymentInfo?.paid ? 'Paid ✅' : 'Unpaid ❌'}</p>
             <p className="text-medium-purple dark:text-gray-300">Payment Method: {order.paymentMethod?.toUpperCase() || 'N/A'}</p>
             <p className="text-medium-purple dark:text-gray-300 font-semibold mt-4">Total Amount: ₹{order.totalAmount.toFixed(2)}</p>
@@ -93,24 +137,7 @@ const OrderDetails = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
             <h2 className="text-xl font-semibold text-dark-purple dark:text-white mb-4">Items</h2>
             <div className="space-y-4">
-              {order.items.map(item => (
-                <div key={item._id || item.productId} className="flex items-center border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 last:pb-0">
-                  <img src={item.productSnapshot?.thumbnailUrl} alt={item.productSnapshot?.title} className="w-16 h-16 object-cover rounded mr-4" />
-                  <div className="flex-grow">
-                    <h3 className="text-lg font-medium text-dark-purple dark:text-white">{item.productSnapshot?.title}</h3>
-                    {item.variant && Object.keys(item.variant).length > 0 && (
-                        <p className="text-sm text-medium-purple dark:text-gray-300">
-                            Variant: {Object.entries(item.variant)
-                                .filter(([key]) => key !== '_id' && key !== 'stock')
-                                .map(([key, value]) => `${key}: ${value}`)
-                                .join(', ')}
-                        </p>
-                    )}
-                    <p className="text-sm text-medium-purple dark:text-gray-300">Quantity: {item.quantity}</p>
-                    <p className="text-sm font-semibold text-dark-purple dark:text-white">Price: ₹{(item.price * item.quantity).toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
+              {orderItems}
             </div>
           </div>
 
