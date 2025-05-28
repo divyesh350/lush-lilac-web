@@ -88,10 +88,10 @@ const Cart = () => {
     setShowPaymentModal(false); // Close modal when initiating payment
 
     try {
-      await processOrder(shippingAddress, method); // Await the promise from processOrder
+      const res = await processOrder(shippingAddress, method); // Await the promise from processOrder
       // If the promise resolves, the order was successful
-      await clearCart();
-      navigate("/payment-success");
+      // Pass order data and receiptPDF to the success page
+      navigate("/payment-success", { state: { order: res.order, receiptPDF: res.receiptPDF } });
     } catch (error) {
       // If the promise rejects, there was a failure or cancellation
       console.error("Order processing failed or cancelled:", error);
