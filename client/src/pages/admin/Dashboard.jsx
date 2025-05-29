@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Routes, Route } from 'react-router-dom';
 import { RiDashboardLine, RiShoppingBag3Line, RiArtboard2Line, 
          RiMailLine, RiUserLine, RiMoneyDollarCircleLine, 
          RiSettings4Line, RiBarChart2Line } from 'react-icons/ri';
@@ -14,6 +15,7 @@ const Header = lazy(() => import('../../components/layout/admin/Header'));
 const AnalyticsOverview = lazy(() => import('../../components/layout/admin/AnalyticsOverview'));
 const RecentOrders = lazy(() => import('../../components/layout/admin/RecentOrders'));
 const TopProducts = lazy(() => import('../../components/layout/admin/TopProducts'));
+const Products = lazy(() => import('./Products'));
 
 // Styled components
 const DashboardContainer = styled(Box)(({ theme }) => ({
@@ -50,24 +52,32 @@ const Dashboard = () => {
           <MainContent>
             <Header toggleSidebar={toggleSidebar} />
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-                <Suspense fallback={<Spinner />}>
-                  <AnalyticsOverview />
-                </Suspense>
-              </Box>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                      <Suspense fallback={<Spinner />}>
+                        <AnalyticsOverview />
+                      </Suspense>
+                    </Box>
 
-              <Box sx={{ mt: 4, display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
-                <Suspense fallback={<Spinner />}>
-                  <RecentOrders />
-                  <TopProducts />
-                </Suspense>
-              </Box>
-            </motion.div>
+                    <Box sx={{ mt: 4, display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+                      <Suspense fallback={<Spinner />}>
+                        <RecentOrders />
+                        <TopProducts />
+                      </Suspense>
+                    </Box>
+                  </motion.div>
+                }
+              />
+              <Route path="/products" element={<Products />} />
+            </Routes>
           </MainContent>
         </Suspense>
       </DashboardContainer>

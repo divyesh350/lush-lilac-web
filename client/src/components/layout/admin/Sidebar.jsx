@@ -105,12 +105,12 @@ const Sidebar = ({ isOpen }) => {
     >
       <SidebarContainer>
         <Logo>
-          <Link
-            to="/"
+        <Link
+              to="/"
             className="font-pacifico text-2xl text-primary hover:text-primary/80 transition-colors"
-          >
-            Lush Lilac
-          </Link>
+            >
+              Lush Lilac
+            </Link>
         </Logo>
         <Divider />
         <StyledList>
