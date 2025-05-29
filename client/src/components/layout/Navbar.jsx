@@ -11,6 +11,7 @@ import {
   RiCloseLine,
   RiLogoutBoxLine,
   RiFlowerFill,
+  RiDashboardLine,
 } from "@remixicon/react";
 import { useAuthStore } from "../../store/useAuthStore";
 import useWishlistStore from "../../store/useWishlistStore";
@@ -261,6 +262,17 @@ const Navbar = () => {
                         >
                           Profile
                         </Link>
+                        {user?.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            className="block px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition text-center"
+                            onClick={() => setProfileOpen(false)}
+                          >
+                            <div className="flex items-center justify-center gap-2">
+                              <RiDashboardLine /> Admin
+                            </div>
+                          </Link>
+                        )}
                         <button
                           onClick={handleLogout}
                           className="w-full text-left px-6 py-2 text-primary hover:bg-[#F9F0F7] hover:text-dark-purple transition"
