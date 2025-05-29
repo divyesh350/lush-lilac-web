@@ -1,11 +1,12 @@
 import React, { Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
-import { Box, CircularProgress, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { RiDashboardLine, RiShoppingBag3Line, RiArtboard2Line, 
          RiMailLine, RiUserLine, RiMoneyDollarCircleLine, 
          RiSettings4Line, RiBarChart2Line } from 'react-icons/ri';
 import adminTheme from '../../theme/adminTheme';
+import Spinner from '../../components/ui/Spinner';
 
 // Lazy loaded components
 const Sidebar = lazy(() => import('../../components/layout/admin/Sidebar'));
@@ -31,16 +32,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   }),
 }));
 
-const LoadingFallback = () => (
-  <Box
-    display="flex"
-    justifyContent="center"
-    alignItems="center"
-    minHeight="100vh"
-  >
-    <CircularProgress />
-  </Box>
-);
+const LoadingFallback = () => <Spinner />;
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
@@ -64,13 +56,13 @@ const Dashboard = () => {
               transition={{ duration: 0.5 }}
             >
               <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-                <Suspense fallback={<CircularProgress />}>
+                <Suspense fallback={<Spinner />}>
                   <AnalyticsOverview />
                 </Suspense>
               </Box>
 
               <Box sx={{ mt: 4, display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
-                <Suspense fallback={<CircularProgress />}>
+                <Suspense fallback={<Spinner />}>
                   <RecentOrders />
                   <TopProducts />
                 </Suspense>

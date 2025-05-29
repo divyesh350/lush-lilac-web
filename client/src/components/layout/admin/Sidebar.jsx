@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation , Link} from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Box,
@@ -34,23 +34,51 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 const Logo = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(2.5),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  minHeight: '64px',
+}));
+
+const StyledList = styled(List)(({ theme }) => ({
+  padding: theme.spacing(1),
+  flex: 1,
+  overflowY: 'auto',
+  '&::-webkit-scrollbar': {
+    width: '4px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: theme.palette.divider,
+    borderRadius: '4px',
+  },
 }));
 
 const StyledListItem = styled(ListItem)(({ theme, active }) => ({
-  margin: theme.spacing(0.5, 2),
+  margin: theme.spacing(0.5, 1),
   borderRadius: theme.shape.borderRadius,
   backgroundColor: active ? theme.palette.primary.main : 'transparent',
   color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
+  padding: theme.spacing(1, 1.5),
+  minHeight: '48px',
   '&:hover': {
     backgroundColor: active ? theme.palette.primary.dark : theme.palette.action.hover,
+  },
+  '& .MuiListItemIcon-root': {
+    minWidth: '40px',
+  },
+  '& .MuiListItemText-primary': {
+    fontSize: '0.95rem',
+    fontWeight: active ? 600 : 400,
   },
 }));
 
@@ -77,15 +105,15 @@ const Sidebar = ({ isOpen }) => {
     >
       <SidebarContainer>
         <Logo>
-        <Link
-              to="/"
-              className="font-pacifico text-2xl sm:text-2xl md:text-3xl text-primary"
-            >
-              Lush Lilac
-            </Link>
+          <Link
+            to="/"
+            className="font-pacifico text-2xl text-primary hover:text-primary/80 transition-colors"
+          >
+            Lush Lilac
+          </Link>
         </Logo>
         <Divider />
-        <List>
+        <StyledList>
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -104,7 +132,7 @@ const Sidebar = ({ isOpen }) => {
               </StyledListItem>
             );
           })}
-        </List>
+        </StyledList>
       </SidebarContainer>
     </motion.div>
   );

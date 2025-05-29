@@ -21,14 +21,15 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   boxShadow: '0 2px 12px 0 rgba(0,0,0,0.1)',
   transition: 'transform 0.2s ease-in-out',
+  padding: theme.spacing(1),
   '&:hover': {
     transform: 'translateY(-4px)',
   },
 }));
 
 const IconWrapper = styled(Box)(({ theme, color }) => ({
-  width: 48,
-  height: 48,
+  width: 56,
+  height: 56,
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
@@ -92,35 +93,46 @@ const AnalyticsOverview = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      className='mt-4'
     >
-      <Grid container spacing={3}>
+      <Grid 
+        container 
+        spacing={4} 
+        sx={{ 
+          justifyContent: 'space-between',
+          '& > .MuiGrid-item': {
+            flexBasis: 'calc(25% - 24px)',
+            maxWidth: 'calc(25% - 24px)',
+            minWidth: '280px',
+          }
+        }}
+      >
         {metrics.map((metric, index) => (
           <Grid
             key={index}
-            xs={12}
-            sm={6}
-            md={3}
+            item
           >
             <motion.div variants={itemVariants}>
               <StyledCard>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                     <IconWrapper color={metric.color}>
-                      <metric.icon size={24} />
+                      <metric.icon size={28} />
                     </IconWrapper>
-                    <Box sx={{ ml: 2 }}>
-                      <Typography variant="subtitle2" color="textSecondary">
+                    <Box sx={{ ml: 2.5 }}>
+                      <Typography variant="subtitle1" color="textSecondary" sx={{ mb: 0.5 }}>
                         {metric.title}
                       </Typography>
-                      <Typography variant="h4" component="div">
+                      <Typography variant="h4" component="div" sx={{ fontWeight: 600 }}>
                         {metric.value}
                       </Typography>
                     </Box>
                   </Box>
                   <Typography
-                    variant="body2"
+                    variant="body1"
                     sx={{
                       color: metric.change.startsWith('+') ? 'success.main' : 'error.main',
+                      fontWeight: 500,
                     }}
                   >
                     {metric.change} from last month
