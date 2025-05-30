@@ -218,12 +218,21 @@ const ProductDetails = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-semibold text-dark-purple dark:text-primary mb-2">{selectedProduct.title}</h1>
+            {/* Title and Best Seller Badge */}
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-semibold text-dark-purple dark:text-primary">{selectedProduct.title}</h1>
+              {selectedProduct?.isFeatured && (
+                <span className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-yellow-700 dark:text-yellow-100">
+                  Best Seller
+                </span>
+              )}
+            </div>
             
+            {/* Price */}
             <p className="text-2xl font-medium text-dark-purple dark:text-primary mb-6">
               <small className='text-dark-purple dark:text-text-primary relative -top-2 text-sm'>₹</small>{totalPrice.toFixed(2)}
             </p>
-
+            
             {/* Stock Status */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
@@ -370,7 +379,12 @@ const ProductDetails = () => {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div>
-            <h2 className="text-2xl font-semibold text-dark-purple mb-6">You May Also Like</h2>
+            <h2 className="text-2xl font-semibold text-dark-purple mb-6">
+              <div className="flex items-center gap-2">
+                <RiFlowerFill className="w-7 h-7 text-primary" />
+                You May Also Like
+              </div>
+            </h2>
             
             <motion.div 
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
