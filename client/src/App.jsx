@@ -19,7 +19,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
-import Dashboard from "./pages/admin/Dashboard";
+
 
 
 const App = () => {
@@ -53,24 +53,7 @@ const App = () => {
               }}
             />
             <Routes>
-              {/* Admin Routes - Outside of client Layout */}
-              <Route
-                path="admin"
-                element={
-                  <ProtectedRoute adminOnly>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="admin/*"
-                element={
-                  <ProtectedRoute adminOnly>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-
+              
               {/* Client Routes - Inside Layout */}
               <Route path="/" element={<Layout />}>
                 {/* ✅ Public Routes */}
