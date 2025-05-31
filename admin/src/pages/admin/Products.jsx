@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { RiAddLine, RiSearchLine, RiFilterLine } from 'react-icons/ri';
 
 const Products = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -42,7 +44,8 @@ const Products = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-4"
+          className="card p-4 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate('/admin/products/1')}
         >
           <div className="aspect-square bg-gray-100 rounded-lg mb-4"></div>
           <h3 className="font-medium mb-1">Floral Summer Dress</h3>
