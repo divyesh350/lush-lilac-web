@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { RiSearchLine, RiFilterLine, RiEyeLine, RiPencilLine } from 'react-icons/ri';
+import OrderForm from '../../components/forms/OrderForm';
 
 const Orders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const orders = [
     {
@@ -13,6 +16,13 @@ const Orders = () => {
       date: 'May 31, 2025',
       amount: '₹1,249.00',
       status: 'pending',
+      items: [
+        {
+          name: 'Floral Summer Dress',
+          quantity: 1,
+          price: 1249,
+        },
+      ],
     },
     {
       id: 'ORD-38293',
@@ -20,6 +30,13 @@ const Orders = () => {
       date: 'May 30, 2025',
       amount: '₹789.50',
       status: 'processing',
+      items: [
+        {
+          name: 'Casual T-Shirt',
+          quantity: 2,
+          price: 394.75,
+        },
+      ],
     },
     {
       id: 'ORD-38292',
@@ -27,6 +44,13 @@ const Orders = () => {
       date: 'May 30, 2025',
       amount: '₹2,349.00',
       status: 'delivered',
+      items: [
+        {
+          name: 'Designer Handbag',
+          quantity: 1,
+          price: 2349,
+        },
+      ],
     },
     {
       id: 'ORD-38291',
@@ -34,22 +58,51 @@ const Orders = () => {
       date: 'May 29, 2025',
       amount: '₹459.99',
       status: 'cancelled',
+      items: [
+        {
+          name: 'Sunglasses',
+          quantity: 1,
+          price: 459.99,
+        },
+      ],
     },
   ];
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'pending':
-        return 'badge-pending';
+        return 'bg-yellow-100 text-yellow-800';
       case 'processing':
-        return 'badge-processing';
+        return 'bg-blue-100 text-blue-800';
+      case 'shipped':
+        return 'bg-purple-100 text-purple-800';
       case 'delivered':
-        return 'badge-delivered';
+        return 'bg-green-100 text-green-800';
       case 'cancelled':
-        return 'badge-cancelled';
+        return 'bg-red-100 text-red-800';
       default:
-        return '';
+        return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleEdit = (order) => {
+    setSelectedOrder(order);
+    setShowOrderForm(true);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedOrder(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // TODO: Implement API call to update order
+    console.log('Updating order:', selectedOrder);
+    setShowOrderForm(false);
   };
 
   return (
@@ -59,106 +112,124 @@ const Orders = () => {
         <p className="text-gray-500">Manage and track your customer orders.</p>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1 relative">
-          <input
-            type="text"
-            placeholder="Search orders..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+      {showOrderForm ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <OrderForm
+            order={selectedOrder}
+            isEditing={true}
+            onChange={handleInputChange}
+            onSubmit={handleSubmit}
+            onCancel={() => setShowOrderForm(false)}
           />
-          <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        </div>
-        <div className="flex gap-4">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <RiFilterLine />
-            <span>More Filters</span>
-          </button>
-        </div>
-      </div>
+        </motion.div>
+      ) : (
+        <>
+          {/* Search and Filters */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search orders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              />
+              <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+            <div className="flex gap-4">
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <RiFilterLine />
+                <span>More Filters</span>
+              </button>
+            </div>
+          </div>
 
-      {/* Orders Table */}
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="pb-3 px-6 font-medium">Order ID</th>
-                <th className="pb-3 px-6 font-medium">Customer</th>
-                <th className="pb-3 px-6 font-medium">Date</th>
-                <th className="pb-3 px-6 font-medium">Amount</th>
-                <th className="pb-3 px-6 font-medium">Status</th>
-                <th className="pb-3 px-6 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <motion.tr
-                  key={order.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="border-b border-gray-100 hover:bg-gray-50"
-                >
-                  <td className="py-4 px-6">{order.id}</td>
-                  <td className="py-4 px-6">{order.customer}</td>
-                  <td className="py-4 px-6">{order.date}</td>
-                  <td className="py-4 px-6">{order.amount}</td>
-                  <td className="py-4 px-6">
-                    <span className={`badge ${getStatusBadgeClass(order.status)}`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex justify-end space-x-2">
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary">
-                        <RiEyeLine />
-                      </button>
-                      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary">
-                        <RiPencilLine />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+          {/* Orders Table */}
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b">
+                    <th className="pb-3 px-6 font-medium">Order ID</th>
+                    <th className="pb-3 px-6 font-medium">Customer</th>
+                    <th className="pb-3 px-6 font-medium">Date</th>
+                    <th className="pb-3 px-6 font-medium">Amount</th>
+                    <th className="pb-3 px-6 font-medium">Status</th>
+                    <th className="pb-3 px-6 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <motion.tr
+                      key={order.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="border-b border-gray-100 hover:bg-gray-50"
+                    >
+                      <td className="py-4 px-6">{order.id}</td>
+                      <td className="py-4 px-6">{order.customer}</td>
+                      <td className="py-4 px-6">{order.date}</td>
+                      <td className="py-4 px-6">{order.amount}</td>
+                      <td className="py-4 px-6">
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(order.status)}`}>
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex justify-end space-x-2">
+                          <button 
+                            onClick={() => handleEdit(order)}
+                            className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary"
+                          >
+                            <RiPencilLine />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <p className="text-gray-500 text-sm">Showing 1-4 of 248 orders</p>
-        <div className="flex gap-2">
-          <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed">
-            ←
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white">
-            1
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-            2
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-            3
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-            →
-          </button>
-        </div>
-      </div>
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-6">
+            <p className="text-gray-500 text-sm">Showing 1-4 of 248 orders</p>
+            <div className="flex gap-2">
+              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                ←
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white">
+                1
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                2
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                3
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                →
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

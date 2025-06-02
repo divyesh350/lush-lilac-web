@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { RiDashboardLine, RiShoppingBagLine, RiFileListLine, RiUserLine, RiSettingsLine, RiMailLine, RiPaletteLine, RiMenuLine, RiCloseLine, RiNotification3Line } from 'react-icons/ri';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
 
   const menuItems = [
     { icon: RiDashboardLine, label: 'Dashboard', path: '/admin' },
@@ -15,6 +16,13 @@ const AdminLayout = () => {
     { icon: RiMailLine, label: 'Newsletter', path: '/admin/newsletter' },
     { icon: RiPaletteLine, label: 'Artwork', path: '/admin/artwork' },
   ];
+
+  const isActive = (path) => {
+    if (path === '/admin') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div className="min-h-screen flex bg-secondary-light">
@@ -29,7 +37,7 @@ const AdminLayout = () => {
             className="w-64 bg-white shadow-lg fixed h-screen flex flex-col z-50"
           >
             <div className="p-6 flex items-center justify-between">
-              <h1 className="text-2xl font-heading text-primary">logo</h1>
+              <h1 className="text-2xl font-heading text-primary">lush lilac</h1>
               <button
                 onClick={() => setIsSidebarOpen(false)}
                 className="lg:hidden text-gray-500 hover:text-primary"
@@ -43,7 +51,11 @@ const AdminLayout = () => {
                   <li key={item.path}>
                     <Link
                       to={item.path}
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-purple-50 hover:text-primary rounded-lg transition-colors"
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive(item.path)
+                          ? 'bg-primary text-white'
+                          : 'text-gray-600 hover:bg-purple-50 hover:text-primary'
+                      }`}
                     >
                       <item.icon size={20} />
                       <span>{item.label}</span>
