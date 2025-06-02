@@ -1,141 +1,391 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { RiAddLine, RiSearchLine, RiFilterLine } from 'react-icons/ri';
+import { RiAddLine, RiSearchLine, RiFilterLine, RiCloseLine } from 'react-icons/ri';
+import useProductStore from '../../store/productStore';
 import ProductForm from '../../components/forms/ProductForm';
 
 const Products = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const {
+    products,
+    totalProducts,
+    currentPage,
+    totalPages,
+    filters,
+    isLoading,
+    error,
+    fetchProducts,
+    setFilters,
+    resetFilters,
+    deleteProduct,
+    toggleProductStatus,
+    toggleFeaturedStatus,
+  } = useProductStore();
+
   const [showProductForm, setShowProductForm] = useState(false);
-  const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const [product, setProduct] = useState({
-    name: '',
-    sku: '',
-    price: '',
-    stock: '',
-    description: '',
-    category: '',
-    images: [],
-    status: 'draft',
-    featured: false,
-  });
+  useEffect(() => {
+    fetchProducts(currentPage);
+  }, [currentPage, filters]);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setProduct(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const handleSearch = (e) => {
+    setFilters({ search: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: Implement API call to create product
-    console.log('Creating product:', product);
-    setShowProductForm(false);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ [name]: value });
   };
 
-  const handleImageDelete = (index) => {
-    setProduct(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+  const handlePageChange = (page) => {
+    fetchProducts(page);
   };
+
+  const handleEdit = (product) => {
+    setSelectedProduct(product);
+    setShowProductForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteProduct(id);
+      } catch (error) {
+        console.error('Failed to delete product:', error);
+      }
+    }
+  };
+
+  const handleStatusToggle = async (id, currentStatus) => {
+    try {
+      await toggleProductStatus(id, !currentStatus);
+    } catch (error) {
+      console.error('Failed to toggle product status:', error);
+    }
+  };
+
+  const handleFeaturedToggle = async (id, currentStatus) => {
+    try {
+      await toggleFeaturedStatus(id, !currentStatus);
+    } catch (error) {
+      console.error('Failed to toggle featured status:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button
+          onClick={() => fetchProducts(currentPage)}
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl text-primary mb-2">Products</h2>
-        <p className="text-gray-500">Manage your product catalog and inventory.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">Products</h1>
+          <p className="text-gray-500">Manage your product catalog</p>
+        </div>
+        <button
+          onClick={() => {
+            setSelectedProduct(null);
+            setShowProductForm(true);
+          }}
+          className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          <RiAddLine className="mr-2" />
+          Add Product
+        </button>
       </div>
 
-      {showProductForm ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <ProductForm
-            product={product}
-            isEditing={true}
-            onChange={handleInputChange}
-            onSubmit={handleSubmit}
-            onCancel={() => setShowProductForm(false)}
-            onImageDelete={handleImageDelete}
-          />
-        </motion.div>
-      ) : (
-        <>
-          {/* Search and Actions */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
+      {/* Search and Filters */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <RiSearchLine className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                value={filters.search}
+                onChange={handleSearch}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
-              <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <RiFilterLine />
-                <span>Filter</span>
-              </button>
-              <button 
-                onClick={() => setShowProductForm(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <RiFilterLine className="mr-2" />
+            Filters
+          </button>
+        </div>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <input
+                type="text"
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+              <input
+                type="number"
+                name="minPrice"
+                value={filters.minPrice}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+              <input
+                type="number"
+                name="maxPrice"
+                value={filters.maxPrice}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Size</label>
+              <input
+                type="text"
+                name="size"
+                value={filters.size}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <input
+                type="text"
+                name="color"
+                value={filters.color}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Material</label>
+              <input
+                type="text"
+                name="material"
+                value={filters.material}
+                onChange={handleFilterChange}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div className="md:col-span-3 flex justify-end gap-2">
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                <RiAddLine />
-                <span>Add Product</span>
+                Reset
+              </button>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <RiCloseLine className="w-5 h-5" />
               </button>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* Product Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="card p-4 cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate('/admin/products/1')}
-            >
-              <div className="aspect-square bg-gray-100 rounded-lg mb-4"></div>
-              <h3 className="font-medium mb-1">Floral Summer Dress</h3>
-              <p className="text-gray-500 text-sm mb-2">SKU: DR-001</p>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">₹2,499</span>
-                <span className="text-sm text-gray-500">In Stock: 45</span>
+      {/* Products Table */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Product
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stock
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Featured
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {products.map((product) => (
+                <tr key={product._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="h-10 w-10 flex-shrink-0">
+                        {product.media && product.media[0] && (
+                          <img
+                            className="h-10 w-10 rounded-lg object-cover"
+                            src={product.media[0].url}
+                            alt={product.title}
+                          />
+                        )}
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{product.title}</div>
+                        <div className="text-sm text-gray-500">{product.slug}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{product.category}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">₹{product.basePrice}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {product.variants.reduce((total, variant) => total + variant.stock, 0)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleStatusToggle(product._id, product.isActive)}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        product.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {product.isActive ? 'Active' : 'Inactive'}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleFeaturedToggle(product._id, product.isFeatured)}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        product.isFeatured
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {product.isFeatured ? 'Featured' : 'Not Featured'}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="text-primary hover:text-primary-dark mr-4"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-700">
+                Showing page {currentPage} of {totalPages}
               </div>
-            </motion.div>
-
-            {/* Add more product cards here */}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center mt-8">
-            <p className="text-gray-500 text-sm">Showing 1-12 of 48 products</p>
-            <div className="flex gap-2">
-              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed">
-                ←
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white">
-                1
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-                2
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-                3
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
-                →
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
-        </>
+        )}
+      </div>
+
+      {/* Product Form Modal */}
+      {showProductForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">
+                  {selectedProduct ? 'Edit Product' : 'Add Product'}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowProductForm(false);
+                    setSelectedProduct(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <RiCloseLine className="w-6 h-6" />
+                </button>
+              </div>
+              <ProductForm
+                product={selectedProduct}
+                onCancel={() => {
+                  setShowProductForm(false);
+                  setSelectedProduct(null);
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
