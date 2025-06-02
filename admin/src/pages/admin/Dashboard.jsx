@@ -1,170 +1,216 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { RiShoppingBagLine, RiUserLine, RiMoneyDollarCircleLine, RiTimeLine, RiArrowUpLine } from 'react-icons/ri';
-import * as echarts from 'echarts';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import useAnalyticsStore from '../../store/analyticsStore';
+import { RiShoppingBagLine, RiUserLine, RiShoppingCartLine, RiMoneyDollarCircleLine } from 'react-icons/ri';
 
-const StatCard = ({ icon: Icon, title, value, change, changeType }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="bg-white rounded-xl p-6 shadow-sm"
-  >
-    <div className="flex justify-between items-start mb-4">
-      <div className="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
-        <Icon className="text-primary text-xl" />
-      </div>
-      <span className={`text-sm flex items-center ${changeType === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-        <RiArrowUpLine className="mr-1" />
-        {change}%
-      </span>
-    </div>
-    <h3 className="text-gray-500 text-sm mb-1">{title}</h3>
-    <p className="text-3xl font-bold text-gray-800">{value}</p>
-  </motion.div>
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
 const Dashboard = () => {
-  const chartRef = useRef(null);
+  const {
+    orderCount,
+    customerCount,
+    productCount,
+    revenue,
+    topProducts,
+    isLoading,
+    error,
+    fetchAnalytics,
+    formatCurrency,
+    getDailyChartData,
+    getMonthlyChartData,
+  } = useAnalyticsStore();
 
   useEffect(() => {
-    const chart = echarts.init(chartRef.current);
-    
-    const option = {
-      animation: false,
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderColor: '#FDF4FF',
-        borderWidth: 1,
-        textStyle: {
-          color: '#1f2937'
-        }
-      },
-      legend: {
-        data: ['Sales'],
-        right: 0,
-        top: 0,
-        textStyle: {
-          color: '#1f2937'
-        }
-      },
-      grid: {
-        left: '3%',
-        right: '3%',
-        bottom: '3%',
-        top: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        axisLine: {
-          lineStyle: {
-            color: '#E2E8F0'
-          }
-        },
-        axisLabel: {
-          color: '#1f2937'
-        }
-      },
-      yAxis: {
-        type: 'value',
-        axisLine: {
-          show: false
-        },
-        axisTick: {
-          show: false
-        },
-        splitLine: {
-          lineStyle: {
-            color: '#EDF2F7'
-          }
-        },
-        axisLabel: {
-          color: '#1f2937'
-        }
-      },
-      series: [{
-        name: 'Sales',
-        type: 'line',
-        smooth: true,
-        symbol: 'none',
-        lineStyle: {
-          width: 3,
-          color: '#9F7AEA'
-        },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(159, 122, 234, 0.2)' },
-            { offset: 1, color: 'rgba(159, 122, 234, 0.02)' }
-          ])
-        },
-        data: [4200, 5800, 5200, 6800, 7400, 6900, 7800]
-      }]
-    };
+    fetchAnalytics();
+    // Refresh analytics every 5 minutes
+    const interval = setInterval(fetchAnalytics, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [fetchAnalytics]);
 
-    chart.setOption(option);
+  const stats = [
+    {
+      title: 'Total Orders',
+      value: orderCount,
+      icon: RiShoppingBagLine,
+      color: 'bg-blue-500',
+    },
+    {
+      title: 'Total Customers',
+      value: customerCount,
+      icon: RiUserLine,
+      color: 'bg-green-500',
+    },
+    {
+      title: 'Total Products',
+      value: productCount,
+      icon: RiShoppingCartLine,
+      color: 'bg-purple-500',
+    },
+    {
+      title: 'Total Revenue',
+      value: formatCurrency(revenue),
+      icon: RiMoneyDollarCircleLine,
+      color: 'bg-yellow-500',
+    },
+  ];
 
-    const handleResize = () => {
-      chart.resize();
-    };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      chart.dispose();
-    };
-  }, []);
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button
+          onClick={fetchAnalytics}
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div>
-
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          icon={RiShoppingBagLine}
-          title="Total Orders"
-          value="1,482"
-          change="12.5"
-          changeType="up"
-        />
-        <StatCard
-          icon={RiUserLine}
-          title="Total Customers"
-          value="892"
-          change="8.2"
-          changeType="up"
-        />
-        <StatCard
-          icon={RiMoneyDollarCircleLine}
-          title="Total Revenue"
-          value="₹269.00K"
-          change="15.3"
-          changeType="up"
-        />
-        <StatCard
-          icon={RiTimeLine}
-          title="Pending Orders"
-          value="56"
-          change="3.8"
-          changeType="down"
-        />
+    <div className="space-y-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-white rounded-lg shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">{stat.title}</p>
+                <p className="text-2xl font-semibold mt-1">{stat.value}</p>
+              </div>
+              <div className={`${stat.color} p-3 rounded-lg text-white`}>
+                <stat.icon size={24} />
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Sales Chart */}
-      <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Sales Overview</h2>
-          <div className="flex bg-gray-100 rounded-full p-1">
-            <button className="px-4 py-1 rounded-full bg-primary text-white text-sm">Week</button>
-            <button className="px-4 py-1 rounded-full text-gray-600 text-sm">Month</button>
-            <button className="px-4 py-1 rounded-full text-gray-600 text-sm">Year</button>
-          </div>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-lg shadow-sm p-6"
+        >
+          <h3 className="text-lg font-semibold mb-4">Daily Revenue</h3>
+          <Line
+            data={getDailyChartData()}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: (value) => formatCurrency(value),
+                  },
+                },
+              },
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-lg shadow-sm p-6"
+        >
+          <h3 className="text-lg font-semibold mb-4">Monthly Revenue</h3>
+          <Line
+            data={getMonthlyChartData()}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: (value) => formatCurrency(value),
+                  },
+                },
+              },
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* Top Products */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="bg-white rounded-lg shadow-sm p-6"
+      >
+        <h3 className="text-lg font-semibold mb-4">Top Products</h3>
+        <div className="space-y-4">
+          {topProducts.map((product, index) => (
+            <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
+                  {product.thumbnail && (
+                    <img
+                      src={product.thumbnail}
+                      alt={product._id}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{product._id}</p>
+                  <p className="text-sm text-gray-500">Sold: {product.totalSold}</p>
+                </div>
+              </div>
+              <p className="font-semibold">{formatCurrency(product.revenue)}</p>
+            </div>
+          ))}
         </div>
-        <div ref={chartRef} className="w-full h-64"></div>
-      </div>
+      </motion.div>
     </div>
   );
 };
