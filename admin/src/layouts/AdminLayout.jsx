@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { RiDashboardLine, RiShoppingBagLine, RiFileListLine, RiUserLine, RiSettingsLine, RiMailLine, RiPaletteLine, RiMenuLine, RiCloseLine, RiNotification3Line } from 'react-icons/ri';
+import { RiDashboardLine, RiShoppingBagLine, RiFileListLine, RiUserLine, RiSettingsLine, RiMailLine, RiPaletteLine, RiMenuLine, RiCloseLine, RiNotification3Line, RiLogoutBoxLine } from 'react-icons/ri';
+import { useAuth } from '../providers/AuthProvider';
+import useAuthStore from '../store/authStore';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
+  const { handleLogout } = useAuth();
+  const { user } = useAuthStore();
 
   const menuItems = [
     { icon: RiDashboardLine, label: 'Dashboard', path: '/admin' },
@@ -64,6 +68,15 @@ const AdminLayout = () => {
                 ))}
               </ul>
             </nav>
+            <div className="p-4 border-t">
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-3 px-4 py-3 w-full text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+              >
+                <RiLogoutBoxLine size={20} />
+                <span>Logout</span>
+              </button>
+            </div>
           </motion.aside>
         )}
       </AnimatePresence>
@@ -89,9 +102,7 @@ const AdminLayout = () => {
                   3
                 </span>
               </div>
-              <span className="text-gray-600">Welcome, admin</span>
-              <Link to="/admin/orders" className="text-gray-600">All Orders</Link>
-              <button className="text-gray-600">Logout</button>
+              <span className="text-gray-600">Welcome, {user?.firstName || 'Admin'}</span>
             </div>
           </div>
         </header>
