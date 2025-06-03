@@ -1,11 +1,26 @@
 const Artwork = require("../models/Artwork");
-
+exports.getUserArtworks = async (req, res) => {
+  try {
+    const artworks = await Artwork.find({ uploadedBy: req.user.id });
+    if (!artworks.length) {
+      return res
+        .status(200)
+        .json({ message: "No artworks found for this user", artworks: [] });
+    }
+    res.json(artworks);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to get user artworks", error: error.message });
+  }
+};
 // Upload new artwork (user-uploaded or admin predefined)
 exports.uploadArtwork = async (req, res) => {
   try {
     const { title, description, isPredefined } = req.body;
     const fileUrl = req.file?.path; // from Cloudinary upload middleware
-    if (!fileUrl) return res.status(400).json({ message: "Artwork file is required" });
+    if (!fileUrl)
+      return res.status(400).json({ message: "Artwork file is required" });
 
     const artwork = new Artwork({
       title,
@@ -32,7 +47,9 @@ exports.getArtworks = async (req, res) => {
     const artworks = await Artwork.find(filter).populate("uploadedBy", "email");
     res.json(artworks);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch artworks", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch artworks", error: err.message });
   }
 };
 
@@ -43,8 +60,13 @@ exports.deleteArtwork = async (req, res) => {
     if (!artwork) return res.status(404).json({ message: "Artwork not found" });
 
     // Only admin or uploader can delete
-    if (artwork.uploadedBy.toString() !== req.user.id && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized to delete this artwork" });
+    if (
+      artwork.uploadedBy.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this artwork" });
     }
 
     await artwork.remove();

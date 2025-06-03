@@ -11,6 +11,7 @@ import Newsletter from './pages/admin/Newsletter';
 import Artwork from './pages/admin/Artwork';
 import Toast from './components/ui/Toast';
 
+
 const App = () => {
   return (
     <Router>

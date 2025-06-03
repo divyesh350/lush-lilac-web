@@ -6,11 +6,12 @@ const {
   uploadArtwork,
   getArtworks,
   deleteArtwork,
+  getUserArtworks,
 } = require("../controllers/artwork.controller");
 
 // Upload artwork - authenticated users
 router.post("/", verifyToken, upload.single("file"), uploadArtwork);
-
+router.get("/user", verifyToken, getUserArtworks);
 // Get artworks - public or authenticated
 router.get("/", getArtworks);
 
