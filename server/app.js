@@ -54,7 +54,7 @@ const analyticsRoutes = require("./routes/analytics.routes");
 const artworkRoutes = require("./routes/artwork.routes");
 const userRoutes = require("./routes/user.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
-
+const adminRoutes = require("./routes/admin.routes");
 // Import error middleware
 const errorHandler = require("./middlewares/error.middleware");
 
@@ -65,7 +65,7 @@ app.use("/api/v1/analytics", relaxedLimiter, analyticsRoutes);
 app.use("/api/v1/artworks", relaxedLimiter, artworkRoutes);
 app.use("/api/v1/users", relaxedLimiter, userRoutes);
 app.use("/api/v1/newsletter", strictLimiter, newsletterRoutes);
-
+app.use("/api/v1/admin", adminRoutes);
 // Apply rate limiter to login route
 const authController = require("./controllers/auth.controller");
 app.post("/api/v1/auth/login", loginLimiter, authController.login);
