@@ -206,13 +206,13 @@ const Orders = () => {
               {orders.map((order) => (
                 <tr key={order._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm text-gray-900">
                       #{order._id.slice(-6)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{order.user.name}</div>
-                    <div className="text-sm text-gray-500">{order.user.email}</div>
+                    <div className="text-sm text-gray-900">{order.user?.name || 'N/A'}</div>
+                    <div className="text-sm text-gray-500">{order.user?.email || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
