@@ -1,6 +1,23 @@
 const Newsletter = require("../models/Newsletter");
 const nodemailer = require("nodemailer");
 
+// Get all subscribers
+exports.getSubscribers = async (req, res) => {
+  try {
+    const subscribers = await Newsletter.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      data: subscribers
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch subscribers",
+      error: err.message
+    });
+  }
+};
+
 // Subscribe user to newsletter
 exports.subscribe = async (req, res) => {
   try {
