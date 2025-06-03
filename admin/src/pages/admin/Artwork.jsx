@@ -1,107 +1,133 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import ArtworkTable from '../../components/tables/ArtworkTable';
+import { RiDeleteBinLine, RiAddLine } from 'react-icons/ri';
+import useArtworkStore from '../../store/artworkStore';
+import BaseTable from '../../components/tables/BaseTable';
+import TablePagination from '../../components/tables/TablePagination';
+import TableToolbar from '../../components/tables/TableToolbar';
 
 const Artwork = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { 
+    artworks, 
+    loading, 
+    fetchArtworks, 
+    deleteArtwork,
+    currentPage,
+    totalPages 
+  } = useArtworkStore();
 
-  // Sample data - replace with API call
-  const [artworks] = useState([
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    fetchArtworks(currentPage);
+  }, [fetchArtworks, currentPage]);
+
+  const columns = [
     {
-      id: 1,
-      name: 'Floral Pattern',
-      category: 'Patterns',
-      type: 'vector',
-      thumbnail: 'https://placehold.co/100x100',
-      dimensions: { width: 2000, height: 2000 },
-      fileSize: 256000,
-      lastModified: '2024-03-15T10:30:00',
+      key: 'title',
+      label: 'Artwork',
+      sortable: true,
+      render: (value, row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden">
+            <img
+              src={row.fileUrl}
+              alt={value}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <div className="font-medium">{value}</div>
+            <div className="text-sm text-gray-500">{row.description}</div>
+          </div>
+        </div>
+      ),
     },
     {
-      id: 2,
-      name: 'Product Mockup',
-      category: 'Mockups',
-      type: 'raster',
-      thumbnail: 'https://placehold.co/100x100',
-      dimensions: { width: 3000, height: 2000 },
-      fileSize: 512000,
-      lastModified: '2024-03-14T15:45:00',
+      key: 'uploadedBy',
+      label: 'Uploaded By',
+      sortable: true,
+      render: (value) => value?.email || 'N/A',
     },
     {
-      id: 3,
-      name: 'Logo Design',
-      category: 'Logos',
-      type: 'vector',
-      thumbnail: 'https://placehold.co/100x100',
-      dimensions: { width: 1000, height: 1000 },
-      fileSize: 128000,
-      lastModified: '2024-03-10T09:15:00',
+      key: 'createdAt',
+      label: 'Uploaded On',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
     },
-  ]);
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, row) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleDelete(row._id)}
+            className="p-1 text-gray-600 hover:text-red-500"
+            title="Delete Artwork"
+          >
+            <RiDeleteBinLine />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
-  const handleView = (id) => {
-    navigate(`/admin/artwork/${id}`);
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/admin/artwork/${id}/edit`);
-  };
+  const filteredArtworks = artworks.filter((artwork) =>
+    Object.values(artwork).some((value) =>
+      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this artwork?')) {
-      setLoading(true);
       try {
-        // Implement API call to delete artwork
-        console.log('Deleting artwork:', id);
-        // After successful deletion, update the artworks list
+        await deleteArtwork(id);
       } catch (error) {
-        console.error('Error deleting artwork:', error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to delete artwork:', error);
       }
     }
   };
 
-  const handleAdd = () => {
-    navigate('/admin/artwork/new');
+  const handlePageChange = (page) => {
+    fetchArtworks(page);
   };
 
-  const handleDownload = async (id) => {
-    setLoading(true);
-    try {
-      // Implement API call to download artwork
-      console.log('Downloading artwork:', id);
-      // After successful download, update the UI if needed
-    } catch (error) {
-      console.error('Error downloading artwork:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const toolbarActions = [
+    {
+      label: 'Add Artwork',
+      icon: <RiAddLine />,
+      onClick: () => {
+        // Implement add artwork functionality
+        console.log('Add artwork clicked');
+      },
+    },
+  ];
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl text-primary mb-2">Artwork</h2>
-        <p className="text-gray-500">Manage your product artwork and designs.</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Artwork Management</h1>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <ArtworkTable
-          artworks={artworks}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAdd={handleAdd}
-          onDownload={handleDownload}
-          loading={loading}
+      <TableToolbar
+        searchQuery={searchQuery}
+        onSearch={setSearchQuery}
+        actions={toolbarActions}
+      />
+
+      <BaseTable
+        columns={columns}
+        data={filteredArtworks}
+        loading={loading}
+      />
+
+      <div className="mt-4">
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
         />
-      </motion.div>
+      </div>
     </div>
   );
 };
