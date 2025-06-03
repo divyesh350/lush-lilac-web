@@ -41,7 +41,7 @@ const BaseTable = ({
               <th className="px-4 py-3 text-left">
                 <input
                   type="checkbox"
-                  checked={selectedRows.length === data.length}
+                  checked={data.length > 0 && selectedRows.length === data.length}
                   onChange={handleSelectAll}
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                 />
@@ -93,7 +93,7 @@ const BaseTable = ({
           ) : (
             data.map((row, index) => (
               <motion.tr
-                key={row.id || index}
+                key={row._id || row.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
@@ -103,8 +103,8 @@ const BaseTable = ({
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      checked={selectedRows.includes(row.id)}
-                      onChange={() => handleSelect(row.id)}
+                      checked={selectedRows.includes(row._id || row.id)}
+                      onChange={() => handleSelect(row._id || row.id)}
                       className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                     />
                   </td>

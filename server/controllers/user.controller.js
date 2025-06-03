@@ -27,7 +27,7 @@ const getUserProfile = async (req, res) => {
 // Update user profile (public route)
 const updateUserProfile = async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const { name, email, phone, address } = req.body;
         
         const user = await User.findById(req.user?._id);
         
@@ -41,6 +41,8 @@ const updateUserProfile = async (req, res) => {
         // Update fields
         if (name) user.name = name;
         if (email) user.email = email;
+        if (phone) user.phone = phone;
+        if (address) user.address = address;
 
         await user.save();
 
@@ -129,7 +131,7 @@ const getUserById = async (req, res) => {
 // Update user by ID (admin route)
 const updateUserById = async (req, res) => {
     try {
-        const { name, email, role } = req.body;
+        const { name, email, role, phone, address } = req.body;
         
         const user = await User.findById(req.params.id);
         
@@ -144,6 +146,8 @@ const updateUserById = async (req, res) => {
         if (name) user.name = name;
         if (email) user.email = email;
         if (role) user.role = role;
+        if (phone) user.phone = phone;
+        if (address) user.address = address;
 
         await user.save();
 

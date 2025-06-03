@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    phone:{
+      type: String,
+    },
+    address:{
+      type: String,
+    },
     role: {
       type: String,
       enum: ["admin", "customer"],

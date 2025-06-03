@@ -1,60 +1,98 @@
+import { useState, useEffect } from 'react';
 import BaseForm from './BaseForm';
 import FormField from './FormField';
+import useUserStore from '../../store/userStore';
 
 const UserForm = ({
-  user,
+  userId,
   isEditing,
-  onChange,
-  onSubmit,
   onCancel,
 }) => {
+  const { 
+    selectedUser, 
+    fetchUserById, 
+    updateUser, 
+    createUser,
+    loading 
+  } = useUserStore();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: '',
+    phone: '',
+    address: ''
+  });
+
+  useEffect(() => {
+    if (isEditing && userId) {
+      fetchUserById(userId);
+    }
+  }, [isEditing, userId, fetchUserById]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      setFormData({
+        name: selectedUser.name || '',
+        email: selectedUser.email || '',
+        role: selectedUser.role || '',
+        phone: selectedUser.phone || '',
+        address: selectedUser.address || ''
+      });
+    }
+  }, [selectedUser]);
+
   const roleOptions = [
     { value: 'admin', label: 'Admin' },
-    { value: 'manager', label: 'Manager' },
-    { value: 'staff', label: 'Staff' },
+    { value: 'customer', label: 'Customer' },
   ];
 
-  const statusOptions = [
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-    { value: 'suspended', label: 'Suspended' },
-  ];
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (isEditing) {
+        await updateUser(userId, formData);
+      } else {
+        await createUser(formData);
+      }
+      onCancel();
+    } catch (error) {
+      console.error('Error saving user:', error);
+    }
+  };
 
   return (
     <BaseForm
       title={isEditing ? 'Edit User' : 'Add User'}
-      isEditing={isEditing}
-      onSubmit={onSubmit}
+      isEditing={true}
+      onSubmit={handleSubmit}
       onCancel={onCancel}
+      loading={loading}
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            label="First Name"
-            name="firstName"
-            value={user?.firstName || ''}
-            onChange={onChange}
-            disabled={!isEditing}
-            required
-          />
-
-          <FormField
-            label="Last Name"
-            name="lastName"
-            value={user?.lastName || ''}
-            onChange={onChange}
-            disabled={!isEditing}
-            required
-          />
-        </div>
+        <FormField
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
 
         <FormField
           label="Email"
           name="email"
           type="email"
-          value={user?.email || ''}
-          onChange={onChange}
-          disabled={!isEditing}
+          value={formData.email}
+          onChange={handleChange}
           required
         />
 
@@ -63,8 +101,8 @@ const UserForm = ({
             label="Password"
             name="password"
             type="password"
-            value={user?.password || ''}
-            onChange={onChange}
+            value={formData.password}
+            onChange={handleChange}
             required
           />
         )}
@@ -73,30 +111,17 @@ const UserForm = ({
           label="Role"
           name="role"
           type="select"
-          value={user?.role || ''}
-          onChange={onChange}
-          disabled={!isEditing}
+          value={formData.role}
+          onChange={handleChange}
           options={roleOptions}
-          required
-        />
-
-        <FormField
-          label="Status"
-          name="status"
-          type="select"
-          value={user?.status || 'active'}
-          onChange={onChange}
-          disabled={!isEditing}
-          options={statusOptions}
           required
         />
 
         <FormField
           label="Phone"
           name="phone"
-          value={user?.phone || ''}
-          onChange={onChange}
-          disabled={!isEditing}
+          value={formData.phone}
+          onChange={handleChange}
           placeholder="Enter phone number"
         />
 
@@ -104,9 +129,8 @@ const UserForm = ({
           label="Address"
           name="address"
           type="textarea"
-          value={user?.address || ''}
-          onChange={onChange}
-          disabled={!isEditing}
+          value={formData.address}
+          onChange={handleChange}
           placeholder="Enter address"
         />
       </div>
