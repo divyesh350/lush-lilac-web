@@ -8,7 +8,7 @@ import useProductStore from '../store/useProductStore';
 import Spinner from '../components/ui/Spinner';
 
 // Constants
-const CATEGORIES = ['all', 'phone_cases', 'mouse_pads', 'mirrors', 'tumblers', 'candles'];
+const CATEGORIES = ['all', 'phone_case', 'mouse_pad', 'mirrors', 'tumblers', 'candles'];
 
 // Animation variants
 const containerVariants = {
