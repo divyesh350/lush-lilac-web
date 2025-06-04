@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
-import { Link } from 'react-router-dom';
-import useProductStore from '../store/useProductStore.js';
+import useProductStore from '../store/useProductStore';
 import { 
   RiSmartphoneLine,
   RiMouseLine,
@@ -12,8 +11,6 @@ import {
   RiCupLine,
   RiFireLine
 } from '@remixicon/react';
-
-
 
 const categories = [
   { name: 'Phone Cases', icon: RiSmartphoneLine, bgColor: '#FFB5D8' },
