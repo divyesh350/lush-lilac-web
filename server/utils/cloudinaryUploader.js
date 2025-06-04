@@ -137,6 +137,10 @@ const uploadProductMediaToCloudinary = async (productId) => {
         
         // Delete the local file after successful upload
         try {
+          if(updatedMedia){
+            console.log("media uploaded successfully")
+          }
+          console.log('Deleting file:', filePath);
           fs.unlinkSync(filePath);
         } catch (deleteError) {
           // Silently continue if file deletion fails
@@ -155,7 +159,79 @@ const uploadProductMediaToCloudinary = async (productId) => {
   }
 };
 
+/**
+ * Upload artwork media to Cloudinary and update the artwork
+ * @param {string} artworkId - Artwork ID
+ */
+const uploadArtworkMediaToCloudinary = async (artworkId) => {
+  try {
+    // Get the artwork
+    const Artwork = require('../models/Artwork');
+    const artwork = await Artwork.findById(artworkId);
+    if (!artwork) {
+      return;
+    }
+
+    // Process media files for artwork
+    const updatedMedia = [];
+    for (const media of artwork.media) {
+      try {
+        // Get the file path from the URL
+        const filename = path.basename(media.url);
+        const filePath = path.join(__dirname, '..', 'uploads', filename);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+          updatedMedia.push(media); // Keep the original media
+          continue;
+        }
+        
+        // Upload to Cloudinary
+        const result = await uploadToCloudinary(filePath, 'artworks');
+        
+        // Add the Cloudinary URL to the media
+        updatedMedia.push({
+          url: result.secure_url,
+          type: media.type,
+          public_id: result.public_id,
+          originalname: media.originalname,
+          size: media.size,
+          mimetype: media.mimetype,
+          cloudinary: true
+        });
+        
+        // Delete the local file after successful upload
+        try {
+          if(updatedMedia){
+            console.log("Artwork media uploaded successfully");
+          }
+          console.log('Deleting file:', filePath);
+          fs.unlinkSync(filePath);
+        } catch (deleteError) {
+          console.error('Error deleting local file:', deleteError);
+        }
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        updatedMedia.push(media); // Keep the original media if upload fails
+      }
+    }
+    
+    // Update the artwork with Cloudinary URLs
+    const updatedArtwork = await Artwork.findByIdAndUpdate(
+      artworkId, 
+      { media: updatedMedia }, 
+      { new: true }
+    );
+    
+    return updatedArtwork;
+  } catch (error) {
+    console.error('Error in uploadArtworkMediaToCloudinary:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   uploadToCloudinary,
-  uploadProductMediaToCloudinary
+  uploadProductMediaToCloudinary,
+  uploadArtworkMediaToCloudinary
 };

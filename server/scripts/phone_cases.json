@@ -1,0 +1,80 @@
+{
+    "title": "Custom Phone Case",
+    "slug": "custom-phone-case-[%random%]",
+    "description": "Phone cases are made of high-quality thermoplastic polyurethane on the sides and tempered glossy glass on the back. Our custom Glass Phone Cases are printed with premium quality original OEKO-TEX-certified inks for long-lasting quality and come with our fade-proof guarantee. The price shown is for a custom-printed mobile phone case.\n\nFall in love with your phone all over again. Our Lush Lilac phone covers are inspired by dreamy K-dramas, soft florals, and delicate bows \u2014 made to match your romantic aesthetic. Each case is not just a cover, it's a mood. Protective, lightweight, and made for the K-drama soul.",
+    "category": "phone_case",
+    "basePrice": 349,
+    "productionTime": 3,
+    "variants": [
+      {
+        "name": "iPhone",
+        "size": "",
+        "color": "",
+        "material": "Glass Case",
+        "price": 0,
+        "stock": 66
+      },
+      {
+        "name": "iPhone",
+        "size": "",
+        "color": "",
+        "material": "Silicone Case",
+        "price": 0,
+        "stock": 42
+      },
+      {
+        "name": "Redmi",
+        "size": "",
+        "color": "",
+        "material": "Glass Case",
+        "price": 0,
+        "stock": 70
+      },
+      {
+        "name": "Redmi",
+        "size": "",
+        "color": "",
+        "material": "Silicone Case",
+        "price": 0,
+        "stock": 18
+      },
+      {
+        "name": "Samsung",
+        "size": "",
+        "color": "",
+        "material": "Glass Case",
+        "price": 0,
+        "stock": 93
+      },
+      {
+        "name": "Samsung",
+        "size": "",
+        "color": "",
+        "material": "Silicone Case",
+        "price": 0,
+        "stock": 35
+      },
+      {
+        "name": "Oneplus",
+        "size": "",
+        "color": "",
+        "material": "Glass Case",
+        "price": 0,
+        "stock": 27
+      },
+      {
+        "name": "Oneplus",
+        "size": "",
+        "color": "",
+        "material": "Silicone Case",
+        "price": 0,
+        "stock": 41
+      }
+    ],
+    "media": [],
+    "codAvailable": false,
+    "customizable": true,
+    "personalizationInstructions": "",
+    "isActive": true,
+    "isFeatured": false
+  }

@@ -1,0 +1,14 @@
+{
+  "name": "product-upload-script",
+  "version": "1.0.0",
+  "description": "Script to upload products with media files",
+  "main": "uploadProducts.js",
+  "scripts": {
+    "start": "node uploadProducts.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.5.0",
+    "form-data": "^4.0.0"
+  }
+}

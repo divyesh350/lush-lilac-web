@@ -30,15 +30,21 @@ const Artwork = () => {
       render: (value, row) => (
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden">
-            <img
-              src={row.fileUrl}
-              alt={value}
-              className="w-full h-full object-cover"
-            />
+            {row.media?.[0]?.url ? (
+              <img
+                src={row.media[0].url}
+                alt={value}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                No Image
+              </div>
+            )}
           </div>
           <div>
             <div className="font-medium">{value}</div>
-            <div className="text-sm text-gray-500">{row.description}</div>
+            <div className="text-sm text-gray-500">{row.description || 'No description'}</div>
           </div>
         </div>
       ),
@@ -54,6 +60,12 @@ const Artwork = () => {
       label: 'Uploaded On',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: 'isPredefined',
+      label: 'Type',
+      sortable: true,
+      render: (value) => value ? 'Predefined' : 'User Upload',
     },
     {
       key: 'actions',

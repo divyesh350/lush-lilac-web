@@ -1,4 +1,6 @@
 const Artwork = require("../models/Artwork");
+const { uploadArtworkMediaToCloudinary } = require('../utils/cloudinaryUploader');
+
 exports.getUserArtworks = async (req, res) => {
   try {
     const artworks = await Artwork.find({ uploadedBy: req.user.id });
@@ -14,26 +16,62 @@ exports.getUserArtworks = async (req, res) => {
       .json({ message: "Failed to get user artworks", error: error.message });
   }
 };
+
 // Upload new artwork (user-uploaded or admin predefined)
 exports.uploadArtwork = async (req, res) => {
   try {
     const { title, description, isPredefined } = req.body;
-    const fileUrl = req.file?.path; // from Cloudinary upload middleware
-    if (!fileUrl)
-      return res.status(400).json({ message: "Artwork file is required" });
 
-    const artwork = new Artwork({
+    // Validate required fields
+    if (!title) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+        error: 'Please provide title',
+      });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        message: 'No media files uploaded',
+        error: 'Please upload at least one media file',
+      });
+    }
+
+    // Prepare media info
+    let media = [];
+    if (req.files && Array.isArray(req.files)) {
+      media = req.files.map((file) => ({
+        url: `/uploads/${file.filename}`,
+        type: file.mimetype ? (file.mimetype.startsWith('video') ? 'video' : 'image') : 'image',
+        public_id: file.filename || 'unknown',
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+      }));
+    }
+
+    const artwork = await Artwork.create({
       title,
       description,
-      fileUrl,
+      media,
       uploadedBy: req.user.id,
       isPredefined: isPredefined || false,
     });
 
-    await artwork.save();
-    res.status(201).json({ message: "Artwork uploaded", artwork });
+    res.status(201).json({ 
+      message: "Artwork uploaded successfully", 
+      artwork 
+    });
+
+    // Upload media to Cloudinary in background
+    uploadArtworkMediaToCloudinary(artwork._id).catch((error) =>
+      console.error('Background upload error:', error)
+    );
   } catch (err) {
-    res.status(500).json({ message: "Upload failed", error: err.message });
+    res.status(500).json({ 
+      message: "Upload failed", 
+      error: err.message 
+    });
   }
 };
 
@@ -44,7 +82,9 @@ exports.getArtworks = async (req, res) => {
     if (req.query.predefined) {
       filter.isPredefined = req.query.predefined === "true";
     }
-    const artworks = await Artwork.find(filter).populate("uploadedBy", "email");
+    const artworks = await Artwork.find(filter)
+      .populate("uploadedBy", "email")
+      .sort({ createdAt: -1 }); // Sort by newest first
     res.json(artworks);
   } catch (err) {
     res
@@ -57,7 +97,9 @@ exports.getArtworks = async (req, res) => {
 exports.deleteArtwork = async (req, res) => {
   try {
     const artwork = await Artwork.findById(req.params.id);
-    if (!artwork) return res.status(404).json({ message: "Artwork not found" });
+    if (!artwork) {
+      return res.status(404).json({ message: "Artwork not found" });
+    }
 
     // Only admin or uploader can delete
     if (
@@ -69,8 +111,8 @@ exports.deleteArtwork = async (req, res) => {
         .json({ message: "Not authorized to delete this artwork" });
     }
 
-    await artwork.remove();
-    res.json({ message: "Artwork deleted" });
+    await artwork.deleteOne();
+    res.json({ message: "Artwork deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Delete failed", error: err.message });
   }

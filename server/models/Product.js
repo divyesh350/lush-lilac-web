@@ -8,8 +8,7 @@ const variantSchema = new mongoose.Schema({
   price: { type: Number, default: 0 }, // additional amount added to basePrice
   stock: { type: Number, default: 0 },
 });
-
-const mediaSchema = new mongoose.Schema({
+ const mediaSchema = new mongoose.Schema({
   url: String,
   type: { type: String, enum: ["image", "video"] },
   public_id: String,
@@ -37,5 +36,4 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 module.exports = mongoose.model("Product", productSchema);
