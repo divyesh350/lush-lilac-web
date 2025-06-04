@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
-import useProductStore from '@store/useProductStore';
+import useProductStore from 'src/store/useProductStore';
 import { 
   RiSmartphoneLine,
   RiMouseLine,

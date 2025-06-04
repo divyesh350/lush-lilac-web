@@ -9,8 +9,8 @@ import {
   RiSecurePaymentLine,
   RiMoneyDollarCircleLine,
 } from "@remixicon/react";
-import useCartStore from "@store/useCartStore";
-import { useAuthStore } from "@store/useAuthStore";
+import useCartStore from "src/store/useCartStore";
+import { useAuthStore } from "src/store/useAuthStore";
 import toast from "react-hot-toast";
 
 const Cart = () => {
