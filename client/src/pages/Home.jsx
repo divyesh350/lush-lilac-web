@@ -4,7 +4,7 @@ import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
 import { Link } from 'react-router-dom';
-import useProductStore from '../store/useProductStore';
+import useProductStore from '../store/useProductStore.js';
 import { 
   RiSmartphoneLine,
   RiMouseLine,
