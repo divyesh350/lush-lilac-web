@@ -1,0 +1,32 @@
+{
+    "title": "Mouse Pad",
+    "slug": "custom-mouse-pad-[%random%]",
+    "description": "Add a touch of cozy charm to your workspace with our square mouse pads, measuring 9 x 7.8 inches and crafted with a premium 3 mm thickness for enhanced comfort and durability. Designed for everyday use—whether you're working, studying, or gaming—these mouse pads feature a skid-proof rubber base to keep them securely in place, along with a smooth surface that ensures effortless gliding and precise control. Printed with high-quality sublimation EPSON inks, each pad boasts vibrant, fade-proof designs that bring personality to your desk with aesthetic motifs like teddy bears, bows, and floral patterns. The precise cut-outs offer a clean, polished finish, and the OEKO-TEX certification guarantees safety and eco-friendliness. With no minimum order requirement, these mouse pads are perfect for personal use or custom gifts—blending style, comfort, and performance in one delightful package.",
+    "category": "mouse_pad",
+    "basePrice": 269,
+    "productionTime": 3,
+    "variants": [
+      {
+        "name": "Mouse Pad Circle",
+        "size": "Circle",
+        "color": "",
+        "material": "",
+        "price": 0,
+        "stock": 66
+      },
+      {
+        "name": "Mouse Pad Square",
+        "size": "Square",
+        "color": "",
+        "material": "",
+        "price": 0,
+        "stock": 42
+      }
+    ],
+    "media": [],
+    "codAvailable": false,
+    "customizable": true,
+    "personalizationInstructions": "",
+    "isActive": true,
+    "isFeatured": false
+  }

@@ -1,0 +1,578 @@
+[
+    {
+      "title": "Puppy Face Soy wax",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "199.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 50,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 9 x 9 x 6 cm. Net Quantity: 1 candle. Pure soy wax candles with enchanting scents. Perfect for expressing gratitude and serving as memorable return gifts. Features: Richly fragrant with deep, enchanting scents that elevate any room. Handcrafted with artisanal craftsmanship for a sophisticated touch. Clean burning for a smoke-free experience. Health-safe, crafted without toxic substances for excellent indoor air quality."
+    },
+    {
+      "title": "Tulip Soy Wax Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "279.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 4 x 3 x 5 cm. Net Quantity: 6 candles. Elevate your ambiance with these handcrafted tulip candles. Features: Made from premium soy wax. Delicately molded into charming tulip flowers. Available in soft pastel hues. Perfect for home decor, gifting, or calming aromatherapy moments. Creates a soothing atmosphere with aesthetic design."
+    },
+    {
+      "title": "Peony Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 35,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 3.5 x 1.5 x 3.5 inches. Net Quantity: 4 candles. Premium organic scented 100% soy wax candles. Features: High-quality natural wax with 10-hour burn time. Enchanting fragrances with subtle notes. Perfect for weddings, birthday parties, or business gifting. Product weight: 80g. Creates an ideal atmosphere for any evening."
+    },
+    {
+      "title": "Valentine Day Special Love Heart Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 45,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 8 x 8 x 4 cm. Net Quantity: 2 candles. Romantic Heart-Shaped No-Scent Candles. Features: Beautiful heart-shaped design with interlocked hands motif. Available in red and white. Perfect for Valentine's gifts. Symbolizes love, unity, and connection. Premium wax construction. Clean, smoke-free burn for 5-6 hours. Safe and non-toxic for indoor use. Ideal for bedrooms, dining areas, and intimate spaces."
+    },
+    {
+      "title": "Astronaut Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 30,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5.5 x 5.5 x 9.5 cm. Net Quantity: 2 candles. Light pink and Brown Astronaut Soy Wax Candles. Features: Richly scented. Perfect for return gifts. Deep, enchanting fragrances. Handcrafted with artisanal precision. Clean burning experience. Health-safe, non-toxic materials."
+    },
+    {
+      "title": "Cloud Design Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 55,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 6.5 x 4.5 x 3 cm. Net Quantity: 6 candles. Pack of 6 Cloud Design Decorative Candles. Features: Made from natural soy wax. Elegant white design. Clean, smokeless burn. Adds soft, dreamy vibe to any decor. Perfect for home and office decoration. Ideal for Diwali celebrations and festive gifting."
+    },
+    {
+      "title": "Strawberry Scented Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 60,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 2.5 x 2.5 x 3 cm. Net Quantity: 16 candles. 100% Pure Soy Wax Scented Candles. Features: Available in Light Pink and Red. Perfect for return gifts. Rich, enchanting strawberry fragrance. Handcrafted with precision. Clean burning experience. Health-safe materials."
+    },
+    {
+      "title": "Bubble Bliss",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "199.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 4 x 4.5 x 5 inches. Net Quantity: 1 candle. Bubble shaped candle with lavender scent. Features: 100% soy wax. Valentine's special design. Includes mini heart details. Perfect for creating a romantic atmosphere."
+    },
+    {
+      "title": "Teddy candle Blue White",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 35,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 11 x 1.5 x 10.5 cm. Net Quantity: 2 candles. Teddy candle in Blue and White. Features: Pack of 2 candles. No fragrance. Perfect for decorative purposes."
+    },
+    {
+      "title": "Peony Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 45,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 3 x 5 x 3 inches. Net Quantity: 2 candles. 100% Eco Friendly Soy Wax Candles. Features: Handmade with love. Perfect for gifting. Ensures long-term positivity. Colors may vary due to handmade nature. Ideal for Home Decor, Birthday, Anniversary, Date Nights, and special celebrations. Care Instructions: Trim wick to 1/4 inch before relighting. Handle with care. Keep away from direct sunlight and heat."
+    },
+    {
+      "title": "heart stacked candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 50,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 2 x 1 x 4 inches. Net Quantity: 3 candles. Features: 100% natural soy wax. Eco-friendly and clean burning. Scented with soothing essential oils. Burn time: 4-6 hours per candle.size: 2.4 x 2.4 inches each. Perfect for home decor, gifting, party favors, or aesthetic displays."
+    },
+    {
+      "title": "Romantic Heart Shaped Scented Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 10 x 8 x 8 cm. Net Quantity: 1 candle. Features: 100% natural soy wax. Eco-friendly and clean burning. Scented with soothing essential oils. Burn time: 4-6 hours.size: 2.4 x 2.4 inches. Perfect for home decor, gifting, party favors, or aesthetic displays."
+    },
+    {
+      "title": "Bubble candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 65,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 4 x 4 x 4 cm. Net Quantity: 4 candles. Features: Pack of 4 Cute Bubble Candles. Premium soy wax construction. Trendy bubble cube design. Available in unique colors. Burn time: 4-6 hours per candle.size: 2.4 x 2.4 inches each. Perfect for home decor, gifting, and party favors."
+    },
+    {
+      "title": "David Bust & Blindfold Lady Soy Wax Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "329.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 30,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 6.5 x 4.5 x 9.5 cm. Net Quantity: 2 candles. Features: Iconic David Bust and Blindfold Lady design. Premium soy wax construction. Greek artistry inspired. Perfect for meditation and stress relief. Ideal for home decor and special occasions. Creates a luxurious ambiance."
+    },
+    {
+      "title": "couple candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 35,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5 x 4 x 11 cm. Net Quantity: 2 candles. Features: Premium soy wax construction. Greek artistry inspired design. Modern sophistication. Perfect for meditation and stress relief. Ideal for home decor and special occasions."
+    },
+    {
+      "title": "Heart Rose Bouquet Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "449.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 25,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 8 x 5 x 5 cm. Net Quantity: 2 candles. Features: Rose Bouquet design. Heart scented candle. Perfect for wedding favors. Ideal Mother's Day gift. Unique candle design. Creates a romantic atmosphere."
+    },
+    {
+      "title": "Heart candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "325.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 45,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 6 x 6 x 6 cm. Net Quantity: 1 candle. Features: Romantic heart design. Available in multiple scents: Rose, Lemon Grass, Jasmine, Vanilla, Lavender & Sandalwood. Perfect for home decor, Valentine's Day, weddings, anniversaries, and special parties."
+    },
+    {
+      "title": "Heart Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "179.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 55,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 10 x 10 x 10 cm. Net Quantity: 1 candle. Features: Aromatic wick design. Premium soy wax construction. Heart-shaped design. Soft, soothing fragrance. Perfect for home decor and gifting. Creates a calm, romantic atmosphere."
+    },
+    {
+      "title": "Rose Couple candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "425.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 30,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5 x 3.5 x 8 cm. Net Quantity: 3 candles. Features: Premium soy wax construction. Deep, enchanting scents. Handcrafted with precision. Perfect for return gifts. Creates a welcoming atmosphere."
+    },
+    {
+      "title": "Heart candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 50,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 3.5 x 3.5 x 2.5 inches. Net Quantity: 2 candles. Features: Premium soy wax construction. Deep, enchanting scents. Handcrafted with precision. Perfect for return gifts. Creates a welcoming atmosphere."
+    },
+    {
+      "title": "Heart Petals candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 6 x 5 x 3 cm. Net Quantity: 4 candles. Features: Available in white and pink colors. Scented candles. Perfect for creating a romantic atmosphere. Ideal for home decor and gifting."
+    },
+    {
+      "title": "Red Heart Teddy Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 45,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5 x 5 x 6 cm. Net Quantity: 2 candles. Features: Pure soy wax construction. Richly scented. Perfect for return gifts. Clean burning experience. Health-safe materials."
+    },
+    {
+      "title": "Teddy Bear Rose Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 35,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 3 x 1.5 x 6 cm. Net Quantity: 2 candles. Features: Premium soy wax construction. Deep, enchanting scents. Handcrafted with precision. Clean burning experience. Health-safe materials."
+    },
+    {
+      "title": "Flower covered candel",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "199.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 30,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 10.5 x 11 x 10.5 inches. Net Quantity: 1 candle. Features: Premium scented candle. Beautiful floral fragrance. Timeless design. Perfect for home decor. Creates a welcoming atmosphere."
+    },
+    {
+      "title": "Heart Bubble Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "269.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 50,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 6 x 6 x 6 cm. Net Quantity: 2 candles. Features: 100% Pure Soy Wax. Available in white and pink colors. Perfect for return gifts. Rich, enchanting scents. Handcrafted with precision."
+    },
+    {
+      "title": "pillar Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 10 x 5 x 9 cm. Net Quantity: 1 candle. Features: Bubble Soy Wax design. 100% natural soy wax. Eco-friendly construction. Clean and even fragrance. Available in various scents. Perfect for creating an inviting atmosphere."
+    },
+    {
+      "title": "Bubble Candle",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 45,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5.5 x 5.5 x 5.5 cm. Net Quantity: 2 candles. Features: Rose fragrance. Burn time: 6-8 hours. Made with rose oil and soy wax. Perfect for special celebrations. Care instructions included."
+    },
+    {
+      "title": "Teddy Bear Rose Candles",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "229.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 35,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 5 x 5 x 6 cm. Net Quantity: 2 candles. Features: Handcrafted teddy bear design. Delicate rose detailing. Heart-shaped accents. Perfect for gifting and home decoration. Ideal for birthdays, anniversaries, and romantic setups."
+    },
+    {
+      "title": "lady candels",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "379.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 30,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 4 x 3.5 x 9.5 cm. Net Quantity: 4 candles. Features: Handcrafted design. Delicate detailing. Perfect for gifting and home decoration. Ideal for special occasions and romantic setups."
+    },
+    {
+      "title": "red flower bouquet",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "349.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 25,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 11 x 7 x 7 cm. Net Quantity: 1 candle. Features: Rose bouquet design. 100% natural soy wax. Natural rose fragrance. Eco-friendly construction. Handcrafted with precision. Perfect for home decor and gifting."
+    },
+    {
+      "title": "Seashell candels",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "299.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 40,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 1 x 1 x 1 cm. Net Quantity: 2 candles. Features: Perfect for hampers and gifting. Available in multiple fragrances: Jasmine, Rose, Lavender, Lemon grass, and Lime. Handcrafted with care."
+    },
+    {
+      "title": "Heart candels",
+      "slug": "custom-candles-random",
+      "category": "candles",
+      "basePrice": "249.00",
+      "codAvailable": false,
+      "customizable": true,
+      "personalizationInstructions": "",
+      "isActive": true,
+      "isFeatured": false,
+      "media": [],
+      "productionTime": 3,
+      "variants": [{
+        "stock": 55,
+        "size": "Regular"
+      }],
+      "description": "Material: Wax. Product Dimensions: 3.5 x 3.5 x 2 cm. Net Quantity: 4 candles. Features: Available in red, pink, purple, and light yellow. Pure soy wax construction. Richly scented. Perfect for return gifts. Clean burning experience. Health-safe materials."
+    }
+  ]
