@@ -13,8 +13,8 @@ import {
   RiFlowerFill,
   RiDashboardLine,
 } from "@remixicon/react";
-import { useAuthStore } from "../../store/useAuthStore";
-import useWishlistStore from "../../store/useWishlistStore";
+import { useAuthStore } from "../../store/useAuthStore.js";
+import useWishlistStore from "../../store/useWishlistStore.js";
 
 // Styled Badge component
 const StyledBadge = styled(Badge)(({ theme }) => ({
