@@ -2,20 +2,13 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
-const dotenv = require('dotenv');
 
-dotenv.config();
-
-if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD || !process.env.BASE_URL) {
-  console.error('ADMIN_EMAIL , ADMIN_PASSWORD and BASE_URL must be set in the environment variables');
-  process.exit(1);
-}
 // Configuration
 const config = {
-  baseURL: process.env.BASE_URL, // Change this to your API base URL
+  baseURL: 'http://localhost:5000/api/v1', // Change this to your API base URL
   credentials: {
-    email: process.env.ADMIN_EMAIL , // Will be provided
-    password: process.env.ADMIN_PASSWORD // Will be provided
+    email: 'admin@admin.com', // Will be provided
+    password: 'admin' // Will be provided
   }
 };
 
@@ -108,7 +101,7 @@ const uploadAllProducts = async () => {
     console.log('Login successful');
 
     // Read product data
-    const productData = JSON.parse(fs.readFileSync(path.join(__dirname, 'phone_cases.json'), 'utf8'));
+    const productData = JSON.parse(fs.readFileSync(path.join(__dirname, 'mouse_pad.json'), 'utf8'));
     
     // Get media files
     const mediaFiles = getMediaFiles();
