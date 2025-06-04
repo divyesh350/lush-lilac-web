@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../components/ui/Form";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../store/useAuthStore.js";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 
