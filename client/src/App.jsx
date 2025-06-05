@@ -19,8 +19,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
-
-
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   return (
@@ -97,6 +96,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <OrderDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
                     </ProtectedRoute>
                   }
                 />

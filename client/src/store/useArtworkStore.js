@@ -18,12 +18,16 @@ const useArtworkStore = create((set, get) => ({
     try {
       set({ loading: true, error: null });
       const response = await api.get('/artworks/user');
-      set({ artworks: response.data, loading: false });
-      return response.data;
+      
+      // Ensure we're setting an array
+      const artworks = Array.isArray(response.data) ? response.data : [];
+      set({ artworks, loading: false });
+      return artworks;
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to fetch artwork',
-        loading: false 
+        loading: false,
+        artworks: [] // Reset to empty array on error
       });
       throw error;
     }
@@ -59,7 +63,7 @@ const useArtworkStore = create((set, get) => ({
       // Update artworks list with new upload
       // Note: response.data.artwork contains the uploaded artwork data
       set((state) => ({
-        artworks: [...state.artworks, response.data.artwork],
+        artworks: [...(Array.isArray(state.artworks) ? state.artworks : []), response.data.artwork],
         loading: false,
         uploadProgress: 100,
       }));
@@ -83,7 +87,7 @@ const useArtworkStore = create((set, get) => ({
       
       // Remove deleted artwork from state
       set((state) => ({
-        artworks: state.artworks.filter(art => art._id !== artworkId),
+        artworks: (Array.isArray(state.artworks) ? state.artworks : []).filter(art => art._id !== artworkId),
         loading: false
       }));
     } catch (error) {

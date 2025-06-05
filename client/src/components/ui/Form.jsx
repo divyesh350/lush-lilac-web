@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { RiEyeLine, RiEyeOffLine, RiImageAddLine } from '@remixicon/react';
+import { RiEyeLine, RiEyeOffLine, RiImageAddLine, RiCloseLine } from '@remixicon/react';
 import Button from './Button';
 
 const Form = ({ title, fields, buttonText, onSubmit, error, children }) => {
