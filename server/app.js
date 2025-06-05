@@ -29,7 +29,6 @@ app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://lush-lilac.vercel.app',
-  'https://lush-lilac-web.onrender.com'
 ];
 
 app.use(cors({
