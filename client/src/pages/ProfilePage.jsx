@@ -60,7 +60,6 @@ const ProfilePage = () => {
       fetchUserOrders(); // Fetch user orders using useCartStore
     }
   }, [getUserProfile, getUserArtworks, fetchUserOrders]); // Removed user from dependency array
-   console.log(user)
   // Update form data when user profile is loaded
   useEffect(() => {
     if (user) {

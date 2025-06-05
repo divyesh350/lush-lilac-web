@@ -106,15 +106,21 @@ const useCartStore = create(
         const { isAuthenticated, user } = useAuthStore.getState();
 
         if (!isAuthenticated || !user) {
-          set({ ordersLoading: false, ordersError: 'Please login to view your orders.' });
+          set({
+            ordersLoading: false,
+            ordersError: "Please login to view your orders.",
+          });
           return;
         }
 
         try {
-          const response = await api.get('/orders/my');
+          const response = await api.get("/orders/my");
           set({ userOrders: response.data, ordersLoading: false });
         } catch (err) {
-          const errMsg = err.response?.data?.message || err.message || 'Failed to fetch orders.';
+          const errMsg =
+            err.response?.data?.message ||
+            err.message ||
+            "Failed to fetch orders.";
           set({ ordersError: errMsg, ordersLoading: false });
           toast.error(errMsg);
         }
@@ -125,7 +131,10 @@ const useCartStore = create(
         const { isAuthenticated, user } = useAuthStore.getState();
 
         if (!isAuthenticated || !user) {
-          set({ ordersLoading: false, ordersError: "Please login to view orders." });
+          set({
+            ordersLoading: false,
+            ordersError: "Please login to view orders.",
+          });
           throw new Error("Please login to view orders.");
         }
 
@@ -134,7 +143,10 @@ const useCartStore = create(
           set({ ordersLoading: false });
           return response.data;
         } catch (err) {
-          const errMsg = err.response?.data?.message || err.message || "Failed to fetch order details.";
+          const errMsg =
+            err.response?.data?.message ||
+            err.message ||
+            "Failed to fetch order details.";
           set({ ordersError: errMsg, ordersLoading: false });
           toast.error(errMsg);
           throw new Error(errMsg);
@@ -154,7 +166,9 @@ const useCartStore = create(
           if (user?.role !== "customer")
             throw new Error("Only customers can place orders");
           if (items.length === 0) throw new Error("Cart is empty");
-
+          if (!shippingAddress) {
+            throw new Error("please enter shipping address details");
+          }
           const res = await api.post("/orders/razorpay-order", {
             amount: get().getTotalAmount(),
             currency: "INR",
@@ -205,12 +219,11 @@ const useCartStore = create(
             shippingAddress,
             paymentMethod: method,
           });
-          if(res.data.success){
-            set({items:[]})
+          if (res.data.success) {
+            set({ items: [] });
           }
           // Return success status and message, don't clear cart or show toast yet
           return res.data;
-
         } catch (error) {
           // Just re-throw the error, handle toast and state in processOrder
           throw error;
@@ -236,7 +249,10 @@ const useCartStore = create(
           const isLoaded = await get().initializeRazorpay();
           if (!isLoaded) throw new Error("Razorpay SDK not loaded");
 
-          const orderData = await get().initiateCheckout({ shippingAddress, paymentMethod: method });
+          const orderData = await get().initiateCheckout({
+            shippingAddress,
+            paymentMethod: method,
+          });
           if (!orderData?.id)
             throw new Error("Failed to create Razorpay order");
 
@@ -283,7 +299,6 @@ const useCartStore = create(
               },
             },
           };
-
         } catch (error) {
           // Just re-throw the error, handle toast and state in processOrder
           throw error;
@@ -338,41 +353,51 @@ const useCartStore = create(
               } catch (error) {
                 reject(error);
               }
-            } else { // Razorpay
-                try {
-                    const options = await get().createRazorpayOrder(shippingAddress, method);
-                    options.handler = async (res) => {
-                        try {
-                            const paymentRes = await get().processPayment(
-                                res.razorpay_order_id,
-                                res.razorpay_payment_id,
-                                res.razorpay_signature,
-                                shippingAddress,
-                                method
-                            );
-                            resolve(paymentRes);
-                        } catch (error) {
-                            reject(error);
-                        }
-                    };
-                    options.modal.ondismiss = () => {
-                         toast.error("Payment cancelled");
-                         reject(new Error("Payment cancelled"));
-                    };
-                    const rzp1 = new window.Razorpay(options);
-                    rzp1.open();
-                    
-                } catch (error) {
-                    const msg = error.response?.data?.message || error.message || "Checkout initiation failed";
-                    set({ error: msg, loading: false, paymentProcessing: false });
-                    toast.error(msg);
+            } else {
+              // Razorpay
+              try {
+                const options = await get().createRazorpayOrder(
+                  shippingAddress,
+                  method
+                );
+                options.handler = async (res) => {
+                  try {
+                    const paymentRes = await get().processPayment(
+                      res.razorpay_order_id,
+                      res.razorpay_payment_id,
+                      res.razorpay_signature,
+                      shippingAddress,
+                      method
+                    );
+                    resolve(paymentRes);
+                  } catch (error) {
                     reject(error);
-                }
+                  }
+                };
+                options.modal.ondismiss = () => {
+                  toast.error("Payment cancelled");
+                  reject(new Error("Payment cancelled"));
+                };
+                const rzp1 = new window.Razorpay(options);
+                rzp1.open();
+              } catch (error) {
+                const msg =
+                  error.response?.data?.message ||
+                  error.message ||
+                  "Checkout initiation failed";
+                set({ error: msg, loading: false, paymentProcessing: false });
+                toast.error(msg);
+                reject(error);
+              }
             }
-            set({ loading: false, error: null })
+            set({ loading: false, error: null });
           } catch (error) {
             // Catch initial sync errors before the Promise is fully set up
-            set({ error: error.message, loading: false, paymentProcessing: false });
+            set({
+              error: error.message,
+              loading: false,
+              paymentProcessing: false,
+            });
             toast.error(error.message);
             reject(error); // Reject the promise if an error occurs early
           }

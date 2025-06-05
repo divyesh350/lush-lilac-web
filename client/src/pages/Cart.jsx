@@ -8,6 +8,7 @@ import {
   RiDeleteBinLine,
   RiSecurePaymentLine,
   RiMoneyDollarCircleLine,
+  RiDeleteBin2Line,
 } from "@remixicon/react";
 import useCartStore from "../store/useCartStore.js";
 import { useAuthStore } from "../store/useAuthStore.js";
@@ -30,9 +31,12 @@ const Cart = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [shippingAddress, setShippingAddress] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
 
   // Calculate if COD is available for all items
-  const isCodGloballyAvailable = cartItems.every(item => item.productSnapshot?.codAvailable !== false);
+  const isCodGloballyAvailable = cartItems.every(
+    (item) => item.productSnapshot?.codAvailable !== false
+  );
 
   // Calculate subtotal using the store's getTotalAmount
   const subtotal = getTotalAmount();
@@ -91,7 +95,9 @@ const Cart = () => {
       const res = await processOrder(shippingAddress, method); // Await the promise from processOrder
       // If the promise resolves, the order was successful
       // Pass order data and receiptPDF to the success page
-      navigate("/payment-success", { state: { order: res.order, receiptPDF: res.receiptPDF } });
+      navigate("/payment-success", {
+        state: { order: res.order, receiptPDF: res.receiptPDF },
+      });
     } catch (error) {
       // If the promise rejects, there was a failure or cancellation
       console.error("Order processing failed or cancelled:", error);
@@ -101,6 +107,28 @@ const Cart = () => {
       // Ensure loading state is reset regardless of success or failure
       get().set({ loading: false });
     }
+  };
+
+  // Handle clear cart
+  const handleClearCart = () => {
+    clearCart();
+    setShowClearCartModal(false);
+    toast.success("Cart cleared successfully");
+  };
+
+  // Handle checkout button click
+  const handleCheckoutClick = () => {
+    if (!shippingAddress.trim()) {
+      toast.error("Please enter your shipping address to continue");
+      // Scroll to shipping address input
+      const addressInput = document.querySelector('textarea[name="shippingAddress"]');
+      if (addressInput) {
+        addressInput.focus();
+        addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    setShowPaymentModal(true);
   };
 
   // Animation variants
@@ -140,6 +168,30 @@ const Cart = () => {
           </p>
         </motion.div>
 
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+          >
+            <div className="flex items-center text-red-600 dark:text-red-400">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          </motion.div>
+        )}
+
         {cartItems.length === 0 ? (
           <motion.div
             className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center max-w-xl mx-auto"
@@ -166,10 +218,17 @@ const Cart = () => {
               animate="visible"
             >
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-[#F9F0F7] dark:border-gray-700">
+                <div className="p-6 border-b border-[#F9F0F7] dark:border-gray-700 flex justify-between">
                   <h2 className="text-xl font-medium text-dark-purple dark:text-white">
                     Shopping Cart ({cartItems.length} items)
                   </h2>
+                  <button
+                    onClick={() => setShowClearCartModal(true)}
+                    className="text-red-500 hover:text-red-600 text-sm flex items-center justify-center gap-1"
+                  >
+                    <RiDeleteBin2Line className="w-4 h-4" />
+                    Clear Cart
+                  </button>
                 </div>
 
                 <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
@@ -295,6 +354,7 @@ const Cart = () => {
                     <textarea
                       value={shippingAddress}
                       onChange={(e) => setShippingAddress(e.target.value)}
+                      name="shippingAddress"
                       className="w-full px-3 py-2 border border-[#F9F0F7] dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       rows={3}
                       placeholder="Enter your complete shipping address"
@@ -346,16 +406,16 @@ const Cart = () => {
                   <Button
                     fullWidth
                     className="mt-6"
-                    onClick={() => setShowPaymentModal(true)}
-                    disabled={loading || !shippingAddress.trim()}
+                    onClick={handleCheckoutClick}
+                    disabled={loading}
                   >
                     {loading ? "Processing..." : "Proceed to Checkout"}
                   </Button>
 
-                  <div className="text-center mt-4">
+                  <div className="text-center mt-4 space-y-2">
                     <Link
                       to="/shop"
-                      className="text-primary hover:underline text-sm"
+                      className="text-primary hover:underline text-sm block"
                     >
                       Continue Shopping
                     </Link>
@@ -410,6 +470,35 @@ const Cart = () => {
               >
                 Cancel
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Clear Cart Confirmation Modal */}
+        {showClearCartModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-xl font-medium text-dark-purple dark:text-white mb-4">
+                Clear Cart
+              </h3>
+              <p className="text-medium-purple dark:text-gray-300 mb-6">
+                Are you sure you want to remove all items from your cart?
+              </p>
+              <div className="flex gap-4">
+                <Button
+                  onClick={handleClearCart}
+                  className="flex-1 bg-red-500 hover:bg-red-600"
+                >
+                  Yes, Clear Cart
+                </Button>
+                <Button
+                  onClick={() => setShowClearCartModal(false)}
+                  className="flex-1"
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         )}
