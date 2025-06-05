@@ -34,8 +34,21 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
+
+// Virtual field for artwork details
+userSchema.virtual('artworkDetails', {
+  ref: 'Artwork',
+  localField: '_id',
+  foreignField: 'uploadedBy',
+  options: { select: 'title description media' }
+});
+
 // 🔒 Pre-save password hashing
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -47,4 +60,5 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (inputPassword) {
   return await bcrypt.compare(inputPassword, this.password);
 };
+
 module.exports = mongoose.model("User", userSchema);

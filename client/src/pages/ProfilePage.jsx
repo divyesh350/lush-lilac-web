@@ -5,8 +5,8 @@ import { RiAddLine, RiArrowRightLine, RiCloseLine } from 'react-icons/ri';
 import useUserStore from '../store/useUserStore';
 import useArtworkStore from '../store/useArtworkStore';
 import useCartStore from '../store/useCartStore';
-import { ArtworkCard, Form, OrderCard } from '../components/ui';
-import { useAuthStore } from '../store/useAuthStore';
+import { ArtworkCard, Form, OrderCard, Spinner } from '../components/ui';
+
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const ProfilePage = () => {
     description: '',
     media: null
   });
-  //  const { user } = useAuthStore();
+  
   // Get user profile data and functions
   const { 
     user,
@@ -60,7 +60,7 @@ const ProfilePage = () => {
       fetchUserOrders(); // Fetch user orders using useCartStore
     }
   }, [getUserProfile, getUserArtworks, fetchUserOrders]); // Removed user from dependency array
-
+   console.log(user)
   // Update form data when user profile is loaded
   useEffect(() => {
     if (user) {
@@ -150,9 +150,7 @@ const ProfilePage = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Spinner/>
     );
   }
 
