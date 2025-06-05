@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import api from '../api/axios';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import api from "../api/axios";
 
 const useProductStore = create(
   persist(
@@ -12,13 +12,13 @@ const useProductStore = create(
       loading: false,
       error: null,
       filters: {
-        category: '',
-        search: '',
-        minPrice: '',
-        maxPrice: '',
-        size: '',
-        color: '',
-        material: '',
+        category: "",
+        search: "",
+        minPrice: "",
+        maxPrice: "",
+        size: "",
+        color: "",
+        material: "",
       },
       pagination: {
         page: 1,
@@ -28,8 +28,10 @@ const useProductStore = create(
       },
 
       // Actions
-      setFilters: (filters) => set({ filters: { ...get().filters, ...filters } }),
-      setPagination: (pagination) => set({ pagination: { ...get().pagination, ...pagination } }),
+      setFilters: (filters) =>
+        set({ filters: { ...get().filters, ...filters } }),
+      setPagination: (pagination) =>
+        set({ pagination: { ...get().pagination, ...pagination } }),
       setSelectedProduct: (product) => set({ selectedProduct: product }),
 
       // Fetch Products
@@ -37,7 +39,7 @@ const useProductStore = create(
         try {
           set({ loading: true, error: null });
           const { filters, pagination } = get();
-          
+
           const queryParams = new URLSearchParams({
             page: pagination.page,
             limit: pagination.limit,
@@ -48,8 +50,10 @@ const useProductStore = create(
           const { products, total, pages } = response.data;
 
           // Filter out inactive products
-          const activeProducts = products.filter(product => product.isActive !== false);
-          
+          const activeProducts = products.filter(
+            (product) => product.isActive !== false
+          );
+
           // Recalculate total and pages based on active products
           const activeTotal = activeProducts.length;
           const activePages = Math.ceil(activeTotal / pagination.limit);
@@ -64,7 +68,7 @@ const useProductStore = create(
           });
         } catch (error) {
           set({
-            error: error.response?.data?.message || 'Failed to fetch products',
+            error: error.response?.data?.message || "Failed to fetch products",
             loading: false,
           });
         }
@@ -75,7 +79,7 @@ const useProductStore = create(
         try {
           set({ loading: true, error: null });
           const { pagination } = get();
-          
+
           const queryParams = new URLSearchParams({
             page: pagination.page,
             limit: pagination.limit,
@@ -85,30 +89,37 @@ const useProductStore = create(
 
           if (response.data.success) {
             const { products, total, pages } = response.data;
-            
+
             // Filter out inactive products
-            const activeProducts = products.filter(product => product.isActive !== false);
-            
+            const activeProducts = products.filter(
+              (product) => product.isActive !== false
+            );
+
             // Recalculate total and pages based on active products
             const activeTotal = activeProducts.length;
             const activePages = Math.ceil(activeTotal / pagination.limit);
 
-            set({ 
+            set({
               featuredProducts: activeProducts,
               pagination: {
                 ...pagination,
                 total: activeTotal,
                 pages: activePages,
               },
-              loading: false 
+              loading: false,
             });
           } else {
-            throw new Error(response.data.message || 'Failed to fetch featured products');
+            throw new Error(
+              response.data.message || "Failed to fetch featured products"
+            );
           }
         } catch (error) {
-          console.error('Error fetching featured products:', error);
+          console.error("Error fetching featured products:", error);
           set({
-            error: error.response?.data?.message || error.message || 'Failed to fetch featured products',
+            error:
+              error.response?.data?.message ||
+              error.message ||
+              "Failed to fetch featured products",
             loading: false,
           });
         }
@@ -119,33 +130,31 @@ const useProductStore = create(
         try {
           set({ loading: true, error: null });
           const response = await api.get(`/products/${id}`);
-          
+
           // Check if product is active
           if (response.data.isActive === false) {
-            throw new Error('Product is not available');
+            throw new Error("Product is not available");
           }
-          
+
           set({ selectedProduct: response.data, loading: false });
+          console.log(response.data)
         } catch (error) {
           set({
-            error: error.response?.data?.message || error.message || 'Failed to fetch product',
+            error:
+              error.response?.data?.message ||
+              error.message ||
+              "Failed to fetch product",
             loading: false,
           });
           throw error;
         }
       },
 
-      
-
-     
-
-      
-
       // Clear error
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'product-storage',
+      name: "product-storage",
       partialize: (state) => ({
         filters: state.filters,
         pagination: state.pagination,
@@ -154,4 +163,4 @@ const useProductStore = create(
   )
 );
 
-export default useProductStore; 
+export default useProductStore;

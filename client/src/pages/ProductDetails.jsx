@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedArtworkFile, setSelectedArtworkFile] = useState(null);
 
   // Remove the memoized isWishlisted and use direct check
   const isWishlisted = selectedProduct ? isInWishlist(selectedProduct._id) : false;
@@ -95,6 +96,25 @@ const ProductDetails = () => {
       addToWishlist(selectedProduct);
     }
   }, [selectedProduct, isWishlisted, addToWishlist, removeFromWishlist]);
+
+  const handleArtworkChange = useCallback((event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedArtworkFile(file);
+    } else {
+      setSelectedArtworkFile(null);
+    }
+  }, []);
+
+  // Placeholder for artwork upload handler
+  const handleArtworkUpload = useCallback(() => {
+    if (selectedArtworkFile) {
+      // TODO: Implement artwork upload logic (e.g., send to server)
+      console.log('Uploading artwork:', selectedArtworkFile.name);
+      // After upload, you might want to clear the selected file:
+      // setSelectedArtworkFile(null);
+    }
+  }, [selectedArtworkFile]);
 
   // Memoize computed values
   const totalPrice = useMemo(() => {
@@ -261,7 +281,7 @@ const ProductDetails = () => {
                         }`}
                         onClick={() => handleVariantChange(variant)}
                       >
-                        {variant.name} {variant.size && `(${variant.size})`}
+                        {variant?.name} {variant?.size && `(${variant?.size})`} {variant?.color && `(${variant?.color})`} {variant?.material && `(${variant?.material})`}
                       </button>
                     ))}
                   </div>
@@ -293,6 +313,39 @@ const ProductDetails = () => {
               </div>
             </div>
             
+            {/* Artwork Upload */}
+            <div className="mb-8 p-6 rounded-lg bg-purple-50 dark:bg-gray-800 shadow-sm">
+              <h3 className="text-lg font-semibold text-dark-purple dark:text-primary mb-2 flex items-center">
+                 Customize Your Product
+              </h3>
+              <p className="text-medium-purple dark:text-text-secondary text-sm mb-4">
+                Upload your image (JPG, PNG, max 5MB):
+              </p>
+              <div className="flex items-center gap-4">
+                <label htmlFor="artwork-upload" className="cursor-pointer px-4 py-2 rounded-button bg-primary text-white hover:bg-primary-dark transition-colors duration-200">
+                  Choose File
+                </label>
+                <input 
+                  type="file" 
+                  id="artwork-upload" 
+                  accept=".jpg,.jpeg,.png" 
+                  className="hidden"
+                  onChange={handleArtworkChange}
+                />
+                <span className="text-medium-purple dark:text-text-secondary text-sm">
+                  {selectedArtworkFile ? selectedArtworkFile.name : 'No file chosen'}
+                </span>
+                {selectedArtworkFile && (
+                  <button 
+                    onClick={handleArtworkUpload}
+                    className="px-4 py-2 rounded-button bg-secondary text-white hover:bg-secondary-dark transition-colors duration-200 text-sm"
+                  >
+                    Upload
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mb-8">
               <Button
