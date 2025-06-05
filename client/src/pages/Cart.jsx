@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "../components/ui/Button";
@@ -13,6 +13,126 @@ import {
 import useCartStore from "../store/useCartStore.js";
 import { useAuthStore } from "../store/useAuthStore.js";
 import toast from "react-hot-toast";
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 },
+  },
+};
+
+// Move ShippingAddress outside and memoize it
+const ShippingAddress = memo(({ value, onChange }) => {
+  const handleChange = useCallback((e) => {
+    onChange(e.target.value);
+  }, [onChange]);
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-dark-purple dark:text-white">
+        Shipping Address
+      </label>
+      <textarea
+        value={value}
+        onChange={handleChange}
+        name="shippingAddress"
+        className="w-full px-3 py-2 border border-[#F9F0F7] dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+        rows={3}
+        placeholder="Enter your complete shipping address"
+      />
+    </div>
+  );
+});
+
+// Move CartItems outside and memoize it
+const CartItems = memo(({ items, onQuantityChange, onRemoveItem }) => {
+  return (
+    <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
+      {items.map((item) => (
+        <motion.div
+          key={`${item.productId}-${item.variant.size}-${item.variant.color}-${item.variant.material}-${item._id || Math.random()}`}
+          className="p-6 flex flex-col sm:flex-row gap-4"
+          variants={itemVariants}
+        >
+          {/* Product Image */}
+          <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+            <img
+              src={item.productSnapshot.thumbnailUrl}
+              alt={item.productSnapshot.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Product Details */}
+          <div className="flex-grow">
+            <Link
+              to={`/product/${item.productId}`}
+              className="text-lg font-medium text-dark-purple dark:text-white hover:text-primary dark:hover:text-primary"
+            >
+              {item.productSnapshot.title}
+            </Link>
+
+            {/* Variants */}
+            <div className="text-sm text-medium-purple dark:text-gray-300 mt-1 space-y-1">
+              {Object.entries(item.variant).map(([key, value]) => (
+                <p key={key}>
+                  {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+                </p>
+              ))}
+            </div>
+
+            {/* Price */}
+            <div className="text-primary font-medium mt-2">
+              <small className="text-dark-purple dark:text-text-primary relative -top-1 text-sm">
+                ₹
+              </small>
+              {item.price.toFixed(2)}
+            </div>
+          </div>
+
+          {/* Quantity Controls */}
+          <div className="flex flex-col sm:items-end gap-2">
+            <div className="flex items-center border border-[#F9F0F7] dark:border-gray-700 rounded-button overflow-hidden">
+              <button
+                className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
+                onClick={() => onQuantityChange(item.productId, item.variant, -1)}
+                disabled={item.quantity <= 1}
+              >
+                <RiSubtractLine className="w-5 h-5" />
+              </button>
+              <span className="w-8 h-8 flex items-center justify-center text-dark-purple dark:text-white">
+                {item.quantity}
+              </span>
+              <button
+                className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
+                onClick={() => onQuantityChange(item.productId, item.variant, 1)}
+                disabled={item.quantity >= 10}
+              >
+                <RiAddLine className="w-5 h-5" />
+              </button>
+            </div>
+
+            <button
+              className="text-xs text-medium-purple dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center"
+              onClick={() => onRemoveItem(item.productId, item.variant)}
+            >
+              <RiDeleteBinLine className="w-4 h-4 mr-1" /> Remove
+            </button>
+
+            <div className="text-dark-purple dark:text-white font-medium mt-1">
+              <small className="text-dark-purple dark:text-text-primary relative -top-1 text-sm">
+                ₹
+              </small>
+              {(item.price * item.quantity).toFixed(2)}
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+});
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -47,8 +167,8 @@ const Cart = () => {
   // Calculate total
   const total = subtotal + shippingCost;
 
-  // Handle quantity change
-  const handleQuantityChange = (productId, variant, change) => {
+  // Memoize handlers
+  const handleQuantityChange = useCallback((productId, variant, change) => {
     const currentItem = cartItems.find(
       (item) =>
         item.productId === productId &&
@@ -63,12 +183,34 @@ const Cart = () => {
         updateQuantity(productId, variant, newQuantity);
       }
     }
-  };
+  }, [cartItems, updateQuantity]);
 
-  // Handle remove item
-  const handleRemoveItem = (productId, variant) => {
+  const handleRemoveItem = useCallback((productId, variant) => {
     removeFromCart(productId, variant);
-  };
+  }, [removeFromCart]);
+
+  const handleClearCart = useCallback(() => {
+    clearCart();
+    setShowClearCartModal(false);
+    toast.success("Cart cleared successfully");
+  }, [clearCart]);
+
+  const handleCheckoutClick = useCallback(() => {
+    if (!shippingAddress.trim()) {
+      toast.error("Please enter your shipping address to continue");
+      const addressInput = document.querySelector('textarea[name="shippingAddress"]');
+      if (addressInput) {
+        addressInput.focus();
+        addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+    setShowPaymentModal(true);
+  }, [shippingAddress]);
+
+  const handleShippingAddressChange = useCallback((value) => {
+    setShippingAddress(value);
+  }, []);
 
   // Handle payment method selection
   const handlePaymentMethodSelect = async (method) => {
@@ -109,28 +251,6 @@ const Cart = () => {
     }
   };
 
-  // Handle clear cart
-  const handleClearCart = () => {
-    clearCart();
-    setShowClearCartModal(false);
-    toast.success("Cart cleared successfully");
-  };
-
-  // Handle checkout button click
-  const handleCheckoutClick = () => {
-    if (!shippingAddress.trim()) {
-      toast.error("Please enter your shipping address to continue");
-      // Scroll to shipping address input
-      const addressInput = document.querySelector('textarea[name="shippingAddress"]');
-      if (addressInput) {
-        addressInput.focus();
-        addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
-    setShowPaymentModal(true);
-  };
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -139,15 +259,6 @@ const Cart = () => {
       transition: {
         staggerChildren: 0.1,
       },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
     },
   };
 
@@ -231,103 +342,11 @@ const Cart = () => {
                   </button>
                 </div>
 
-                <div className="divide-y divide-[#F9F0F7] dark:divide-gray-700">
-                  {cartItems.map((item) => (
-                    <motion.div
-                      key={`${item.productSnapshot.title}-${item.variant.size}-${item.variant.color}-${item.variant.material}`}
-                      className="p-6 flex flex-col sm:flex-row gap-4"
-                      variants={itemVariants}
-                    >
-                      {/* Product Image */}
-                      <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
-                        <img
-                          src={item.productSnapshot.thumbnailUrl}
-                          alt={item.productSnapshot.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-grow">
-                        <Link
-                          to={`/product/${item.productId}`}
-                          className="text-lg font-medium text-dark-purple dark:text-white hover:text-primary dark:hover:text-primary"
-                        >
-                          {item.productSnapshot.title}
-                        </Link>
-
-                        {/* Variants */}
-                        <div className="text-sm text-medium-purple dark:text-gray-300 mt-1 space-y-1">
-                          {Object.entries(item.variant).map(([key, value]) => (
-                            <p key={key}>
-                              {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
-                              {value}
-                            </p>
-                          ))}
-                        </div>
-
-                        {/* Price */}
-                        <div className="text-primary font-medium mt-2">
-                          <small className="text-dark-purple dark:text-text-primary relative -top-1 text-sm">
-                            ₹
-                          </small>
-                          {item.price.toFixed(2)}
-                        </div>
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex flex-col sm:items-end gap-2">
-                        <div className="flex items-center border border-[#F9F0F7] dark:border-gray-700 rounded-button overflow-hidden">
-                          <button
-                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.productId,
-                                item.variant,
-                                -1
-                              )
-                            }
-                            disabled={item.quantity <= 1}
-                          >
-                            <RiSubtractLine className="w-5 h-5" />
-                          </button>
-                          <span className="w-8 h-8 flex items-center justify-center text-dark-purple dark:text-white">
-                            {item.quantity}
-                          </span>
-                          <button
-                            className="w-8 h-8 flex items-center justify-center text-primary hover:bg-[#F9F0F7] dark:hover:bg-gray-700"
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.productId,
-                                item.variant,
-                                1
-                              )
-                            }
-                            disabled={item.quantity >= 10}
-                          >
-                            <RiAddLine className="w-5 h-5" />
-                          </button>
-                        </div>
-
-                        <button
-                          className="text-xs text-medium-purple dark:text-gray-400 hover:text-primary dark:hover:text-primary flex items-center"
-                          onClick={() =>
-                            handleRemoveItem(item.productId, item.variant)
-                          }
-                        >
-                          <RiDeleteBinLine className="w-4 h-4 mr-1" /> Remove
-                        </button>
-
-                        <div className="text-dark-purple dark:text-white font-medium mt-1">
-                          <small className="text-dark-purple dark:text-text-primary relative -top-1 text-sm">
-                            ₹
-                          </small>
-                          {(item.price * item.quantity).toFixed(2)}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                <CartItems
+                  items={cartItems}
+                  onQuantityChange={handleQuantityChange}
+                  onRemoveItem={handleRemoveItem}
+                />
               </div>
             </motion.div>
 
@@ -346,20 +365,10 @@ const Cart = () => {
                 </div>
 
                 <div className="p-6 space-y-4">
-                  {/* Shipping Address */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-dark-purple dark:text-white">
-                      Shipping Address
-                    </label>
-                    <textarea
-                      value={shippingAddress}
-                      onChange={(e) => setShippingAddress(e.target.value)}
-                      name="shippingAddress"
-                      className="w-full px-3 py-2 border border-[#F9F0F7] dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      rows={3}
-                      placeholder="Enter your complete shipping address"
-                    />
-                  </div>
+                  <ShippingAddress
+                    value={shippingAddress}
+                    onChange={handleShippingAddressChange}
+                  />
 
                   <div className="flex justify-between">
                     <span className="text-medium-purple dark:text-gray-300">
