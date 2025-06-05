@@ -9,13 +9,8 @@ export default defineConfig({
     extensions: ['.js', '.jsx', '.json']
   },
   server: {
-    proxy: {
-      '/api/v1': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    port: 5173,
+    host: true
   },
   build: {
     outDir: 'dist',
