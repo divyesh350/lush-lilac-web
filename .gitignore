@@ -50,7 +50,7 @@ server/uploads/*
 # Compiled files
 *.js.map
 *.ts.map
-*.js
+
 !server/app.js
 !server/server.js
 !server/**/*.js

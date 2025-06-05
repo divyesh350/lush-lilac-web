@@ -1,0 +1,15 @@
+export { default as Home } from './Home';
+export { default as Shop } from './Shop';
+export { default as ProductDetails } from './ProductDetails';
+export { default as Cart } from './Cart';
+export { default as About } from './About';
+export { default as Contact } from './Contact';
+export { default as NotFound } from './NotFound'; 
+export { default as Login } from './Login';
+export { default as Register } from './Register';
+export { default as WishList } from './WishList';
+export { default as PaymentSuccess } from './PaymentSuccess';
+export { default as PaymentFailure } from './PaymentFailure';
+export { default as Orders } from './Orders';
+export { default as OrderDetails } from './OrderDetails';
+
