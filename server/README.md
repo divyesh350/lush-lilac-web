@@ -16,16 +16,26 @@ Lush Lilac is a modern e-commerce platform built with the MERN (MongoDB, Express
 ```json
 {
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.1",
-    "mongoose": "^7.5.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
-    "cloudinary": "^1.36.0",
-    "nodemailer": "^6.9.4",
-    "razorpay": "^2.8.6"
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.7",
+    "pdfkit": "^0.14.0",
+    "razorpay": "^2.9.2",
+    "sharp": "^0.33.2",
+    "xss-clean": "^0.1.4"
   }
 }
 ```
@@ -62,276 +72,115 @@ RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
 
-## 📝 User Authentication Flow
+## 🏗️ Server Architecture
 
-### 1. Registration Flow
-```http
-POST /api/v1/auth/register
-Content-Type: application/json
+### 1. Core Components
+- **app.js**: Main application setup and middleware configuration
+- **server.js**: Server initialization and database connection
+- **config/**: Configuration files for various services
+- **controllers/**: Business logic implementation
+- **models/**: MongoDB schema definitions
+- **routes/**: API route definitions
+- **middlewares/**: Custom middleware functions
+- **utils/**: Utility functions and helpers
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "securepassword123"
-}
+### 2. Security Implementation
+- **Helmet**: Security headers configuration
+- **Rate Limiting**: Multiple tiers of rate limiting
+  - Login: 5 attempts per 15 minutes
+  - Strict: 100 requests per 15 minutes
+  - Relaxed: 300 requests per 15 minutes
+- **Data Sanitization**: 
+  - MongoDB query sanitization
+  - XSS protection
+  - HTTP Parameter Pollution prevention
+- **Compression**: Response compression for better performance
 
-Response (201):
-{
-  "user": {
-    "id": "user123",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "customer"
-  },
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer",
-  "message": "User registered successfully"
-}
+### 3. Request Processing Flow
+1. **Request Entry**:
+   - Request received at server.js
+   - Passed to app.js for processing
+
+2. **Middleware Chain**:
+   - Security headers (Helmet)
+   - Request parsing (JSON, URL-encoded)
+   - Cookie parsing
+   - CORS handling
+   - Rate limiting
+   - Request logging (Morgan)
+   - Data sanitization
+   - Compression
+
+3. **Route Handling**:
+   - API prefix: `/api/v1`
+   - Route-specific middleware
+   - Controller execution
+   - Response generation
+
+4. **Error Handling**:
+   - Global error handler
+   - Custom error responses
+   - Error logging
+
+## 📝 API Structure
+
+### 1. Authentication Routes (`/api/v1/auth`)
+- Registration
+- Login
+- Token refresh
+- Logout
+
+### 2. Product Routes (`/api/v1/products`)
+- Product CRUD operations
+- Product search and filtering
+- Product variants management
+
+### 3. Order Routes (`/api/v1/orders`)
+- Order creation
+- Payment processing
+- Order status management
+- Order history
+
+### 4. User Routes (`/api/v1/users`)
+- Profile management
+- Address management
+- Order history
+
+### 5. Artwork Routes (`/api/v1/artworks`)
+- Artwork upload
+- Artwork management
+- Custom design integration
+
+### 6. Newsletter Routes (`/api/v1/newsletter`)
+- Subscription management
+- Newsletter distribution
+
+### 7. Analytics Routes (`/api/v1/analytics`)
+- Sales analytics
+- User analytics
+- Product performance
+
+## 🔄 Request-Response Flow
+
+### 1. Authentication Flow
+```
+Client Request → Rate Limiter → Auth Middleware → Controller → Response
 ```
 
-### 2. Login Flow
-```http
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "securepassword123"
-}
-
-Response (200):
-{
-  "user": {
-    "id": "user123",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "customer"
-  },
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer",
-  "message": "User logged in successfully"
-}
+### 2. Product Flow
+```
+Client Request → Validation → Product Controller → Database → Response
 ```
 
-### 3. Token Refresh
-```http
-GET /api/v1/auth/refresh
-Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-Response (200):
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer"
-}
+### 3. Order Flow
+```
+Client Request → Payment Processing → Order Creation → Email Notification → Response
 ```
 
-### 4. Logout
-```http
-POST /api/v1/auth/logout
-Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-Response (200):
-{
-  "message": "Logged out successfully"
-}
+### 4. File Upload Flow
 ```
-
-## 📚 API Documentation
-
-## 🛍️ Product Management
-
-### Product Model
-```javascript
-{
-  title: String,          // Required
-  slug: String,          // SEO-friendly URL
-  description: String,
-  category: String,      // e.g., 'phone_case', 'candle', 'mouse_pad'
-  basePrice: Number,     // Required
-  productionTime: Number, // Default: 3 days
-  variants: [{
-    name: String,        // e.g., "Large", "iPhone 14"
-    size: String,
-    color: String,
-    material: String,
-    price: Number,       // Additional to basePrice
-    stock: Number
-  }],
-  media: [{
-    url: String,
-    type: String,        // "image" or "video"
-    public_id: String
-  }],
-  codAvailable: Boolean, // Default: false
-  customizable: Boolean, // Default: false
-  personalizationInstructions: String,
-  isActive: Boolean      // Default: true
-  isFeatured:Boolean     // Default: false
-}
+Client Request → Multer Middleware → Cloudinary Upload → Database Update → Response
 ```
-
-### Product Flow
-1. **Product Creation**
-   - Admin creates product with required fields
-   - Upload product media (images/videos)
-   - Define variants with specific attributes
-   - Set base price and variant-specific prices
-   - Configure COD availability and customization options
-
-2. **Product Listing**
-   - Filter products by category, size, color, material
-   - Search by product title
-   - Price range filtering
-   - Pagination support
-   - Sort by various criteria
-
-3. **Product Details**
-   - View complete product information
-   - Check variant availability
-   - View media gallery
-   - Read customization instructions
-   - Check COD availability
-
-## 💳 Order System
-
-### Order Model
-```javascript
-{
-  user: ObjectId,        // Reference to User
-  items: [{
-    productId: ObjectId,
-    variant: {
-      size: String,
-      color: String,
-      material: String
-    },
-    quantity: Number,
-    price: Number,
-    variantKey: String,
-    productSnapshot: {
-      title: String,
-      thumbnailUrl: String,
-      basePrice: Number
-    }
-  }],
-  totalAmount: Number,
-  shippingAddress: String,
-  status: String,        // pending, accepted, in production, supplied, completed
-  paymentInfo: {
-    paymentId: String,
-    orderId: String,
-    signature: String,
-    paid: Boolean,
-    method: String,
-    amount: Number,
-    currency: String,
-    timestamp: Date
-  },
-  paymentMethod: String  // "razorpay" or "cod"
-}
-```
-
-### Order Flow
-
-#### 1. Payment Processing
-##### A. Razorpay Integration
-- Client initiates payment request
-- Server creates Razorpay order
-- Client processes payment through Razorpay
-- Server verifies payment signature
-- Order is created with payment confirmation
-
-##### B. Cash on Delivery (COD)
-- System verifies COD availability for all products
-- Client submits order with COD payment method
-- Order is created with pending payment status
-- Payment collected upon delivery
-
-#### 2. Order Creation
-- Validate product availability
-- Check variant existence
-- Calculate total amount
-- Create order with appropriate status
-- Generate PDF receipt
-- Send confirmation email with receipt
-
-#### 3. Order Management
-- Admin can view all orders with filters
-- Customers can view their order history
-- Order status updates
-- Detailed order information access
-
-## 📊 Analytics System
-
-### Overview
-The analytics system provides comprehensive business insights through MongoDB aggregation pipelines.
-
-### Key Metrics
-1. **Order Analytics**
-   - Total order count
-   - Daily revenue (last 7 days)
-   - Monthly revenue (last 12 months)
-   - Top selling products
-   - Top performing variants
-
-2. **Customer Analytics**
-   - Total customer count
-   - Customer growth trends
-
-3. **Product Analytics**
-   - Total product count
-   - Product performance metrics
-
-### Implementation
-```javascript
-// Example Analytics Query
-const analytics = await Promise.all([
-  Order.countDocuments(),
-  User.countDocuments({ role: "customer" }),
-  Product.countDocuments(),
-  Order.find({ "paymentInfo.paid": true })
-]);
-
-// Revenue Calculation
-const revenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-
-// Daily Revenue (Last 7 Days)
-const dailyRevenue = await Order.aggregate([
-  {
-    $match: {
-      "paymentInfo.paid": true,
-      createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-    }
-  },
-  {
-    $group: {
-      _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-      total: { $sum: "$totalAmount" }
-    }
-  }
-]);
-
-// Top Products
-const topProducts = await Order.aggregate([
-  { $match: { "paymentInfo.paid": true } },
-  { $unwind: "$items" },
-  {
-    $group: {
-      _id: "$items.productSnapshot.title",
-      totalSold: { $sum: "$items.quantity" },
-      revenue: { $sum: "$items.price" }
-    }
-  }
-]);
-```
-
-### API Endpoints
-- `GET /api/v1/analytics` - Get comprehensive analytics (Admin only)
-- `GET /api/v1/orders` - Get orders with filters (Admin/Customer)
-- `GET /api/v1/orders/:id` - Get specific order details
-- `POST /api/v1/orders/create-payment` - Create Razorpay order
-- `POST /api/v1/orders` - Create order after payment
-- `POST /api/v1/orders/create-cod` - Create COD order
 
 ## 🛡️ Security Features
 
@@ -349,13 +198,15 @@ const topProducts = await Order.aggregate([
    - Secure password comparison
 
 3. **Rate Limiting**:
-   - Limited login attempts
+   - Multiple tiers of rate limiting
    - Protection against brute force attacks
+   - IP-based request tracking
 
 4. **Data Validation**:
    - Input validation for all requests
    - Email format validation
    - Required field checks
+   - MongoDB query sanitization
 
 5. **Token Security**:
    - Refresh tokens stored in httpOnly cookies
@@ -373,8 +224,18 @@ const topProducts = await Order.aggregate([
 3. Set up environment variables
 4. Start the server:
    ```bash
+   # Development
+   npm run dev
+   
+   # Production
    npm start
    ```
+
+## 🧪 Testing
+```bash
+# Run tests
+npm test
+```
 
 ## 🤝 Contributing
 1. Fork the repository
@@ -387,9 +248,8 @@ const topProducts = await Order.aggregate([
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 👥 Author
-- **Name**: [Your Name]
-- **Email**: [your.email@example.com]
-- **GitHub**: [your-github-profile]
+- **Name**: Divyesh Bakaraniya
+- **GitHub**: https://github.com/divyesh350
 
 ## 📦 Order Workflow
 
