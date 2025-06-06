@@ -17,7 +17,6 @@ const useUserStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const response = await axiosInstance.get(`/users?page=${page}&limit=10`);
-            console.log(response.data);
             
             // Update to handle the correct response structure
             set({ 

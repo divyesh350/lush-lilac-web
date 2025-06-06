@@ -42,13 +42,11 @@ const useOrderStore = create((set, get) => ({
       set({ loading: true, error: null });
       
       const response = await axiosInstance.get(`/orders?page=${page}&limit=10`);
-      const { data, count } = response.data;
-
       set({
-        orders: data || [],
-        totalOrders: count || 0,
-        currentPage: page,
-        totalPages: Math.ceil((count || 0) / 10),
+        orders: response.data.orders || [],
+        totalOrders: response.data.total || 0,
+        currentPage: response.data.page,
+        totalPages: response.data.pages,
         loading: false
       });
 
@@ -96,7 +94,7 @@ const useOrderStore = create((set, get) => ({
     const orderToast = toast.loading('Updating order status...');
     try {
       set({ loading: true, error: null });
-      await axiosInstance.patch(`/orders/${id}/status`, { status });
+      await axiosInstance.put(`/orders/${id}/status`, { status });
       
       // Update the order in the list
       set(state => ({

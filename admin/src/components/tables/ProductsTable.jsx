@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { RiAddLine, RiDeleteBinLine, RiEditLine } from 'react-icons/ri';
 import BaseTable from './BaseTable';
 import TablePagination from './TablePagination';
 import TableToolbar from './TableToolbar';
+import debounce from 'lodash/debounce';
 
 const ProductsTable = ({
   products,
@@ -15,6 +16,19 @@ const ProductsTable = ({
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Create a debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setSearchQuery(value);
+    }, 300),
+    []
+  );
+
+  // Handle search input change
+  const handleSearchChange = (value) => {
+    debouncedSearch(value);
+  };
 
   const columns = [
     {
@@ -139,7 +153,7 @@ const ProductsTable = ({
     <div>
       <TableToolbar
         searchQuery={searchQuery}
-        onSearch={setSearchQuery}
+        onSearch={handleSearchChange}
         actions={toolbarActions}
         selectedCount={selectedRows.length}
       />

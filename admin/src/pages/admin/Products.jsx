@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { RiAddLine, RiSearchLine, RiFilterLine, RiCloseLine } from 'react-icons/ri';
 import useProductStore from '../../store/productStore';
 import ProductForm from '../../components/forms/ProductForm';
+import debounce from 'lodash/debounce';
 
 const Products = () => {
   const {
@@ -24,19 +25,63 @@ const Products = () => {
   const [showProductForm, setShowProductForm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+  const [filterInputs, setFilterInputs] = useState({
+    category: filters.category || '',
+    minPrice: filters.minPrice || '',
+    maxPrice: filters.maxPrice || '',
+    size: filters.size || '',
+    color: filters.color || '',
+    material: filters.material || '',
+  });
 
-  useEffect(() => {
-    fetchProducts(currentPage);
-  }, [currentPage, filters]);
+  // Create a debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setFilters({ search: value });
+    }, 300),
+    [setFilters]
+  );
+
+  // Create a debounced filter handler
+  const debouncedFilter = useCallback(
+    debounce((newFilters) => {
+      setFilters(newFilters);
+    }, 300),
+    [setFilters]
+  );
 
   const handleSearch = (e) => {
-    setFilters({ search: e.target.value });
+    const value = e.target.value;
+    setSearchInput(value); // Update local state immediately
+    debouncedSearch(value); // Debounce the filter update
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters({ [name]: value });
+    setFilterInputs(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    debouncedFilter({ ...filterInputs, [name]: value });
   };
+
+  // Update local inputs when filters change from outside
+  useEffect(() => {
+    setSearchInput(filters.search || '');
+    setFilterInputs({
+      category: filters.category || '',
+      minPrice: filters.minPrice || '',
+      maxPrice: filters.maxPrice || '',
+      size: filters.size || '',
+      color: filters.color || '',
+      material: filters.material || '',
+    });
+  }, [filters]);
+
+  useEffect(() => {
+    fetchProducts(currentPage);
+  }, [currentPage, filters]);
 
   const handlePageChange = (page) => {
     fetchProducts(page);
@@ -71,6 +116,18 @@ const Products = () => {
     } catch (error) {
       console.error('Failed to toggle featured status:', error);
     }
+  };
+
+  const handleResetFilters = () => {
+    setFilterInputs({
+      category: '',
+      minPrice: '',
+      maxPrice: '',
+      size: '',
+      color: '',
+      material: '',
+    });
+    resetFilters();
   };
 
   if (isLoading) {
@@ -124,7 +181,7 @@ const Products = () => {
               <input
                 type="text"
                 placeholder="Search products..."
-                value={filters.search}
+                value={searchInput}
                 onChange={handleSearch}
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -152,7 +209,7 @@ const Products = () => {
               <input
                 type="text"
                 name="category"
-                value={filters.category}
+                value={filterInputs.category}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -162,7 +219,7 @@ const Products = () => {
               <input
                 type="number"
                 name="minPrice"
-                value={filters.minPrice}
+                value={filterInputs.minPrice}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -172,7 +229,7 @@ const Products = () => {
               <input
                 type="number"
                 name="maxPrice"
-                value={filters.maxPrice}
+                value={filterInputs.maxPrice}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -182,7 +239,7 @@ const Products = () => {
               <input
                 type="text"
                 name="size"
-                value={filters.size}
+                value={filterInputs.size}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -192,7 +249,7 @@ const Products = () => {
               <input
                 type="text"
                 name="color"
-                value={filters.color}
+                value={filterInputs.color}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
@@ -202,14 +259,14 @@ const Products = () => {
               <input
                 type="text"
                 name="material"
-                value={filters.material}
+                value={filterInputs.material}
                 onChange={handleFilterChange}
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div className="md:col-span-3 flex justify-end gap-2">
               <button
-                onClick={resetFilters}
+                onClick={handleResetFilters}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Reset
