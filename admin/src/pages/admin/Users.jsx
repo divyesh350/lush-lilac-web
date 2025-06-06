@@ -13,7 +13,9 @@ const Users = () => {
     fetchUsers, 
     deleteUser,
     currentPage,
-    totalPages 
+    totalPages,
+    clearSelectedUser,
+    clearError
   } = useUserStore();
 
   const [showUserForm, setShowUserForm] = useState(false);
@@ -21,15 +23,21 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers(currentPage);
-  }, [fetchUsers, currentPage]);
+    // Clear any previous errors when component mounts
+    clearError();
+    return () => {
+      // Clear selected user when component unmounts
+      clearSelectedUser();
+    };
+  }, [fetchUsers, currentPage, clearError, clearSelectedUser]);
 
   const handleView = (id) => {
     // Implement view functionality if needed
     console.log('View user:', id);
   };
 
-  const handleEdit = (id) => {
-    setSelectedUser(id);
+  const handleEdit = (user) => {
+    setSelectedUser(user);
     setShowUserForm(true);
   };
 
@@ -37,6 +45,8 @@ const Users = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await deleteUser(id);
+        // Refresh the users list after deletion
+        fetchUsers(currentPage);
       } catch (error) {
         console.error('Error deleting user:', error);
       }
@@ -51,6 +61,26 @@ const Users = () => {
   const handlePageChange = (page) => {
     fetchUsers(page);
   };
+
+  const handleFormClose = () => {
+    setShowUserForm(false);
+    setSelectedUser(null);
+    clearSelectedUser();
+  };
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button
+          onClick={() => fetchUsers(currentPage)}
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -86,22 +116,16 @@ const Users = () => {
                   {selectedUser ? 'Edit User' : 'Add User'}
                 </h2>
                 <button
-                  onClick={() => {
-                    setShowUserForm(false);
-                    setSelectedUser(null);
-                  }}
+                  onClick={handleFormClose}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <RiCloseLine className="w-6 h-6" />
                 </button>
               </div>
               <UserForm
-                userId={selectedUser}
+                user={selectedUser}
                 isEditing={!!selectedUser}
-                onCancel={() => {
-                  setShowUserForm(false);
-                  setSelectedUser(null);
-                }}
+                onCancel={handleFormClose}
               />
             </div>
           </div>

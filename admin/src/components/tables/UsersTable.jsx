@@ -4,6 +4,7 @@ import BaseTable from './BaseTable';
 import TablePagination from './TablePagination';
 import TableToolbar from './TableToolbar';
 import useUserStore from '../../store/userStore';
+import toast from 'react-hot-toast';
 
 const UsersTable = ({
   users = [],
@@ -74,7 +75,7 @@ const UsersTable = ({
             <RiEyeLine />
           </button>
           <button
-            onClick={() => onEdit(row._id)}
+            onClick={() => onEdit(row)}
             className="p-1 text-gray-600 hover:text-primary"
             title="Edit User"
           >
@@ -130,7 +131,10 @@ const UsersTable = ({
       try {
         await Promise.all(selectedRows.map(id => deleteUser(id)));
         setSelectedRows([]);
+        toast.success('Selected users deleted successfully');
       } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Error deleting users';
+        toast.error(errorMessage);
         console.error('Error deleting users:', error);
       }
     }

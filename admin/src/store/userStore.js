@@ -11,14 +11,13 @@ const useUserStore = create((set, get) => ({
     currentPage: 1,
     totalPages: 1,
 
-    // Get all users
+    // Get all users (admin only)
     fetchUsers: async (page = 1) => {
         const userToast = toast.loading('Fetching users...');
         try {
             set({ loading: true, error: null });
             const response = await axiosInstance.get(`/users?page=${page}&limit=10`);
             
-            // Update to handle the correct response structure
             set({ 
                 users: response.data.data || [],
                 totalUsers: response.data.count || 0,
@@ -45,8 +44,13 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Get single user
+    // Get single user by ID (admin only)
     fetchUser: async (id) => {
+        if (!id) {
+            console.error('No user ID provided');
+            return;
+        }
+
         const userToast = toast.loading('Fetching user details...');
         try {
             set({ loading: true, error: null });
@@ -73,7 +77,7 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Create user
+    // Create user (admin only)
     createUser: async (data) => {
         const userToast = toast.loading('Creating user...');
         try {
@@ -100,8 +104,13 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Update user
+    // Update user by ID (admin only)
     updateUser: async (id, data) => {
+        if (!id) {
+            console.error('No user ID provided');
+            return;
+        }
+
         const userToast = toast.loading('Updating user...');
         try {
             set({ loading: true, error: null });
@@ -134,8 +143,13 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Delete user
+    // Delete user by ID (admin only)
     deleteUser: async (id) => {
+        if (!id) {
+            console.error('No user ID provided');
+            return;
+        }
+
         const userToast = toast.loading('Deleting user...');
         try {
             set({ loading: true, error: null });
@@ -164,8 +178,13 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Toggle user status
+    // Toggle user status (admin only)
     toggleUserStatus: async (userId, isActive) => {
+        if (!userId) {
+            console.error('No user ID provided');
+            return;
+        }
+
         const userToast = toast.loading('Updating user status...');
         try {
             set({ loading: true, error: null });

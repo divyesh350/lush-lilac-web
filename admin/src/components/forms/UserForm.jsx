@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import BaseForm from './BaseForm';
 import FormField from './FormField';
 import useUserStore from '../../store/userStore';
+import toast from 'react-hot-toast';
 
 const UserForm = ({
-  userId,
+  user,
   isEditing,
   onCancel,
 }) => {
   const { 
     selectedUser, 
-    fetchUserById, 
+    fetchUser, 
     updateUser, 
     createUser,
-    loading 
+    loading,
+    clearSelectedUser
   } = useUserStore();
 
   const [formData, setFormData] = useState({
@@ -26,10 +28,13 @@ const UserForm = ({
   });
 
   useEffect(() => {
-    if (isEditing && userId) {
-      fetchUserById(userId);
+    if (isEditing && user?._id) {
+      fetchUser(user._id);
     }
-  }, [isEditing, userId, fetchUserById]);
+    return () => {
+      clearSelectedUser();
+    };
+  }, [isEditing, user, fetchUser, clearSelectedUser]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -59,13 +64,17 @@ const UserForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (isEditing) {
-        await updateUser(userId, formData);
+      if (isEditing && user?._id) {
+        await updateUser(user._id, formData);
+        toast.success('User updated successfully');
       } else {
         await createUser(formData);
+        toast.success('User created successfully');
       }
       onCancel();
     } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Error saving user';
+      toast.error(errorMessage);
       console.error('Error saving user:', error);
     }
   };
@@ -93,7 +102,6 @@ const UserForm = ({
           type="email"
           value={formData.email}
           onChange={handleChange}
-          required
         />
 
         {!isEditing && (
