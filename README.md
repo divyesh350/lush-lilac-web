@@ -14,7 +14,7 @@ A full-stack e-commerce solution consisting of:
 
 #### Frontend (Client & Admin)
 - **Framework**: React 18 with Vite
-- **State Management**: Zustand + React Query
+- **State Management**: Zustand
 - **Styling**: 
   - Tailwind CSS
   - Styled Components
@@ -24,7 +24,6 @@ A full-stack e-commerce solution consisting of:
   - Chart.js (Enhanced Analytics)
   - React Icons
   - Material-UI v7
-- **Form Handling**: React Hook Form + Yup
 - **HTTP Client**: Axios
 - **Notifications**: React Hot Toast
 

@@ -9,12 +9,11 @@ A full-featured admin dashboard that serves as the central control hub for manag
 
 ### 🛠️ Technologies & Tools Used
 - **Frontend Framework**: React 18 with Vite
-- **State Management**: Zustand + React Query
+- **State Management**: Zustand
 - **Styling**: Tailwind CSS + Framer Motion
 - **Data Visualization**: Chart.js
 - **API Integration**: Axios
 - **Authentication**: JWT
-- **Form Handling**: React Hook Form + Yup
 - **UI Components**: Custom components with Tailwind
 - **Development Tools**: ESLint, Prettier, Git
 
