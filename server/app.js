@@ -28,7 +28,7 @@ app.use(cookieParser());
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://lush-lilac.vercel.app',
+  'https://lush-lilac-web.vercel.app',
   'https://lush-lilac-admin.vercel.app',
 ];
 
