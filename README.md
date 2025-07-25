@@ -21,7 +21,6 @@ A full-stack e-commerce solution consisting of:
   - Emotion
 - **UI/UX**:
   - Framer Motion
-  - Chart.js (Enhanced Analytics)
   - React Icons
   - Material-UI v7
 - **HTTP Client**: Axios
